@@ -6,10 +6,10 @@ import akka.actor.typed.{Behavior, PostStop, Signal}
 import vn.johu.persistence.MongoDb
 import vn.johu.utils.Logging
 
-class ApplicationInitializer(context: ActorContext[ApplicationInitializer.Command])
-  extends AbstractBehavior[ApplicationInitializer.Command] with Logging {
+class AppInitializer(context: ActorContext[AppInitializer.Command])
+  extends AbstractBehavior[AppInitializer.Command] with Logging {
 
-  import ApplicationInitializer._
+  import AppInitializer._
 
   override def onMessage(msg: Command): Behavior[Command] = {
     msg match {
@@ -27,13 +27,13 @@ class ApplicationInitializer(context: ActorContext[ApplicationInitializer.Comman
   }
 }
 
-object ApplicationInitializer {
+object AppInitializer {
 
   sealed trait Command
 
   case object InitSystem extends Command
 
   def apply(): Behavior[Command] = {
-    Behaviors.setup[Command](new ApplicationInitializer(_))
+    Behaviors.setup[Command](new AppInitializer(_))
   }
 }
