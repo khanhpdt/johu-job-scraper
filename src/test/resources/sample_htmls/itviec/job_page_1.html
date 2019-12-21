@@ -1,0 +1,2374 @@
+
+<!DOCTYPE html>
+<html lang='en' xml:lang='en' xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+    <meta content='en' http-equiv='content-language'>
+    <meta charset='utf-8'>
+    <script>window.NREUM||(NREUM={});NREUM.info={"beacon":"bam.nr-data.net","errorBeacon":"bam.nr-data.net","licenseKey":"a2159222e4","applicationID":"3826099","transactionName":"dQoIRERZCVVWQBhGAVcXBVgZXApbQA==","queueTime":0,"applicationTime":490,"agent":""}</script>
+    <script>(window.NREUM||(NREUM={})).loader_config={licenseKey:"a2159222e4",applicationID:"3826099"};window.NREUM||(NREUM={}),__nr_require=function(n,e,t){function r(t){if(!e[t]){var i=e[t]={exports:{}};n[t][0].call(i.exports,function(e){var i=n[t][1][e];return r(i||e)},i,i.exports)}return e[t].exports}if("function"==typeof __nr_require)return __nr_require;for(var i=0;i<t.length;i++)r(t[i]);return r}({1:[function(n,e,t){function r(){}function i(n,e,t){return function(){return o(n,[u.now()].concat(f(arguments)),e?null:this,t),e?void 0:this}}var o=n("handle"),a=n(4),f=n(5),c=n("ee").get("tracer"),u=n("loader"),s=NREUM;"undefined"==typeof window.newrelic&&(newrelic=s);var p=["setPageViewName","setCustomAttribute","setErrorHandler","finished","addToTrace","inlineHit","addRelease"],d="api-",l=d+"ixn-";a(p,function(n,e){s[e]=i(d+e,!0,"api")}),s.addPageAction=i(d+"addPageAction",!0),s.setCurrentRouteName=i(d+"routeName",!0),e.exports=newrelic,s.interaction=function(){return(new r).get()};var m=r.prototype={createTracer:function(n,e){var t={},r=this,i="function"==typeof e;return o(l+"tracer",[u.now(),n,t],r),function(){if(c.emit((i?"":"no-")+"fn-start",[u.now(),r,i],t),i)try{return e.apply(this,arguments)}catch(n){throw c.emit("fn-err",[arguments,this,n],t),n}finally{c.emit("fn-end",[u.now()],t)}}}};a("actionText,setName,setAttribute,save,ignore,onEnd,getContext,end,get".split(","),function(n,e){m[e]=i(l+e)}),newrelic.noticeError=function(n,e){"string"==typeof n&&(n=new Error(n)),o("err",[n,u.now(),!1,e])}},{}],2:[function(n,e,t){function r(n,e){var t=n.getEntries();t.forEach(function(n){"first-paint"===n.name?a("timing",["fp",Math.floor(n.startTime)]):"first-contentful-paint"===n.name&&a("timing",["fcp",Math.floor(n.startTime)])})}function i(n){if(n instanceof c&&!s){var e,t=Math.round(n.timeStamp);e=t>1e12?Date.now()-t:f.now()-t,s=!0,a("timing",["fi",t,{type:n.type,fid:e}])}}if(!("init"in NREUM&&"page_view_timing"in NREUM.init&&"enabled"in NREUM.init.page_view_timing&&NREUM.init.page_view_timing.enabled===!1)){var o,a=n("handle"),f=n("loader"),c=NREUM.o.EV;if("PerformanceObserver"in window&&"function"==typeof window.PerformanceObserver){o=new PerformanceObserver(r);try{o.observe({entryTypes:["paint"]})}catch(u){}}if("addEventListener"in document){var s=!1,p=["click","keydown","mousedown","pointerdown","touchstart"];p.forEach(function(n){document.addEventListener(n,i,!1)})}}},{}],3:[function(n,e,t){function r(n,e){if(!i)return!1;if(n!==i)return!1;if(!e)return!0;if(!o)return!1;for(var t=o.split("."),r=e.split("."),a=0;a<r.length;a++)if(r[a]!==t[a])return!1;return!0}var i=null,o=null,a=/Version\/(\S+)\s+Safari/;if(navigator.userAgent){var f=navigator.userAgent,c=f.match(a);c&&f.indexOf("Chrome")===-1&&f.indexOf("Chromium")===-1&&(i="Safari",o=c[1])}e.exports={agent:i,version:o,match:r}},{}],4:[function(n,e,t){function r(n,e){var t=[],r="",o=0;for(r in n)i.call(n,r)&&(t[o]=e(r,n[r]),o+=1);return t}var i=Object.prototype.hasOwnProperty;e.exports=r},{}],5:[function(n,e,t){function r(n,e,t){e||(e=0),"undefined"==typeof t&&(t=n?n.length:0);for(var r=-1,i=t-e||0,o=Array(i<0?0:i);++r<i;)o[r]=n[e+r];return o}e.exports=r},{}],6:[function(n,e,t){e.exports={exists:"undefined"!=typeof window.performance&&window.performance.timing&&"undefined"!=typeof window.performance.timing.navigationStart}},{}],ee:[function(n,e,t){function r(){}function i(n){function e(n){return n&&n instanceof r?n:n?c(n,f,o):o()}function t(t,r,i,o){if(!d.aborted||o){n&&n(t,r,i);for(var a=e(i),f=v(t),c=f.length,u=0;u<c;u++)f[u].apply(a,r);var p=s[y[t]];return p&&p.push([b,t,r,a]),a}}function l(n,e){h[n]=v(n).concat(e)}function m(n,e){var t=h[n];if(t)for(var r=0;r<t.length;r++)t[r]===e&&t.splice(r,1)}function v(n){return h[n]||[]}function g(n){return p[n]=p[n]||i(t)}function w(n,e){u(n,function(n,t){e=e||"feature",y[t]=e,e in s||(s[e]=[])})}var h={},y={},b={on:l,addEventListener:l,removeEventListener:m,emit:t,get:g,listeners:v,context:e,buffer:w,abort:a,aborted:!1};return b}function o(){return new r}function a(){(s.api||s.feature)&&(d.aborted=!0,s=d.backlog={})}var f="nr@context",c=n("gos"),u=n(4),s={},p={},d=e.exports=i();d.backlog=s},{}],gos:[function(n,e,t){function r(n,e,t){if(i.call(n,e))return n[e];var r=t();if(Object.defineProperty&&Object.keys)try{return Object.defineProperty(n,e,{value:r,writable:!0,enumerable:!1}),r}catch(o){}return n[e]=r,r}var i=Object.prototype.hasOwnProperty;e.exports=r},{}],handle:[function(n,e,t){function r(n,e,t,r){i.buffer([n],r),i.emit(n,e,t)}var i=n("ee").get("handle");e.exports=r,r.ee=i},{}],id:[function(n,e,t){function r(n){var e=typeof n;return!n||"object"!==e&&"function"!==e?-1:n===window?0:a(n,o,function(){return i++})}var i=1,o="nr@id",a=n("gos");e.exports=r},{}],loader:[function(n,e,t){function r(){if(!x++){var n=E.info=NREUM.info,e=l.getElementsByTagName("script")[0];if(setTimeout(s.abort,3e4),!(n&&n.licenseKey&&n.applicationID&&e))return s.abort();u(y,function(e,t){n[e]||(n[e]=t)}),c("mark",["onload",a()+E.offset],null,"api");var t=l.createElement("script");t.src="https://"+n.agent,e.parentNode.insertBefore(t,e)}}function i(){"complete"===l.readyState&&o()}function o(){c("mark",["domContent",a()+E.offset],null,"api")}function a(){return O.exists&&performance.now?Math.round(performance.now()):(f=Math.max((new Date).getTime(),f))-E.offset}var f=(new Date).getTime(),c=n("handle"),u=n(4),s=n("ee"),p=n(3),d=window,l=d.document,m="addEventListener",v="attachEvent",g=d.XMLHttpRequest,w=g&&g.prototype;NREUM.o={ST:setTimeout,SI:d.setImmediate,CT:clearTimeout,XHR:g,REQ:d.Request,EV:d.Event,PR:d.Promise,MO:d.MutationObserver};var h=""+location,y={beacon:"bam.nr-data.net",errorBeacon:"bam.nr-data.net",agent:"js-agent.newrelic.com/nr-1158.min.js"},b=g&&w&&w[m]&&!/CriOS/.test(navigator.userAgent),E=e.exports={offset:f,now:a,origin:h,features:{},xhrWrappable:b,userAgent:p};n(1),n(2),l[m]?(l[m]("DOMContentLoaded",o,!1),d[m]("load",r,!1)):(l[v]("onreadystatechange",i),d[v]("onload",r)),c("mark",["firstbyte",f],null,"api");var x=0,O=n(6)},{}],"wrap-function":[function(n,e,t){function r(n){return!(n&&n instanceof Function&&n.apply&&!n[a])}var i=n("ee"),o=n(5),a="nr@original",f=Object.prototype.hasOwnProperty,c=!1;e.exports=function(n,e){function t(n,e,t,i){function nrWrapper(){var r,a,f,c;try{a=this,r=o(arguments),f="function"==typeof t?t(r,a):t||{}}catch(u){d([u,"",[r,a,i],f])}s(e+"start",[r,a,i],f);try{return c=n.apply(a,r)}catch(p){throw s(e+"err",[r,a,p],f),p}finally{s(e+"end",[r,a,c],f)}}return r(n)?n:(e||(e=""),nrWrapper[a]=n,p(n,nrWrapper),nrWrapper)}function u(n,e,i,o){i||(i="");var a,f,c,u="-"===i.charAt(0);for(c=0;c<e.length;c++)f=e[c],a=n[f],r(a)||(n[f]=t(a,u?f+i:i,o,f))}function s(t,r,i){if(!c||e){var o=c;c=!0;try{n.emit(t,r,i,e)}catch(a){d([a,t,r,i])}c=o}}function p(n,e){if(Object.defineProperty&&Object.keys)try{var t=Object.keys(n);return t.forEach(function(t){Object.defineProperty(e,t,{get:function(){return n[t]},set:function(e){return n[t]=e,e}})}),e}catch(r){d([r])}for(var i in n)f.call(n,i)&&(e[i]=n[i]);return e}function d(e){try{n.emit("internal-error",e)}catch(t){}}return n||(n=i),t.inPlace=u,t.flag=a,t}},{}]},{},["loader"]);</script>
+    <meta content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <title>IT Jobs in Viet Nam Page 1 | ITviec</title>
+    <meta content='1097 top IT jobs for you in Viet Nam on ITviec.com, page 1. Leading companies, high salary. Get your new job now!' name='description'>
+    <meta content='1097 top IT jobs for you in Viet Nam on ITviec.com, page 1. Leading companies, high salary. Get your new job now!' property='og:description'>
+    <meta content='IT Jobs in Viet Nam Page 1 | ITviec' property='og:title'>
+
+
+    <meta content='https://itviec.com/it-jobs?page=1' property='og:url'>
+    <link href='https://itviec.com/it-jobs' rel='canonical'>
+    <link href='https://itviec.com/it-jobs' hreflang='en' rel='alternate'>
+    <link href='https://itviec.com/viec-lam-it' hreflang='vi-VN' rel='alternate'>
+    <link href='https://itviec.com/it-jobs?page=2' rel='next'>
+    <link href='https://itviec.com/it-jobs' rel='prev'>
+
+    <link as='font' crossorigin href='https://itviec.com/assets/ionicons/ionicons-2ba7f20b1d8990e17a47fe3d88e4c766628aaa2baf1dd30fca0a0db59836f5f9.ttf' rel='preload' type='font/ttf'>
+    <link as='font' crossorigin href='https://itviec.com/assets/google/roboto_condensed_v18_vietnamese_latin_latin-ext-regular-a6211f1400be78ad64995ab928393338f085bf30d2ca27e25dc576e6accb8851.woff2' rel='preload' type='font/woff2'>
+    <link as='font' crossorigin href='https://itviec.com/assets/google/roboto_v20_cyrillic_greek_vietnamese_latin_latin-ext_greek-ext_cyrillic-ext-regular-a7bf1f115e60e0c8f3b335df66d4d77baaae4eb11d2cea2cf7c5b4693403a46f.woff2' rel='preload' type='font/woff2'>
+
+    <link href='/apple-touch-icon-152x152.png' rel='apple-touch-icon' sizes='152x152'>
+    <link href='/apple-touch-icon-57x57.png' rel='apple-touch-icon' sizes='57x57'>
+    <link href='/apple-touch-icon-114x114.png' rel='apple-touch-icon' sizes='114x114'>
+    <link href='/apple-touch-icon-72x72.png' rel='apple-touch-icon' sizes='72x72'>
+    <link href='/apple-touch-icon-144x144.png' rel='apple-touch-icon' sizes='144x144'>
+    <link href='/apple-touch-icon-60x60.png' rel='apple-touch-icon' sizes='60x60'>
+    <link href='/apple-touch-icon-120x120.png' rel='apple-touch-icon' sizes='120x120'>
+    <link href='/apple-touch-icon-76x76.png' rel='apple-touch-icon' sizes='76x76'>
+    <link href='/apple-touch-icon-152x152.png' rel='apple-touch-icon' sizes='152x152'>
+    <link href='/favicon-196x196.png' rel='icon' sizes='196x196' type='image/png'>
+    <link href='/favicon-160x160.png' rel='icon' sizes='160x160' type='image/png'>
+    <link href='/favicon-96x96.png' rel='icon' sizes='96x96' type='image/png'>
+    <link href='/favicon-16x16.png' rel='icon' sizes='16x16' type='image/png'>
+    <link href='/favicon-32x32.png' rel='icon' sizes='32x32' type='image/png'>
+    <meta content='#000000' name='msapplication-TileColor'>
+    <meta content='/mstile-144x144.png' name='msapplication-TileImage'>
+
+    <meta name="csrf-param" content="authenticity_token" />
+    <meta name="csrf-token" content="LOX9Ig9MtKKgZ106Pk6fPECjST9apuOUjap+EQNQfQiaVaTPH/IULAuPvveX0/YqMYykXfrHDDBrI8QQwQioFA==" />
+    <meta name="tracking-token" content="a98379174c1ebbc46a85b41c3123f91d04e285e8693b3eb5a7eba7ce111ef64993cafbb931d66f86c45333b76a798d39472ccf964015e9f447e1c97d9afad601" />
+    <meta name="tracking-url" content="https://tracking.itviec.com" />
+    <meta name="google-signin-client_id" content="854148892592-ojr6qf0k1bqbm0fm5ohgt7ep8bbiv1sn.apps.googleusercontent.com" />
+    <meta name="utm-tracking-params" content="" />
+    <link rel="stylesheet" media="all" href="https://itviec.com/assets/application-08c0ecec01a84816718002d87aceee44f1c50036a7ee567de5cdb8180c672cd6.css" />
+    <link rel="stylesheet" media="all" href="https://itviec.com/packs/css/application-2e51cdbe.css" />
+    <style>
+  .preload_image { display: none; }
+</style>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-42033311-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    <script async='' src='//rum-static.pingdom.net/pa-56790d9babe53d8f34be63f8.js'></script>
+
+</head>
+<body class='search_jobs' data-env='production'>
+<!-- Google Tag Manager -->
+<noscript>
+    <iframe height='0' src='//www.googletagmanager.com/ns.html?id=GTM-5DSLL8' style='display:none;visibility:hidden' width='0'></iframe>
+</noscript>
+<script>
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5DSLL8');
+</script>
+<!-- End Google Tag Manager -->
+
+<div id='container'>
+    <div class='pageHeader'>
+        <div class='page-header__inner'>
+            <nav class='pageMenu default-navbar'>
+                <div class='container-fluid'>
+                    <div class='pageMenu__header'>
+                        <button class='pageMenu__toggle' data-target='#pageMenuToggle' data-toggle='collapse' type='button'>
+                            <div class='pageMenu__toggleContent'>
+                                <span class='icon-bar'></span>
+                                <span class='icon-bar'></span>
+                                <span class='icon-bar'></span>
+                            </div>
+                        </button>
+                        <a class="pageMenu__logo" data-controller="utm-tracking" href="/"><img class="logo-itviec" alt="itviec" src="https://itviec.com/assets/logo-itviec-65afac80e92140efa459545bc1c042ff4275f8f197535f147ed7614c2000ab0f.png" width="108" height="42" />
+                        </a><div class='user-menu visible-xs'>
+                        <div class='pageMenu__headerItem'>
+                            <a class="pageMenu__headerLink" data-toggle="modal" data-target="#sign-in-modal" href="">Sign In</a>
+                        </div>
+                    </div>
+                    </div>
+                    <div class='pageMenu__body collapse' id='pageMenuToggle'>
+                        <ul class='pageMenu__itemList pageMenu__itemList--right pageMenu__not_signed_in'>
+                            <li class='pageMenu__item'>
+                                <a data-controller="utm-tracking" href="/it-jobs">All Jobs</a>
+                            </li>
+                            <li class='pageMenu__item hover-dropdown visible-xs'>
+                                <a data-controller="utm-tracking" href="/best-it-companies-2019"><i class="fa fa-star"></i> 2019 Best IT Companies</a>
+                            </li>
+                            <li class='pageMenu__item visible-xs'>
+                                <a data-controller="utm-tracking" href="/companies/search-companies">Company Reviews</a>
+                            </li>
+                            <li class='pageMenu__item dropdown hidden-xs' id='companies-dropdown'>
+                                <a aria-expanded='false' class='dropdown-toggle' data-toggle='dropdown' href='' role='button'>
+                                    IT Companies
+                                    <span class='caret dropdown-toggle__caret'></span>
+                                </a>
+                                <div class='dropdown-menu'>
+                                    <div class='hover-dropdown__content--item dropdown-menu__item--desktop'>
+                                        <a class="dropdown-menu__link--desktop" data-controller="utm-tracking" href="/best-it-companies-2019"><i class="fa fa-star"></i> 2019 Best IT Companies</a>
+                                    </div>
+                                    <div class='hover-dropdown__content--item dropdown-menu__item--desktop'>
+                                        <a class="dropdown-menu__link--desktop" data-controller="utm-tracking" href="/companies/search-companies">Company Reviews</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class='pageMenu__item'>
+                                <a target="_blank" href="https://itviec.com/blog/">Blog</a>
+                            </li>
+                            <li class='pageMenu__item hidden-xs'>
+                                <a class="pageMenu__link" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign In</a>
+                            </li>
+                            <li class='pageMenu__item pageMenu__language'>
+                                <div class='switch-toggle well'>
+                                    <input checked id='en' name='language' type='radio'>
+                                    <label class='change-language' for='en'>EN</label>
+                                    </input>
+                                    <input id='vn' name='language' type='radio'>
+                                    <label class='change-language' for='vn'>VN</label>
+                                    </input>
+                                    <a class='btn btn-default'></a>
+                                </div>
+                            </li>
+                            <li class='pageMenu__item'>
+                                <a href="/post_jobs">Employers</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+        </div>
+
+
+    </div>
+    <div class='hidden-xs' id='scrolltop'>
+        <div class='top-arrow'></div>
+    </div>
+    <meta name="robots" content="index, follow" />
+
+    <div class='search-header'>
+        <div class='search-form-wrapper clearfix'>
+            <form id="search_form" class="search-form" action="/it-jobs" accept-charset="UTF-8" method="get"><input name="utf8" type="hidden" value="&#x2713;" />
+                <div class='search_section_wrapper no_header'>
+                    <div class='search_text_wrapper'>
+                        <div class='ion-ios-search'></div>
+                        <div class='search_field_wrapper'>
+                            <input type="text" name="query" id="search_text" value="" class="search_text hide" />
+                        </div>
+                    </div>
+                </div>
+                <div class='city_section_wrapper'>
+                    <div class='city_select_wrapper'>
+                        <div class='ion-ios-location-outline'></div>
+                        <div class='city_field_wrapper'>
+                            <select name="city" id="city" class="search_city hide" data-cities="{&quot;ho-chi-minh-hcm&quot;:&quot;Ho Chi Minh&quot;,&quot;ha-noi&quot;:&quot;Ha Noi&quot;,&quot;da-nang&quot;:&quot;Da Nang&quot;,&quot;others&quot;:&quot;Others&quot;}" data-preload="false"><option value="">City</option><option value="ho-chi-minh-hcm">Ho Chi Minh</option>
+                                <option value="ha-noi">Ha Noi</option>
+                                <option value="da-nang">Da Nang</option>
+                                <option value="others">Others</option></select>
+                        </div>
+                    </div>
+                </div>
+                <div class='search_button_wrapper'>
+                    <input type="submit" name="commit" value="Search" class="search_button button-red left" data-disable-with="Search" />
+                </div>
+            </form>
+
+        </div>
+
+
+    </div>
+    <div class='search main-content search-jobs' id='search-results'>
+        <div class='right side-content stickybar hidden-xs hidden-sm' id='right_side'>
+            <h3>Company Spotlight</h3>
+            <div class='inside'>
+                <!-- Last updated: "2019-12-21 12:12:23 +0700"-->
+                <div class='photos'>
+                    <div class='headline-photo'>
+                        <img alt='Sun* Inc. Headline Photo' class='lazyload' data-src='https://cdn.itviec.com/photos/39451/tiny_headline_photo/sun-inc-tiny_headline_photo.jpg?b5jDZqsxpPgPErFGEY13SeVY' size='256x125'>
+                    </div>
+                    <div class='logo'>
+                        <img class='lazyload' data-src='https://cdn.itviec.com/employers/sun-inc/logo/s65/cDcdNbGCaVV5xgnmz8Vfv4ed/framgia-inc-logo.jpg' size='68x68'>
+                    </div>
+                    <div class='info'>
+<span class='name'>
+Sun* Inc.
+</span>
+                        <span class='city'>
+Ha Noi
+</span>
+                        <p>Digital Creative Studio With Top 1% Talent In Asia</p>
+                    </div>
+                    <a class="mkt-track link" data-controller="utm-tracking" rel="nofollow" data-method="PUT" href="/companies/sun-inc?track_action=Click+Branding"></a>
+                </div>
+                <div class='border-around'>
+                    <div class='jobs'>
+                        <div class='job'>
+                            <a data-controller="utm-tracking" href="/it-jobs/05-php-laravel-codeigniter-javascript-sun-inc-4014">05 PHP (Laravel/CodeIgniter/JavaScript)</a>
+                        </div>
+                        <div class='job'>
+                            <a data-controller="utm-tracking" href="/it-jobs/front-end-dev-angular-reactjs-vuejs-sun-inc-0225">Front-end Dev (Angular/ReactJS/VueJS)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class='col-xs-12' id='jobs'>
+            <h1>
+                1,097 IT jobs in Vietnam for you
+            </h1>
+            <div class='first-group'>
+                <div class='job' id='job_61076'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 15:34:05 +0700"-->
+                            <div class='logo-wrapper' title='CIMB Bank Vietnam'>
+                                <a target="_blank" href="/companies/cimb-bank-vietnam"><img alt='CIMB Bank Vietnam Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/cimb-bank-vietnam/logo/s65/7GGjQgrGyXiLdGCQrhhaHJZ6/Asset%202@5x.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/app-it-support-system-admin-linux-cimb-bank-vietnam-0045">Digital Core Banking System Expert</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Job Purpose *  Applications problem resolution for all Vietnam users by performing question/problem diagnosis and guiding users through step-by-step...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/it-support"><span>
+IT Support
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/system-admin"><span>
+System Admin
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/linux"><span>
+Linux
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        District 3
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+1 minute ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61095'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 15:28:36 +0700"-->
+                            <div class='logo-wrapper' title='Công ty TNHH InfoPlus'>
+                                <a target="_blank" href="/companies/infoplus"><img alt='InfoPlus Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/infoplus/logo/s65/SicnHseD8a7FA8QNpj2DwYvh/cong-ty-tnhh-infoplus-logo.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/java-dev-corebanking-oop-infoplus-1743">Firmbanking Java Dev (CoreBanking, OOP)</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        ▶ Triển khai các ứng dụng trên nền tảng Java theo yêu cầu của khách hàng; ▶ Tham gia vào quá trình phân tích, thiết kế, phát triển và bảo trì hệ thống;...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ha Noi</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/java"><span>
+Java
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/oop"><span>
+OOP
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ha Noi
+                                    </div>
+                                    <div class='text other-address'>
+                                        Cau Giay
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+5 minutes ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61112'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 15:28:36 +0700"-->
+                            <div class='logo-wrapper' title='Let’s Challenge Together! And Update Yourself!'>
+                                <a target="_blank" href="/companies/panasonic-vietnam-group-panasonic-r-d-center-vietnam-prdcv"><img alt='Panasonic Vietnam Group – Panasonic R&amp;D Center Vietnam (PRDCV) Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/panasonic-vietnam-group-panasonic-r-d-center-vietnam-prdcv/logo/s65/p38YCDhZvR7GtwD1gFLUfP7Q/panasonic-vietnam-group-logo.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/hot-job-02-simulink-engineer-c-c-panasonic-vietnam-group-panasonic-r-d-center-vietnam-prdcv-5636">[HOT JOB] 02 Simulink Engineer - C/C++</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Company: Panasonic R&amp;D Center Vietnam - Belonging to Panasonic Vietnam Group  Location: 17th Floor, East Tower, Lotte Center Hanoi, 54 Lieu Giai...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ha Noi</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/embedded"><span>
+Embedded
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/c++"><span>
+C++
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/c-language"><span>
+C language
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ha Noi
+                                    </div>
+                                    <div class='text other-address'>
+                                        Ba Dinh
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+5 minutes ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job super-hot-job' id='job_61472'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 14:23:29 +0700"-->
+                            <div class='logo-wrapper' title='Stringee - Tech Startup, dẫn đầu về phát triển nền tảng Communication APIs tại Việt Nam'>
+                                <a target="_blank" href="/companies/stringee"><img alt='Stringee Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/stringee/logo/s65/M8EZ39qavzvPJCrzPY5j85Jg/stringee-headline_photo-01.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/php-developer-1000-1500-stringee-2210">PHP Developer (1000$-1500$)</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+                                        <ul class='benefits'>
+                                            <li>
+                                                Competitive Salary and Benefit
+                                            </li>
+                                            <li>
+                                                Multinational  Environment
+                                            </li>
+                                            <li>
+                                                Could on job after Tet holiday
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Phỏng vấn ngay, có thể đi làm sau tết. - Chịu trách nhiệm nghiên cứu &amp; phát triển các sản phẩm Web sử dụng ngôn ngữ/công nghệ: PHP, JavaScript,...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ha Noi</div>
+                                        </div>
+                                        <ul class='benefits'>
+                                            <li>
+                                                Competitive Salary and Benefit
+                                            </li>
+                                            <li>
+                                                Multinational  Environment
+                                            </li>
+                                            <li>
+                                                Could on job after Tet holiday
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/javascript"><span>
+JavaScript
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/php"><span>
+PHP
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ha Noi
+                                    </div>
+                                    <div class='text other-address'>
+                                        Nam Tu Liem
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+1 hour ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61110'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 14:10:55 +0700"-->
+                            <div class='logo-wrapper' title='TrophyRoom is a social football game and entertainment app for lovers of the sport'>
+                                <a target="_blank" href="/companies/trophyroom"><img alt='TrophyRoom Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/trophyroom/logo/s65/vupBfiGrELUbAmYBSFHKVHpC/Screenshot_14.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/senior-android-developer-kotlin-trophyroom-1016">Senior Android Developer (Kotlin)</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        We’re looking for a true tech junkie to help us build the foundation of our tech team in Ho Chi Minh City / Saigon. You will be at the center of the...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/kotlin"><span>
+Kotlin
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/android"><span>
+Android
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/games"><span>
+Games
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        District 1
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+1 hour ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job super-hot-job' id='job_61101'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 13:48:26 +0700"-->
+                            <div class='logo-wrapper' title='Athena Studio (http://www.athena.studio) - Playful workplace of smart and creative talent'>
+                                <a target="_blank" href="/companies/athena-studio"><img alt='Athena Studio Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/athena-studio/logo/s65/XTqfS5yv4GzEh9a1dYzVJzzh/Logo1.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/game-artist-athena-studio-5506">Game Artist</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+                                        <ul class='benefits'>
+                                            <li>
+                                                Macbook Pro &amp; Extra Screen
+                                            </li>
+                                            <li>
+                                                Extremely Experienced Mentor
+                                            </li>
+                                            <li>
+                                                Company Trip 4-5*, Gym, Yoga..
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Design high quality 2D/3D game assets such as: logo, backgrounds, characters, buttons, textures, text, UX/UI layout,…  Support design for advertising...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+                                        <ul class='benefits'>
+                                            <li>
+                                                Macbook Pro &amp; Extra Screen
+                                            </li>
+                                            <li>
+                                                Extremely Experienced Mentor
+                                            </li>
+                                            <li>
+                                                Company Trip 4-5*, Gym, Yoga..
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/ui-ux"><span>
+UI-UX
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/games"><span>
+Games
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/designer"><span>
+Designer
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        Phu Nhuan
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+1 hour ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61102'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 13:48:26 +0700"-->
+                            <div class='logo-wrapper' title='Athena Studio (http://www.athena.studio) - Playful workplace of smart and creative talent'>
+                                <a target="_blank" href="/companies/athena-studio"><img alt='Athena Studio Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/athena-studio/logo/s65/XTqfS5yv4GzEh9a1dYzVJzzh/Logo1.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/game-designer-athena-studio-0335">Game Designer</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        We are looking for talented game designer who passion for casual, puzzle and arcade game genre. She/he will working with awesome team members...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/designer"><span>
+Designer
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/ui-ux"><span>
+UI-UX
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/games"><span>
+Games
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        Phu Nhuan
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+1 hour ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61103'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 13:48:26 +0700"-->
+                            <div class='logo-wrapper' title='Athena Studio (http://www.athena.studio) - Playful workplace of smart and creative talent'>
+                                <a target="_blank" href="/companies/athena-studio"><img alt='Athena Studio Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/athena-studio/logo/s65/XTqfS5yv4GzEh9a1dYzVJzzh/Logo1.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/senior-game-tester-athena-studio-0443">Senior Game Tester</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        1. OVERALL JOB RESPONSIBILITY  We are looking for a QA Tester to assess software quality through manual testing. You will be responsible for finding and...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/games"><span>
+Games
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/tester"><span>
+Tester
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/qa-qc"><span>
+QA QC
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        Phu Nhuan
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+1 hour ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61107'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 13:47:49 +0700"-->
+                            <div class='logo-wrapper' title='We provide IT solutions by developing software platform for business operation.'>
+                                <a target="_blank" href="/companies/code88-company-limited"><img alt='CODE88 COMPANY LIMITED Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/code88-company-limited/logo/s65/94uRFsx1A9w1fwEHnNzeQYVn/code88-company-limited-logo.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/urgent-20-java-web-developers-code88-company-limited-4709">URGENT - 20 Java Web Developers</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        I. Job Purpose    Perform development activities to build new and maintain existing WEB-based software systems using Java Frameworks, Font-end...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/java"><span>
+Java
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/javascript"><span>
+JavaScript
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/spring"><span>
+Spring
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        Tan Binh
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+1 hour ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61104'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 13:48:26 +0700"-->
+                            <div class='logo-wrapper' title='Athena Studio (http://www.athena.studio) - Playful workplace of smart and creative talent'>
+                                <a target="_blank" href="/companies/athena-studio"><img alt='Athena Studio Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/athena-studio/logo/s65/XTqfS5yv4GzEh9a1dYzVJzzh/Logo1.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/senior-mobile-games-dev-cocos2dx-unity-athena-studio-0525">Senior Mobile Games Dev (Cocos2dx,Unity)</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Come on board and develop 5-star products for millions of players around the world. What are you waiting for? As a senior game developer here, you’ll...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/csharp"><span>
+C#
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/unity"><span>
+Unity
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/c++"><span>
+C++
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        Phu Nhuan
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+1 hour ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job super-hot-job' id='job_61100'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 15:10:03 +0700"-->
+                            <div class='logo-wrapper' title='Vintech JSC is the technology arm of Vingroup Joint Stock Company (Vingroup)'>
+                                <a target="_blank" href="/companies/vintech-jsc"><img alt='Vintech JSC Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/vintech-jsc/logo/s65/sQwozpGVjNGGtvewyVoPL49a/Screen%20Shot%202019-07-30%20at%2011.08.25%20AM.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/hms-front-end-developer-vintech-jsc-5241">[HMS] Front End Developer</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+                                        <ul class='benefits'>
+                                            <li>
+                                                Work with iconic IT projects a
+                                            </li>
+                                            <li>
+                                                Be part of a high-performing,
+                                            </li>
+                                            <li>
+                                                Work with the brightest minds
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        We are looking for a great Front-End developer who is proficient with React.js. Your primary focus will be on developing user interface components and...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+                                        <ul class='benefits'>
+                                            <li>
+                                                Work with iconic IT projects a
+                                            </li>
+                                            <li>
+                                                Be part of a high-performing,
+                                            </li>
+                                            <li>
+                                                Work with the brightest minds
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/javascript"><span>
+JavaScript
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/reactjs"><span>
+ReactJS
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/ui-ux"><span>
+UI-UX
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        District 4
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+3 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61097'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 11:20:56 +0700"-->
+                            <div class='logo-wrapper' title='SSI – A leading Financial Corporation'>
+                                <a target="_blank" href="/companies/ssi-securities-corporation"><img alt='SSI Securities Corporation Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/ssi-securities-corporation/logo/s65/Beg2pA61C9UngHgHznmvRA6i/saigon-securities-inc-logo.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/06-business-analyst-ssi-securities-corporation-2039">06 Business Analyst</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        - Explore global securities trading industry to understand the trend of technology which can apply to company business development   - Make proper...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ha Noi</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/business-analyst"><span>
+Business Analyst
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/english"><span>
+English
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/project-manager"><span>
+Project Manager
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ha Noi
+                                    </div>
+                                    <div class='text other-address'>
+                                        Hoan Kiem
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+4 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61096'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 11:20:56 +0700"-->
+                            <div class='logo-wrapper' title='SSI – A leading Financial Corporation'>
+                                <a target="_blank" href="/companies/ssi-securities-corporation"><img alt='SSI Securities Corporation Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/ssi-securities-corporation/logo/s65/Beg2pA61C9UngHgHznmvRA6i/saigon-securities-inc-logo.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/net-developers-asp-net-html5-ssi-securities-corporation-1805">.Net Developers (ASP.NET, HTML5)</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Thu thập yêu cầu chi tiết từ các bộ phận và chuẩn bị tài liệu đặc tả. Phát triển ứng dụng theo tài liệu đặc tả yêu cầu. Chuẩn bị tài liệu dùng cho việc...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ha Noi</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/.net"><span>
+.NET
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/html5"><span>
+HTML5
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/asp.net"><span>
+ASP.NET
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ha Noi
+                                    </div>
+                                    <div class='text other-address'>
+                                        Hoan Kiem
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+4 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job super-hot-job' id='job_61460'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 14:33:30 +0700"-->
+                            <div class='logo-wrapper' title=' Là đơn vị cung ứng - tư vấn các giải pháp và dịch vụ công nghệ thông tin và truyền thông'>
+                                <a target="_blank" href="/companies/tri-nam-tdi-jsc"><img alt='Tri Nam TDI.,JSC Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/tri-nam-tdi-jsc/logo/s65/1iUaVLbERFpZF8Tk8Y4NdSJ9/tri-nam-tdi-jsc-logo.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/net-developer-asp-net-sql-tri-nam-tdi-jsc-1830">.NET Developer (ASP.NET, SQL)</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+                                        <ul class='benefits'>
+                                            <li>
+                                                Lương hấp dẫn cạnh tranh
+                                            </li>
+                                            <li>
+                                                Cơ hội thăng tiến cực cao
+                                            </li>
+                                            <li>
+                                                Đào tạo chuyên nghiệp
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Tham gia phát triển các hệ thống lớn và rất lớn theo yêu cầu của Công ty Tham gia nghiên cứu, học tập và làm chủ các công nghệ mới: AI, Blockchain, Big...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ha Noi</div>
+                                        </div>
+                                        <ul class='benefits'>
+                                            <li>
+                                                Lương hấp dẫn cạnh tranh
+                                            </li>
+                                            <li>
+                                                Cơ hội thăng tiến cực cao
+                                            </li>
+                                            <li>
+                                                Đào tạo chuyên nghiệp
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/sql"><span>
+SQL
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/asp.net"><span>
+ASP.NET
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/.net"><span>
+.NET
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ha Noi
+                                    </div>
+                                    <div class='text other-address'>
+                                        Cau Giay
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+4 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job super-hot-job' id='job_61094'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 11:07:29 +0700"-->
+                            <div class='logo-wrapper' title='Judge.me - a profitable and fast growing SaaS company'>
+                                <a target="_blank" href="/companies/judge-me"><img alt='Judge.me Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/judge-me/logo/s65/CiHL3d9bwVpLCF3LXnX7k3Un/judge-me-logo.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/customer-support-ecommerce-app-judge-me-0420">Customer Support: Ecommerce App</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+                                        <ul class='benefits'>
+                                            <li>
+                                                International Team
+                                            </li>
+                                            <li>
+                                                Medical Insurance
+                                            </li>
+                                            <li>
+                                                30 paid leave days
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Provide installation/on boarding help for new Judge.me users Answer questions about Judge.me app features/settings Improve our users’ stores by...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+                                        <ul class='benefits'>
+                                            <li>
+                                                International Team
+                                            </li>
+                                            <li>
+                                                Medical Insurance
+                                            </li>
+                                            <li>
+                                                30 paid leave days
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/html5"><span>
+HTML5
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/css"><span>
+CSS
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/javascript"><span>
+JavaScript
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        District 1
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+4 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_60948'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 14:34:14 +0700"-->
+                            <div class='logo-wrapper' title='Công Ty TNHH Thương Mại Công Nghệ Thái Bình'>
+                                <a target="_blank" href="/companies/pacific-technology"><img alt='Pacific Technology Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/pacific-technology/logo/s65/hHH9hUbVPfmWqd1nWrvt9MF9/pacific-technology-logo.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/5-net-developers-c-asp-net-pacific-technology-4711">Jr. NET Developers (C#/ ASP.NET) 1-2 yrs</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Làm việc tại văn phòng Công ty DHL VNPT (HCM)   www.dhl.com.vn  Có thể đọc và hiểu được thiết kế thực hiện tài liệu. Tạo đơn vị kiểm tra, duy trì và...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/.net"><span>
+.NET
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/csharp"><span>
+C#
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/sql"><span>
+SQL
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        Tan Binh
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+4 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_60921'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 10:17:14 +0700"-->
+                            <div class='logo-wrapper' title='PN Informatics'>
+                                <a target="_blank" href="/companies/cong-ty-tnhh-mtv-cong-nghe-tin-hoc-phuc-nguyen"><img alt='Công Ty TNHH MTV Công nghệ Tin học Phúc Nguyên Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/cong-ty-tnhh-mtv-cong-nghe-tin-hoc-phuc-nguyen/logo/s65/neiJpCLhCiz5D32LiRP42kr7/logonew.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/junior-python-web-developer-sql-aws-cong-ty-tnhh-mtv-cong-nghe-tin-hoc-phuc-nguyen-0417">Junior Python Web Developer (SQL, AWS)</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Make sure that applications are continuously delivered with requested level of quality Work closely with US team to ensure the product uptime Understand...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/python"><span>
+Python
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/sql"><span>
+SQL
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/agile"><span>
+Agile
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        Binh Thanh
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+5 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61089'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 13:21:06 +0700"-->
+                            <div class='logo-wrapper' title='Partner with Forix - A U.S. based web design &amp; development firm in Vietnam'>
+                                <a target="_blank" href="/companies/web-sai-gon"><img alt='Web Sai Gon Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/web-sai-gon/logo/s65/3kUpvesusuDufDGq43Kv88yZ/web-sai-gon-logo.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/magento-developer-web-sai-gon-0912">Magento Developer</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        Forix (Web Sai Gon) will be the best place for you to improve &amp; develop technical skills, specially in Magento. Because we focus on developing...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ho Chi Minh</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/magento"><span>
+Magento
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/mvc"><span>
+MVC
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/php"><span>
+PHP
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ho Chi Minh
+                                    </div>
+                                    <div class='text other-address'>
+                                        Phu Nhuan
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+5 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61449'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 10:01:34 +0700"-->
+                            <div class='logo-wrapper' title='The Employer of Choice'>
+                                <a target="_blank" href="/companies/niteco-vietnam-co-ltd"><img alt='Niteco Vietnam Co., Ltd Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/niteco-vietnam-co-ltd/logo/s65/1u3fEfx2CgLksY27ZXh6y1Uq/niteco-vietnam-co-ltd-logo.png' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/03-service-desk-analysts-niteco-vietnam-co-ltd-1139">03 Service Desk Analysts</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        This role provides first point of contact for Clients seeking technical assistance and support in maintaning their websites and system. The role must be...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ha Noi</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/it-support"><span>
+IT Support
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/english"><span>
+English
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ha Noi
+                                    </div>
+                                    <div class='text other-address'>
+                                        Dong Da
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+5 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='job' id='job_61414'>
+                    <div class='job_content'>
+                        <div class='logo'>
+                            <!-- Last updated: "2019-12-21 10:02:45 +0700"-->
+                            <div class='logo-wrapper' title='PiraGo - Turn ideas into Reality, together !'>
+                                <a target="_blank" href="/companies/pirago"><img alt='PIRAGO Vietnam Small Logo' class='lazyload' data-src='https://cdn.itviec.com/employers/pirago/logo/s65/cXdFXvT7jCrhGyC5FBEijkwy/cong-ty-tnhh-pirago-vi-t-nam-logo.jpg' size='65x65'>
+                                </a></div>
+                            <div class='clearfix'></div>
+                        </div>
+                        <div class='job__description'>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <h2 class="title"><a target="_blank" data-controller="utm-tracking" href="/it-jobs/php-dev-laravel-reactjs-di-lam-sau-tet-pirago-0850">PHP Dev (Laravel,ReactJS) ĐI LÀM SAU TẾT</a>
+                                    </h2><div class='salary not-signed-in'>
+<span class='salary-icon-stack'>
+<i class='ion-ios-circle-outline'></i>
+<i class='ion-social-usd'></i>
+</span>
+
+                                    <a class="view-salary" data-toggle="modal" data-target="#sign-in-modal" rel="nofollow" href="">Sign in to view</a>
+                                    <div class='address__arrow'></div>
+                                </div>
+
+
+                                    <div class='hidden-xs'>
+
+                                    </div>
+                                    <div class='description hidden-xs'>
+                                        + Tham gia phát triển các ứng dụng, nâng cấp và triển khai các sản phẩm phần mềm theo xu hướng công nghệ và theo yêu cầu khách hàng trên các nền tảng...
+                                    </div>
+                                    <div class='visible-xs'>
+                                        <div class='city'>
+                                            <div class="text">Ha Noi</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='job-bottom'>
+                                <div class='tag-list'>
+                                    <a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/php"><span>
+PHP
+</span>
+                                    </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/laravel"><span>
+Laravel
+</span>
+                                </a><a class="job__skill ilabel mkt-track" data-controller="utm-tracking" href="/it-jobs/reactjs"><span>
+ReactJS
+</span>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date hidden-xs'>
+                            <div class="feature new text" title="This job is urgent. Apply today!">Hot Job</div>
+                            <div class='city'>
+                                <div class='address'>
+                                    <div class='text'>
+                                        Ha Noi
+                                    </div>
+                                    <div class='text other-address'>
+                                        Thanh Xuan
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='distance-time-job-posted'>
+<span class='distance-time highlight'>
+5 hours ago
+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div id='show-more-wrapper'>
+                <div id='show_more'>
+                    <a class="more-jobs-link " data-is-company="false" rel="next" data-remote="true" href="https://itviec.com/it-jobs?page=2">Show More Jobs</a>
+                </div>
+                <a class="seo hidden" rel="prev" href="https://itviec.com/it-jobs"></a>
+
+            </div>
+            <div id='job-suggestion-wrapper'>
+            </div>
+            <div class='clearfix'></div>
+        </div>
+
+        <div class='line-spotlight visible-xs visible-sm'></div>
+        <div class='company-spotlight container-fluid visible-xs visible-sm'>
+            <div class='row'>
+                <div class='col-xs-12'>
+                    <h3>Company Spotlight</h3>
+                    <div class='inside'>
+                        <!-- Last updated: "2019-12-21 12:12:23 +0700"-->
+                        <div class='photos'>
+                            <div class='headline-photo'>
+                                <img alt='Sun* Inc. Headline Photo' class='lazyload' data-src='https://cdn.itviec.com/photos/39451/tiny_headline_photo/sun-inc-tiny_headline_photo.jpg?b5jDZqsxpPgPErFGEY13SeVY' size='256x125'>
+                            </div>
+                            <div class='logo'>
+                                <img class='lazyload' data-src='https://cdn.itviec.com/employers/sun-inc/logo/s65/cDcdNbGCaVV5xgnmz8Vfv4ed/framgia-inc-logo.jpg' size='68x68'>
+                            </div>
+                            <div class='info'>
+<span class='name'>
+Sun* Inc.
+</span>
+                                <span class='city'>
+Ha Noi
+</span>
+                                <p>Digital Creative Studio With Top 1% Talent In Asia</p>
+                            </div>
+                            <a class="mkt-track link" data-controller="utm-tracking" rel="nofollow" data-method="PUT" href="/companies/sun-inc?track_action=Click+Branding"></a>
+                        </div>
+                        <div class='border-around'>
+                            <div class='jobs'>
+                                <div class='job'>
+                                    <a data-controller="utm-tracking" href="/it-jobs/05-php-laravel-codeigniter-javascript-sun-inc-4014">05 PHP (Laravel/CodeIgniter/JavaScript)</a>
+                                </div>
+                                <div class='job'>
+                                    <a data-controller="utm-tracking" href="/it-jobs/front-end-dev-angular-reactjs-vuejs-sun-inc-0225">Front-end Dev (Angular/ReactJS/VueJS)</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class='clearfix' id='main-content-stop'></div>
+
+    </div>
+    <div class='clearfix'></div>
+    <div class='breadcrumbList'>
+        <div class='breadcrumbItem'>
+            <a data-controller='utm-tracking' href='/'>
+                <span>Home</span>
+            </a>
+        </div>
+        <div class='breadcrumbItem'>
+            ›
+            <a data-controller='utm-tracking' href='/it-jobs'>
+                <span>IT Jobs</span>
+            </a>
+        </div>
+    </div>
+
+    <div data-controller='tracking' data-tracking-content='' data-tracking-ip-address='1.52.62.58' data-tracking-session-id='3c869be57dfdc0b4e9eb9cc9bdd63bfd' data-tracking-skill-tags='' data-tracking-source-ids='[&quot;&quot;]' data-tracking-sources='[&quot;search_job&quot;]' data-tracking-user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36' data-tracking-user-id=''></div>
+
+    <div data-controller='tracking' data-tracking-content='' data-tracking-ip-address='1.52.62.58' data-tracking-session-id='3c869be57dfdc0b4e9eb9cc9bdd63bfd' data-tracking-skill-tags='' data-tracking-source-ids='[452]' data-tracking-sources='[&quot;show_branding&quot;]' data-tracking-user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36' data-tracking-user-id=''></div>
+
+    <div data-controller='tracking' data-tracking-content='' data-tracking-ip-address='1.52.62.58' data-tracking-session-id='3c869be57dfdc0b4e9eb9cc9bdd63bfd' data-tracking-skill-tags='' data-tracking-source-ids='[452]' data-tracking-sources='[&quot;jr_cs&quot;]' data-tracking-user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36' data-tracking-user-id=''></div>
+
+
+    <div class='clearfix'></div>
+    <div id='logo'>
+        <div class='logo-image'></div>
+    </div>
+    <div class='clearfix'></div>
+</div>
+<div class='modal fade' id='sign-in-modal' role='dialog' tabindex='-1'>
+    <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-body text-center'>
+                <button class='modal-body__close' data-dismiss='modal' type='button'>
+                    <span>×</span>
+                </button>
+                <ul class='login nav nav-tabs' role='tablist'>
+                    <li class='active tab-signup' role='presentation'>
+                        <a aria-expanded='true' data-toggle='tab' href='#signup-tab' role='tab'>Create Account</a>
+                    </li>
+                    <li class='tab-signin' role='presentation'>
+                        <a aria-expanded='false' data-toggle='tab' href='#signin-tab' role='tab'>Sign In</a>
+                    </li>
+                </ul>
+                <div class='tab-content'>
+                    <div aria-labelledby='signup-tab' class='active fade in tab-pane' id='signup-tab' role='tabpanel'>
+                        <div class='signup-tab-content'>
+                            <p class='message'>
+                                Sign up to apply faster
+                            <div class='social-errors'></div>
+                            </p>
+                            <div class='sign-in-action-wrapper'>
+                                <div class='sign-in-button gplus button' data-signedin='false' onClick='signInActively()'>
+                                    <div data-signedin='false' id='g-signin2-signup'></div>
+                                    <a id="gplus-signin" rel="nofollow" href="#"><div class='icon gplus-icon'>
+                                        <i class="fa fa-google-plus"></i>
+                                    </div>
+                                        <div class='sign-in-text'>
+                                            Sign up with Google
+                                        </div>
+                                    </a></div>
+
+                            </div>
+                            <div class='hr'>
+                                <hr>
+                                <span>or</span>
+                            </div>
+
+                            <form class="new_user" id="signup_form" role="form" data-remote="true" data-controller="users--sign-up" action="/users" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="HoxSBK+hSSEp3g2poPI8xjWbATTGwicThfOfkVxL7Vx/7OMvWXihKEDUAeLXe17MDu3047kELZYXPVOWbOhOlA==" /><div class='form-group'>
+                                <div class='form-error text-left' data-target='users--sign-up.error'></div>
+                            </div>
+                                <div class='form-group'>
+                                    <input maxlength="50" autofocus="autofocus" class="form-control" placeholder="Name" size="50" type="text" name="user[name]" id="user_name" />
+                                </div>
+                                <div class='form-group'>
+                                    <input class="form-control" placeholder="Email" required="required" data-rule-email="true" data-msg-email="Please correct the email address" data-msg="Please add email" data-rule-noplus="true" data-msg-noplus="Please correct the email address" type="email" value="" name="user[email]" id="user_email" />
+                                </div>
+                                <div class='form-group'>
+                                    <input class="form-control" placeholder="Password" required="required" data-rule-minlength="8" data-msg-minlength="Password must be at least 8 characters" data-msg="Please add password" type="password" name="user[password]" id="user_password" />
+                                </div>
+                                <input type="submit" name="commit" value="Create My Account" rel="nofollow" class="x-large ibutton ibutton-red ibutton-create-account" data-disable-with="Create My Account" />
+                            </form></div>
+                    </div>
+                    <div aria-labelledby='signin-tab' class='fade tab-pane' id='signin-tab' role='tabpanel'>
+                        <p class='message'>
+                            Sign in to unlock everything on ITviec
+                        <div class='social-errors'></div>
+                        </p>
+                        <div class='sign-in-action-wrapper'>
+                            <div class='sign-in-button gplus button' data-signedin='false' onClick='signInActively()'>
+                                <div data-signedin='false' id='g-signin2-signin'></div>
+                                <a id="gplus-signin" rel="nofollow" href="#"><div class='icon gplus-icon'>
+                                    <i class="fa fa-google-plus"></i>
+                                </div>
+                                    <div class='sign-in-text'>
+                                        Sign in with Google
+                                    </div>
+                                </a></div>
+
+                        </div>
+                        <div class='hr'>
+                            <hr>
+                            <span>or</span>
+                        </div>
+
+                        <form role="form" data-controller="users--sign-in" data-remote="true" action="/sign_in" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="GTxioMPAYXEg08JPhJapIOIqR+mPszbqyW8VsioFiBDU3AXM0SDhDvdK4jNhR0dmjRKmr+c0EZ1Gm9UVaHi1SA==" /><div class='form-group'>
+                            <div class='form-error text-left' data-target='users--sign-in.error'></div>
+                        </div>
+                            <div class='form-group'>
+                                <input class="form-control" placeholder="Email" required="required" data-rule-email="true" data-msg-email="Please correct the email address" data-msg="Please add email" type="email" value="" name="user[email]" />
+                            </div>
+                            <div class='form-group'>
+                                <input class="form-control" placeholder="Password" required="required" data-rule-minlength="8" data-msg-minlength="Password must be at least 8 characters" data-msg="Please add password" type="password" name="user[password]" />
+                            </div>
+                            <div class='form-group'>
+                                <a class="right forgot-password" rel="nofollow" href="/users/password/new">Forgot password?</a>
+                            </div>
+                            <br>
+                            <div class='form-group text-center'>
+                                <input type="hidden" name="sign_in_then_review" value="false" />
+                                <input type="submit" name="commit" value="Sign in" class="button-red space ibutton x-large" data-disable-with="Sign in" />
+                            </div>
+                        </form>
+                        <p class='remove-fb-message'>
+                            <i class="fa fa-facebook-official"></i>
+                            Already signed up with Facebook? <br>Click here to continue.
+                        </p>
+                    </div>
+                </div>
+                <div class='response-confirmation'>
+                    <div class='message'>
+                        <p>Cool, you&#39;re almost done!</p>
+                        <p>Go to your inbox now to confirm your email address before signing in.</p>
+                    </div>
+                    <button class='button-red sign-in-btn'>Sign in</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class='modal fade' id='remove-facebook-login-modal' role='dialog' tabindex='-1'>
+    <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-body text-center'>
+                <button class='modal-body__close' data-dismiss='modal' type='button'>
+                    <span>×</span>
+                </button>
+                <div class='modal-body__message'>
+                    <div class='step1'>
+                        <h3>Don&#39;t lose your data!</h3>
+                        <p>ITviec will end Facebook sign-in on 01 January 2020.</p>
+                        <p>Complete 2 steps now to migrate your account </br> and keep your data.</p>
+                        <p class='step-message'>Step 1) Sign in with Facebook</p>
+                        <div class='sign-in-fb-button'>
+                            <div class='sign-in-button facebook button'>
+                                <a id="facebook-signin" rel="nofollow" onclick="Login(this); return false;" href=""><div class='icon'>
+                                    <i class="fa fa-facebook"></i>
+                                </div>
+                                    <div class='sign-in-text'>
+                                        Sign in with Facebook
+                                    </div>
+                                </a></div>
+
+                        </div>
+                        <div class='already-converted-fb'>
+                            <p>
+                                <i class="fa fa-times"></i>
+                                You&#39;ve migrated your Facebook account to an email registration account. Close this window and sign in again using your email address.
+                            </p>
+                        </div>
+                        <div class='refuse-signup-fb'>
+                            <p>
+                                <i class="fa fa-times"></i>
+                                Your Facebook account is not in our database. Close this window then sign up with Google or your email address.
+                            </p>
+                        </div>
+                    </div>
+                    <div class='step2'>
+                        Step 2) Create a new password to complete your new email sign-in
+                        <form class="convert-facebook" id="new_user" role="form" data-remote="true" data-controller="users--convert-facebook" action="/convert_facebook_users" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="E8iKkFDa936pnC38vIxUongcKS38MsN4BJLGXitM/vAQt4edOQelLcBhFfK1VreL+cT+NBqvkEYL/+G+fOnJxw==" /><div class='form-group'>
+                            <div class='form-error text-left' data-target='users--convert-facebook.error'></div>
+                        </div>
+                            <div class='form-group'>
+                                <input class="form-control" placeholder="Name" required="required" disabled="disabled" type="text" name="user[name]" id="user_name" />
+                            </div>
+                            <div class='form-group'>
+                                <input class="form-control" placeholder="Email" required="required" disabled="disabled" type="email" value="" name="user[email]" id="user_email" />
+                            </div>
+                            <div class='form-group'>
+                                <input class="form-control" placeholder="Enter your password" required="required" disabled="disabled" data-rule-minlength="8" data-msg-minlength="Password must be at least 8 characters" data-msg="Please add password" type="password" name="user[password]" id="user_password" />
+                            </div>
+                            <input type="submit" name="commit" value="Migrate my account" class="button-red ibutton" data-disable-with="Migrate my account" />
+                        </form><p class='warning-message'>
+                        Note: Your account data will be deleted on 01 January 2020 if you do not migrate.
+                    </p>
+                    </div>
+                    <div class='step3'>
+                        <p class='valid_hint'>Successfully migrated your account.</p>
+                        <p>Close this window and sign in now.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class='modal fade' id='job-mail-subscribe-modal' role='dialog' tabindex='-1'>
+    <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-body text-center'>
+                <button class='modal-body__close' data-dismiss='modal' type='button'>
+                    <span>×</span>
+                </button>
+                <div class='modal-body__message'>
+                    <div class='message'>
+                        Don't miss your next <span class="keyword"></span> job!
+                    </div>
+                    <div class='content'>
+                        <div class='left-side'>
+                            <p>
+                                Get new <span><span class="keyword"></span> jobs</span> instantly by email with <span class='job-robot'>Job Robot</span>. Free.
+                            </p>
+                            <form class="simple_form job-mail false" id="job-mail" data-section="top" role="form" novalidate="novalidate" action="/subscribe" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><div class='form-blank-email'>
+                                <div class='field_for contents'>
+                                    <div class="input email required job_mail_email"><input value="" class="string email required col-xs-8" data-rule-email="true" data-msg="can&#39;t be blank" data-msg-email="Please check your email" data-rule-noplus="true" data-msg-noplus="Please check your email" required="required" aria-required="true" placeholder="Your email" type="email" name="job_mail[email]" id="job_mail_email" /></div>
+                                    <div class="input hidden job_mail_city"><input class="hidden" type="hidden" name="job_mail[city]" id="job_mail_city" /></div>
+                                    <div class="input hidden job_mail_query"><input value="" class="hidden" type="hidden" name="job_mail[query]" id="job_mail_query" /></div>
+                                    <div class="input hidden job_mail_source"><input value="search_popup" class="hidden" type="hidden" name="job_mail[source]" id="job_mail_source" /></div>
+                                    <div class="input hidden job_mail_locale"><input value="en" class="hidden" type="hidden" name="job_mail[locale]" id="job_mail_locale" /></div>
+                                </div>
+                                <div class='field_for actions'>
+                                    <input type="submit" name="commit" value="Email me jobs" class="button-red" data-disable-with="Email me jobs" />
+
+                                </div>
+                            </div>
+                            </form>
+                        </div>
+                        <div class='right-side'>
+                            <img class='lazyload' data-src='https://itviec.com/assets/robby_jr_top_hi-306faa8c00104a165004ccc2459065b061dd3da245f8a2131583c0755adcf495.png' width='128'>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class='modal fade' id='jr-limit-exceed-modal' role='dialog' tabindex='-1'>
+    <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-body text-center'>
+                <button class='modal-body__close' data-dismiss='modal' type='button'>
+                    <span>×</span>
+                </button>
+                <div class='modal-body__message'>
+                    Oops!
+                    <div class='content'>
+                        <div class='line'>You have reached the limit of 5 Job Robots.</div>
+                        <div class='line'>Want to create a new one? Click &#39;Unsubscribe&#39; at the bottom of your Job Robot email and try again.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='job_mail_thankyou_wrapper'></div>
+
+<!-- Last updated: "2019-12-16 13:40:24 +0700"-->
+<div id='footer'>
+    <div class='content show-extras'>
+        <div class='tags hidden-xs'>
+            <div class='col-sm-3'>
+                <h3 class='no-margin job-list-title'>Jobs by Skill</h3>
+                <ul>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/java">Java</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/php">PHP</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/.net">.NET</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/tester">Tester</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/android">Android</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/ios">iOS</a></li>
+                </ul>
+                <a class="link-primary link-primary--underlined" data-controller="utm-tracking" href="/jobs-skill-index">View all Jobs by Skill
+                </a></div>
+            <div class='col-sm-3'>
+                <h3 class='no-margin job-list-title'>Jobs by Title</h3>
+                <ul>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/senior-java-developer">Senior Java Developer</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/system-engineer">System Engineer</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/project-manager">Project Manager</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/software-architect">Software Architect</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/qa-qc-manager">QA QC Manager</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/mobile-developer">Mobile Developer</a></li>
+                    <li class='tag'><a class="skill-tag__link" data-controller="utm-tracking" href="/top-20-highest-salary-java-developer-jobs?utm_campaign=seo_landing_page&amp;utm_medium=footer&amp;utm_source=home_all_job">Top highest salary java job</a></li>
+                </ul>
+                <a class="link-primary link-primary--underlined" data-controller="utm-tracking" href="/jobs-title-index">View all Jobs by Title
+                </a></div>
+            <div class='col-sm-3'>
+                <h3 class='no-margin job-list-title'>Jobs by Company</h3>
+                <ul>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/fpt-telecom">FPT Telecom</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/kms-technology">KMS Technology</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/opswat-software-vietnam">OPSWAT Software Vietnam</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/vietnam-international-bank-vib">Vietnam International Bank (VIB)</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/fossil-vietnam">Fossil Vietnam</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/home-credit-vietnam">Home Credit Vietnam </a></li>
+                </ul>
+                <a class="link-primary link-primary--underlined" data-controller="utm-tracking" href="/jobs-company-index">View all Jobs by Company
+                </a></div>
+            <div class='col-sm-3'>
+                <h3 class='no-margin job-list-title'>Jobs by City</h3>
+                <ul>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/ho-chi-minh-hcm">Ho Chi Minh</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/ha-noi">Ha Noi</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/da-nang">Da Nang</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/others">Others</a></li>
+                </ul>
+            </div>
+            <div class='clearfix'></div>
+
+        </div>
+        <div class='mobile-tags visible-xs'>
+            <div class='mobile-tags__skill less'>
+                <div class='mobile-tags__skill--title'>
+                    <h3 class='no-margin job-list-title'>Jobs by Skill</h3>
+                    <span>+</span>
+                </div>
+                <ul class='mobile-tags__skill--list'>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/java">Java</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/php">PHP</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/.net">.NET</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/tester">Tester</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/android">Android</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/ios">iOS</a></li>
+                    <a class="link-primary link-primary--underlined" data-controller="utm-tracking" href="/jobs-skill-index">View all Jobs by Skill
+                    </a></ul>
+            </div>
+            <div class='mobile-tags__title less'>
+                <div class='mobile-tags__title--title'>
+                    <h3 class='no-margin job-list-title'>Jobs by Title</h3>
+                    <span>+</span>
+                </div>
+                <ul class='mobile-tags__title--list'>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/senior-java-developer">Senior Java Developer</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/system-engineer">System Engineer</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/project-manager">Project Manager</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/software-architect">Software Architect</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/qa-qc-manager">QA QC Manager</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/mobile-developer">Mobile Developer</a></li>
+                    <li class='tag'><a class="skill-tag__link" data-controller="utm-tracking" href="/top-20-highest-salary-java-developer-jobs?utm_campaign=seo_landing_page&amp;utm_medium=footer&amp;utm_source=home_all_job">Top highest salary java job</a></li>
+                    <a class="link-primary link-primary--underlined" data-controller="utm-tracking" href="/jobs-title-index">View all Jobs by Title
+                    </a></ul>
+            </div>
+            <div class='mobile-tags__company less'>
+                <div class='mobile-tags__company--title'>
+                    <h3 class='no-margin job-list-title'>Jobs by Company</h3>
+                    <span>+</span>
+                </div>
+                <ul class='mobile-tags__company--list'>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/fpt-telecom">FPT Telecom</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/kms-technology">KMS Technology</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/opswat-software-vietnam">OPSWAT Software Vietnam</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/vietnam-international-bank-vib">Vietnam International Bank (VIB)</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/fossil-vietnam">Fossil Vietnam</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/companies/home-credit-vietnam">Home Credit Vietnam </a></li>
+                    <a class="link-primary link-primary--underlined" data-controller="utm-tracking" href="/jobs-company-index">View all Jobs by Company
+                    </a></ul>
+            </div>
+            <div class='mobile-tags__city less'>
+                <div class='mobile-tags__city--title'>
+                    <h3 class='no-margin job-list-title'>Jobs by City</h3>
+                    <span>+</span>
+                </div>
+                <ul class='mobile-tags__city--list'>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/ho-chi-minh-hcm">Ho Chi Minh</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/ha-noi">Ha Noi</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/da-nang">Da Nang</a></li>
+                    <li class='tag'><a class="mkt-track skill-tag__link" data-controller="utm-tracking" href="/it-jobs/others">Others</a></li>
+                </ul>
+            </div>
+
+            <div class='mobile-tags__footer less'>
+                <div class='mobile-tags__footer--title'>
+                    <h3 class='no-margin job-list-title'>About Us</h3>
+                    <span>+</span>
+                </div>
+                <ul class='mobile-tags__footer--list'>
+                    <li class='tag'><a target="_blank" data-controller="utm-tracking" href="/about-us">About Us</a></li>
+                    <li class='tag'><a target="_blank" data-controller="utm-tracking" href="/contact-us">Contact Us</a></li>
+                    <li class='tag'><a target="_blank" href="https://itviec.com/blog/chinh-sach-bao-mat/">Privacy Policy</a></li>
+                    <li class='tag'><a target="_blank" href="https://itviec.com/blog/terms-and-conditions/">Term &amp; Conditions</a></li>
+                    <li class='tag'><a target="_blank" href="https://itviec.com/blog/quy-che-hoat-dong-cua-itviec/">Operating Regulation</a></li>
+                    <li class='tag'><a target="_blank" href="https://itviec.com/blog/chinh-sach-giai-quyet-khieu-nai/">Complaint Handling Policy</a></li>
+                    <li class='tag'><a target="_blank" href="https://itviec.com/blog/press/">Press</a></li>
+                    <li class='tag'><a target="_blank" href="https://itviec.com/blog/faq-cac-cau-hoi-thuong-gap/">FAQ</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+    <div class='content'>
+        <div class='bottom'>
+            <div class='footer-contact hidden-xs'>
+                <div class='footer-link'>
+                    Want to post a job? Contact us at Ho Chi Minh: (+84) 977 460 519 - Ha Noi: (+84) 964 618 859 - Email: love@itviec.com
+                </div>
+            </div>
+            <div class='footer-links hidden-xs'>
+                <div class='col-md-3 footer-links__col'>
+                    <a class="footer-link" data-controller="utm-tracking" href="/">Home</a>
+                    <a class="footer-link" data-controller="utm-tracking" href="/it-jobs">All Jobs</a>
+                    <a target="_blank" class="footer-link" rel="canonical" data-controller="utm-tracking" href="/about-us">About Us</a>
+                    <a target="_blank" class="footer-link" rel="canonical" data-controller="utm-tracking" href="/contact-us">Contact Us</a>
+                    <a target="_blank" class="footer-link" rel="canonical" href="https://itviec.com/blog/press/">Press</a>
+                </div>
+                <div class='col-md-3 footer-links__col'>
+                    <a target="_blank" class="footer-link" href="https://itviec.com/blog/chinh-sach-bao-mat/">Privacy Policy</a>
+                    <a target="_blank" class="footer-link" href="https://itviec.com/blog/terms-and-conditions/">Term &amp; Conditions</a>
+                    <a target="_blank" class="footer-link" href="https://itviec.com/blog/chinh-sach-giai-quyet-khieu-nai/">Complaint Handling Policy</a>
+                    <a target="_blank" class="footer-link" href="https://itviec.com/blog/quy-che-hoat-dong-cua-itviec/">Operating Regulation</a>
+                    <a target="_blank" class="footer-link" rel="canonical" href="https://itviec.com/blog/faq-cac-cau-hoi-thuong-gap/">FAQ</a>
+                </div>
+                <div class='col-md-6 footer-links__col'>
+                    <span class='footer-link'>Copyright &copy; IT VIEC JSC</span>
+                    <span class='footer-link'>Tax code: 0312192258</span>
+                    <span class='footer-link'>Phone: 028.66811397</span>
+                    <span class='footer-link'>Address: 60 Nguyen Van Thu, Dakao Ward, District 1, HCMC</span>
+
+                </div>
+            </div>
+            <div class='footer-links visible-xs'>
+                <a class="footer-link" data-controller="utm-tracking" href="/">Home</a>
+                <a class="footer-link" data-controller="utm-tracking" href="/it-jobs">All Jobs</a>
+                <span class='footer-link'>Copyright &copy; IT VIEC JSC</span>
+                <span class='footer-link'>Tax code: 0312192258</span>
+                <span class='footer-link'>Phone: 028.66811397</span>
+                <span class='footer-link'>Address: 60 Nguyen Van Thu, Dakao Ward, District 1, HCMC</span>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  (function(){var e=window._fbq||(window._fbq=[]);if(!e.loaded){var t=document.createElement("script");t.async=true;t.src="//connect.facebook.net/en_US/fbds.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);e.loaded=true}e.push(["addPixelId","788250181187269"])})();window._fbq=window._fbq||[];window._fbq.push(["track","PixelInitialized",{}]);
+</script>
+<noscript>
+    <img alt='' height='1' src='https://www.facebook.com/tr?id=788250181187269&amp;ev=PixelInitialized' style='display:none' width='1'>
+</noscript>
+
+<script>
+  window.I18n = "en";
+</script>
+<script async='' src='https://www.googletagmanager.com/gtag/js?id=AW-979073892'></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-979073892');
+
+  gtag('event', 'page_view', {
+    'send_to': 'AW-979073892',
+    'job_id': ["61076", "61095", "61112"],
+    'job_locid': "",
+    'job_pagetype': "searchresults"
+  });
+</script>
+
+<script type='application/ld+json'>
+    {
+        "@context" : "http://schema.org",
+        "@type" : "WebSite",
+        "name" : "ITviec",
+        "url" : "https://itviec.com"
+    }
+</script>
+
+</body>
+</html>
+<script src="https://itviec.com/assets/application-e2077e2b2caff306d2e14cc7922a71843a5bad01d3fe75da90c04d1133f2a6fb.js"></script>
+<script src="https://itviec.com/packs/js/application-bc91a83d72edb10a818d.js"></script>
+<script src="https://apis.google.com/js/platform.js?onload=initGoogleSignin" async="async" defer="defer"></script>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : "403551049745808", // Set YOUR APP ID
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true,  // parse XFBML
+      version    : 'v2.2'
+    });
+  };
+
+  // Load the SDK asynchronously
+  (function(d){
+    var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement('script'); js.id = id; js.async = true;
+    js.src = "//connect.facebook.net/en_US/all.js";
+    ref.parentNode.insertBefore(js, ref);
+    }(document));
+</script>
+

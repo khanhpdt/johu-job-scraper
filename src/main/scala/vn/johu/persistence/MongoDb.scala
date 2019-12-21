@@ -19,7 +19,7 @@ object MongoDb extends TryHelper with Logging {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private val ScrapedJobCollectionName = "scraped_job"
-  private val ParsedJobCollectionName = "parsed_job"
+  private val RawHtmlCollectionName = "raw_html"
 
   private var dbName: String = _
   private var mongoConnection: MongoConnection = _
@@ -53,7 +53,7 @@ object MongoDb extends TryHelper with Logging {
 
   def scrapedJobColl: Future[BSONCollection] = collection(ScrapedJobCollectionName)
 
-  def parsedJobColl: Future[BSONCollection] = collection(ParsedJobCollectionName)
+  def rawHtmlColl: Future[BSONCollection] = collection(RawHtmlCollectionName)
 
   private def collection(name: String) = database.map(_.collection[BSONCollection](name))
 
@@ -96,7 +96,7 @@ object MongoDb extends TryHelper with Logging {
 
     val collectionsCheck = List(
       CollectionConfig(ScrapedJobCollectionName, Set.empty),
-      CollectionConfig(ParsedJobCollectionName, Set.empty),
+      CollectionConfig(RawHtmlCollectionName, Set.empty),
     )
 
     val checkF = for {
