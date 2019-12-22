@@ -1,15 +1,14 @@
 package vn.johu.scraping.models
 
-import java.util.Date
-
-import reactivemongo.api.bson.BSONObjectID
+import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 
 case class ScrapedJob(
   id: Option[BSONObjectID],
+  url: String,
   title: String,
-  keywords: Set[String],
-  postingDate: Date,
+  tags: Set[String],
+  postingDate: BSONDateTime,
   company: String,
   location: String,
-  rawHtmlId: BSONObjectID
+  rawJobSourceId: BSONObjectID
 )

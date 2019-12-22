@@ -19,7 +19,7 @@ object MongoDb extends TryHelper with Logging {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private val ScrapedJobCollectionName = "scraped_job"
-  private val RawHtmlCollectionName = "raw_html"
+  private val RawJobSourceCollectionName = "raw_job_source"
 
   private var dbName: String = _
   private var mongoConnection: MongoConnection = _
@@ -44,6 +44,16 @@ object MongoDb extends TryHelper with Logging {
     checkDb()
   }
 
+  def close(): Unit = {
+    logger.info("Closing MongoDb connection...")
+    mongoConnection.close()(5.minutes).onComplete {
+      case Failure(ex) =>
+        logger.error("Error when closing MongoDb connection.", ex)
+      case Success(_) =>
+        logger.info("MongoDb connection closed.")
+    }
+  }
+
   /*
    * From reactivemongo doc:
    * It’s generally a good practice not to assign the database and collection references to val (even to lazy val),
@@ -53,7 +63,7 @@ object MongoDb extends TryHelper with Logging {
 
   def scrapedJobColl: Future[BSONCollection] = collection(ScrapedJobCollectionName)
 
-  def rawHtmlColl: Future[BSONCollection] = collection(RawHtmlCollectionName)
+  def rawJobSourceColl: Future[BSONCollection] = collection(RawJobSourceCollectionName)
 
   private def collection(name: String) = database.map(_.collection[BSONCollection](name))
 
@@ -96,7 +106,7 @@ object MongoDb extends TryHelper with Logging {
 
     val collectionsCheck = List(
       CollectionConfig(ScrapedJobCollectionName, Set.empty),
-      CollectionConfig(RawHtmlCollectionName, Set.empty),
+      CollectionConfig(RawJobSourceCollectionName, Set.empty),
     )
 
     val checkF = for {

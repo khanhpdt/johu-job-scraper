@@ -12,9 +12,18 @@ class HtmlElem(val elem: Element) {
 
   def attr(attrKey: String): Option[String] = Option(elem.attr(attrKey))
 
+  def text(): String = elem.text()
+
   def select(cssQuery: String): List[HtmlElem] = {
     elem.select(cssQuery).iterator().asScala.toList.map(e => HtmlElem(e))
   }
+
+  def selectOpt(cssQuery: String): Option[List[HtmlElem]] = {
+    val elems = elem.select(cssQuery).iterator().asScala.toList
+    if (elems.isEmpty) None
+    else Some(elems.map(e => HtmlElem(e)))
+  }
+
 }
 
 object HtmlElem {
