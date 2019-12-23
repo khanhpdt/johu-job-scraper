@@ -65,6 +65,8 @@ object MongoDb extends TryHelper with Logging {
 
   def rawJobSourceColl: Future[BSONCollection] = collection(RawJobSourceCollectionName)
 
+  def allCollections = List(scrapedJobColl, rawJobSourceColl)
+
   private def collection(name: String) = database.map(_.collection[BSONCollection](name))
 
   private def checkDb(): Unit = {

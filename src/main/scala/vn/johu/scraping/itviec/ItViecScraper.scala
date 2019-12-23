@@ -41,9 +41,12 @@ class ItViecScraper(context: ActorContext[Scraper.Command])
 
     logger.info(s"Start scraping at url: $url")
 
-    val scrapeResultF = for {htmlDoc <- HtmlDoc.fromUrlAsync(url)} yield {
-      parseDoc(htmlDoc, replyTo)
-    }
+    val scrapeResultF =
+      for {
+        htmlDoc <- HtmlDoc.fromUrlAsync(url)
+      } yield {
+        parseDoc(htmlDoc, replyTo)
+      }
 
     scrapeResultF.onComplete {
       case Failure(ex) =>
@@ -54,15 +57,18 @@ class ItViecScraper(context: ActorContext[Scraper.Command])
   }
 
   private def parseDoc(doc: HtmlDoc, replyTo: ActorRef[ScrapingCoordinator.JobsScraped]): Unit = {
-    val parseResult = for {rawJobSourceId <- saveHtml(doc)} yield {
-      val jobElements = doc.select("#search-results #jobs div.job")
+    val parseResult =
+      for {
+        rawJobSourceId <- saveHtml(doc)
+      } yield {
+        val jobElements = doc.select("#search-results #jobs div.job")
 
-      val jobs = jobElements.flatMap(parseJobElement(_, rawJobSourceId))
+        val jobs = jobElements.flatMap(parseJobElement(_, rawJobSourceId))
 
-      prepareNextScrape(jobs, replyTo)
+        prepareNextScrape(jobs, replyTo)
 
-      replyTo ! ScrapingCoordinator.JobsScraped(jobs)
-    }
+        replyTo ! ScrapingCoordinator.JobsScraped(jobs)
+      }
 
     parseResult.onComplete {
       case Failure(ex) =>
@@ -78,7 +84,7 @@ class ItViecScraper(context: ActorContext[Scraper.Command])
       coll.insert(ordered = false).one[RawJobSource](
         RawJobSource(
           id = Some(docId),
-          content = htmlDoc.doc.text(),
+          content = htmlDoc.doc.outerHtml(),
           sourceType = RawJobSourceType.Html
         )
       ).map(_ => docId)
