@@ -11,15 +11,16 @@ import akka.actor.typed.{ActorRef, Behavior}
 import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 
 import vn.johu.persistence.MongoDb
-import vn.johu.scraping.Scraper.{Command, ParseDoc, StartScraping}
-import vn.johu.scraping.jsoup.{HtmlDoc, HtmlElem}
-import vn.johu.scraping.models.{RawJobSource, RawJobSourceType, ScrapedJob}
+import vn.johu.scraping.Scraper.{Command, StartScraping}
+import vn.johu.scraping.jsoup.{HtmlDoc, HtmlElem, JSoup}
+import vn.johu.scraping.models.{RawJobSource, RawJobSourceName, RawJobSourceType, ScrapedJob}
 import vn.johu.scraping.{Scraper, ScrapingCoordinator}
 import vn.johu.utils.Logging
 
-class ItViecScraper(context: ActorContext[Scraper.Command])
-  extends AbstractBehavior[Scraper.Command]
-    with Logging {
+class ItViecScraper(
+  context: ActorContext[Scraper.Command],
+  jSoup: JSoup
+) extends AbstractBehavior[Scraper.Command] with Logging {
 
   import ItViecScraper._
 
@@ -29,9 +30,6 @@ class ItViecScraper(context: ActorContext[Scraper.Command])
     msg match {
       case StartScraping(replyTo) =>
         scrape(replyTo)
-        this
-      case ParseDoc(doc, replyTo) =>
-        parseDoc(doc, replyTo)
         this
     }
   }
@@ -43,7 +41,7 @@ class ItViecScraper(context: ActorContext[Scraper.Command])
 
     val scrapeResultF =
       for {
-        htmlDoc <- HtmlDoc.fromUrlAsync(url)
+        htmlDoc <- jSoup.getAsync(url)
       } yield {
         parseDoc(htmlDoc, replyTo)
       }
@@ -84,6 +82,7 @@ class ItViecScraper(context: ActorContext[Scraper.Command])
       coll.insert(ordered = false).one[RawJobSource](
         RawJobSource(
           id = Some(docId),
+          sourceName = RawJobSourceName.ItViec,
           content = htmlDoc.doc.outerHtml(),
           sourceType = RawJobSourceType.Html
         )
@@ -193,8 +192,8 @@ class ItViecScraper(context: ActorContext[Scraper.Command])
 }
 
 object ItViecScraper {
-  def apply(): Behavior[Scraper.Command] = {
-    Behaviors.setup[Scraper.Command](ctx => new ItViecScraper(ctx))
+  def apply(jSoup: JSoup): Behavior[Scraper.Command] = {
+    Behaviors.setup[Scraper.Command](ctx => new ItViecScraper(ctx, jSoup))
   }
 
   object PostingDatePatterns {

@@ -1,6 +1,5 @@
 package vn.johu.scraping.jsoup
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
 
 import org.jsoup.Jsoup
@@ -24,14 +23,6 @@ object HtmlDoc {
 
   def fromHtml(html: String): HtmlDoc = {
     HtmlDoc(Jsoup.parse(html))
-  }
-
-  def fromUrl(url: String): HtmlDoc = {
-    HtmlDoc(Jsoup.connect(url).get)
-  }
-
-  def fromUrlAsync(url: String)(implicit ec: ExecutionContext): Future[HtmlDoc] = Future {
-    HtmlDoc(Jsoup.connect(url).get)
   }
 
 }
