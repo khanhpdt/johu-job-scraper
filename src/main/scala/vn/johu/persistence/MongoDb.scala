@@ -20,6 +20,7 @@ object MongoDb extends TryHelper with Logging {
 
   private val ScrapedJobCollectionName = "scraped_job"
   private val RawJobSourceCollectionName = "raw_job_source"
+  private val JobParsingErrorCollectionName = "job_parsing_error"
 
   private var dbName: String = _
   private var mongoConnection: MongoConnection = _
@@ -65,7 +66,9 @@ object MongoDb extends TryHelper with Logging {
 
   def rawJobSourceColl: Future[BSONCollection] = collection(RawJobSourceCollectionName)
 
-  def allCollections = List(scrapedJobColl, rawJobSourceColl)
+  def jobParsingErrorColl: Future[BSONCollection] = collection(JobParsingErrorCollectionName)
+
+  def allCollections = List(scrapedJobColl, rawJobSourceColl, jobParsingErrorColl)
 
   private def collection(name: String) = database.map(_.collection[BSONCollection](name))
 
@@ -107,8 +110,9 @@ object MongoDb extends TryHelper with Logging {
     }
 
     val collectionsCheck = List(
-      CollectionConfig(ScrapedJobCollectionName, Set.empty),
       CollectionConfig(RawJobSourceCollectionName, Set.empty),
+      CollectionConfig(ScrapedJobCollectionName, Set.empty),
+      CollectionConfig(JobParsingErrorCollectionName, Set.empty)
     )
 
     val checkF = for {

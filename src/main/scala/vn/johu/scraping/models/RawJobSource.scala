@@ -19,6 +19,7 @@ object RawJobSourceName extends Enumeration {
 
 case class RawJobSource(
   id: Option[BSONObjectID],
+  url: String,
   sourceName: RawJobSourceName,
   content: String,
   sourceType: RawJobSourceType
@@ -31,6 +32,7 @@ object RawJobSource {
       Try {
         RawJobSource(
           id = doc.getAsOpt[BSONObjectID]("_id"),
+          url = doc.getAsOpt[String]("url").get,
           sourceName = RawJobSourceName.withName(doc.getAsOpt[String]("sourceName").get),
           content = doc.getAsOpt[String]("content").get,
           sourceType = RawJobSourceType.withName(doc.getAsOpt[String]("sourceType").get)
@@ -44,6 +46,7 @@ object RawJobSource {
       Try {
         BSONDocument(
           "_id" -> t.id,
+          "url" -> t.url,
           "sourceName" -> t.sourceName.toString,
           "content" -> t.content,
           "sourceType" -> t.sourceType.toString

@@ -1,7 +1,7 @@
 package vn.johu.scraping.itviec
 
 import java.time.temporal.ChronoUnit
-import java.time.{LocalDateTime, ZoneId}
+import scala.collection.mutable
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.matching.Regex
 import scala.util.{Failure, Success}
@@ -13,9 +13,10 @@ import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 import vn.johu.persistence.MongoDb
 import vn.johu.scraping.Scraper.{Command, StartScraping}
 import vn.johu.scraping.jsoup.{HtmlDoc, HtmlElem, JSoup}
-import vn.johu.scraping.models.{RawJobSource, RawJobSourceName, RawJobSourceType, ScrapedJob}
-import vn.johu.scraping.{Scraper, ScrapingCoordinator}
-import vn.johu.utils.Logging
+import vn.johu.scraping.models.ScrapedJobField.ScrapedJobField
+import vn.johu.scraping.models._
+import vn.johu.scraping.{Scraper, ScrapingCoordinator, models}
+import vn.johu.utils.{DateUtils, Logging}
 
 class ItViecScraper(
   context: ActorContext[Scraper.Command],
@@ -34,7 +35,7 @@ class ItViecScraper(
     }
   }
 
-  private def scrape(replyTo: ActorRef[ScrapingCoordinator.JobsScraped]): Unit = {
+  private def scrape(replyTo: ActorRef[ScrapingCoordinator.JobsScraped]) = {
     val url = "https://itviec.com/it-jobs?page=1"
 
     logger.info(s"Start scraping at url: $url")
@@ -42,46 +43,48 @@ class ItViecScraper(
     val scrapeResultF =
       for {
         htmlDoc <- jSoup.getAsync(url)
-      } yield {
-        parseDoc(htmlDoc, replyTo)
-      }
+        rawJobSourceId <- saveHtml(url, htmlDoc)
+        parsingResult <- parseJobsFromHtml(htmlDoc, rawJobSourceId)
+        _ <- saveParsingResults(parsingResult)
+        _ <- publishSuccessfulJobs()
+        _ <- respond(parsingResult.jobs, replyTo)
+        _ <- prepareNextScrape()
+      } yield parsingResult
 
     scrapeResultF.onComplete {
       case Failure(ex) =>
         logger.error(s"Error when scraping from url: $url", ex)
-      case Success(_) =>
+      case Success(jobs) =>
         logger.info(s"Successfully scrape from url: $url")
     }
+
+    scrapeResultF
   }
 
-  private def parseDoc(doc: HtmlDoc, replyTo: ActorRef[ScrapingCoordinator.JobsScraped]): Unit = {
-    val parseResult =
-      for {
-        rawJobSourceId <- saveHtml(doc)
-      } yield {
-        val jobElements = doc.select("#search-results #jobs div.job")
+  private def parseJobsFromHtml(doc: HtmlDoc, rawJobSourceId: BSONObjectID) = {
+    val jobElements = doc.select("#search-results #jobs div.job")
 
-        val jobs = jobElements.flatMap(parseJobElement(_, rawJobSourceId))
-
-        prepareNextScrape(jobs, replyTo)
-
-        replyTo ! ScrapingCoordinator.JobsScraped(jobs)
+    if (jobElements.isEmpty) {
+      logger.info("Not job element found.")
+      Future.successful(ParsingResult(Nil, Nil))
+    } else {
+      Future.successful {
+        val results = jobElements.map(parseJobElement(_, rawJobSourceId))
+        ParsingResult(
+          jobs = results.collect { case Right(value) => value },
+          errors = results.collect { case Left(value) => value }
+        )
       }
-
-    parseResult.onComplete {
-      case Failure(ex) =>
-        logger.error(s"Error when parsing", ex)
-      case Success(_) =>
-        logger.info(s"Parse doc successfully.")
     }
   }
 
-  private def saveHtml(htmlDoc: HtmlDoc): Future[BSONObjectID] = {
+  private def saveHtml(url: String, htmlDoc: HtmlDoc): Future[BSONObjectID] = {
     MongoDb.rawJobSourceColl.flatMap { coll =>
       val docId = BSONObjectID.generate
       coll.insert(ordered = false).one[RawJobSource](
         RawJobSource(
           id = Some(docId),
+          url = url,
           sourceName = RawJobSourceName.ItViec,
           content = htmlDoc.doc.outerHtml(),
           sourceType = RawJobSourceType.Html
@@ -90,30 +93,35 @@ class ItViecScraper(
     }
   }
 
-  private def parseJobElement(jobElem: HtmlElem, rawJobSourceId: BSONObjectID): Option[ScrapedJob] = {
+  // if successful, return ScrapedJob
+  // if not, return JobParsingError(id, element html, all parsing errors, scrapeTs, rawJobSourceId)
+  private def parseJobElement(jobElem: HtmlElem, rawJobSourceId: BSONObjectID): Either[JobParsingError, ScrapedJob] = {
 
-    def withLogging[T](key: String)(f: => Option[T]) = {
+    val parsingErrors = mutable.ListBuffer.empty[String]
+
+    def trackError[T](key: ScrapedJobField)(f: => Option[T]) = {
       val opt = f
       if (opt.isEmpty) {
-        logger.error(s"Missing $key")
+        val error = s"Missing ${key.toString}"
+        parsingErrors += error
       }
       opt
     }
 
-    def getUrl = withLogging("url") {
+    def getUrl = trackError(ScrapedJobField.url) {
       for {
         elem <- jobElem.selectFirst(".job_content > .job__description > .job__body > .details > .title > a")
         link <- elem.attr("href")
-      } yield s"https://itviec.vn/${link.trim}"
+      } yield s"https://itviec.vn/${link.trim.stripPrefix("/")}"
     }
 
-    def getTitle = withLogging("title") {
+    def getTitle = trackError(ScrapedJobField.title) {
       for {
         elem <- jobElem.selectFirst(".job_content > .job__description > .job__body > .details > .title > a")
       } yield elem.text().trim
     }
 
-    def getTags = withLogging("tags") {
+    def getTags = trackError(ScrapedJobField.tags) {
       for {
         elems <- jobElem.selectOpt(".job_content > .job__description > .job-bottom > .tag-list > a > span")
       } yield elems.map(_.text().trim).toSet
@@ -131,26 +139,26 @@ class ItViecScraper(
         case _ => None
       }
       parsedDate.map { pd =>
-        val currentTime = LocalDateTime.now().atZone(ZoneId.systemDefault())
+        val currentTime = DateUtils.now()
         BSONDateTime(currentTime.minus(pd._1, pd._2).toInstant.toEpochMilli)
       }
     }
 
-    def getPostingDate = withLogging("postingDate") {
+    def getPostingDate = trackError(ScrapedJobField.postingDate) {
       for {
         elem <- jobElem.selectFirst(".job_content > .city_and_posted_date > .distance-time-job-posted > span")
         d <- parsePostingDate(elem.text())
       } yield d
     }
 
-    def getCompany = withLogging("company") {
+    def getCompany = trackError(ScrapedJobField.company) {
       for {
         elem <- jobElem.selectFirst(".job_content > .logo > .logo-wrapper > a")
         link <- elem.attr("href")
       } yield link.stripPrefix("/companies/").trim
     }
 
-    def getLocation = withLogging("location") {
+    def getLocation = trackError(ScrapedJobField.location) {
       for {
         elem <- jobElem.selectFirst(".job_content > .city_and_posted_date > .city > .address > .text")
       } yield elem.text().trim
@@ -178,15 +186,51 @@ class ItViecScraper(
         )
       }
 
-    if (jobOpt.isEmpty) {
-      logger.error(s"Could not parse job element. One of the required field is missing. Job element: ${jobElem.elem.text()}")
+    jobOpt match {
+      case Some(job) =>
+        Right(job)
+      case None =>
+        val id = BSONObjectID.generate()
+        logger.error(s"Could not parse job element. One of the required field is missing. Error id: [${id.stringify}]")
+        Left(
+          models.JobParsingError(
+            id = id,
+            rawSourceContent = jobElem.elem.outerHtml(),
+            errors = parsingErrors.toList,
+            rawJobSourceId = rawJobSourceId,
+            scrapingTs = BSONDateTime(DateUtils.nowMillis())
+          )
+        )
     }
-
-    jobOpt
   }
 
-  private def prepareNextScrape(scrapedJobs: List[ScrapedJob], replyTo: ActorRef[ScrapingCoordinator.JobsScraped]): Unit = {
+  private def saveParsingResults(parsingResult: ParsingResult) = {
+    val insertJobsF = MongoDb.scrapedJobColl.flatMap { coll =>
+      coll.insert(ordered = false).many(parsingResult.jobs)
+    }
 
+    val insertErrorsF = MongoDb.jobParsingErrorColl.flatMap { coll =>
+      coll.insert(ordered = false).many(parsingResult.errors)
+    }
+
+    for {
+      res1 <- insertJobsF
+      res2 <- insertErrorsF
+    } yield (res1, res2)
+  }
+
+  private def publishSuccessfulJobs() = {
+    Future.successful(())
+  }
+
+  private def prepareNextScrape() = {
+    Future.successful(())
+  }
+
+  private def respond(jobs: List[ScrapedJob], replyTo: ActorRef[ScrapingCoordinator.JobsScraped]) = {
+    Future.successful {
+      replyTo ! ScrapingCoordinator.JobsScraped(jobs)
+    }
   }
 
 }
@@ -206,3 +250,5 @@ object ItViecScraper {
   }
 
 }
+
+case class ParsingResult(jobs: List[ScrapedJob], errors: List[JobParsingError])
