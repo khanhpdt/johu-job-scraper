@@ -31,6 +31,8 @@ trait ScraperTestFixture extends ScalaTestWithActorTestKit with FunSuiteLike wit
   }
 
   override def beforeAll(): Unit = {
+    super.beforeAll()
+
     val config = system.settings.config
     MongoDb.init(config)
     RabbitMqClient.init(config)
@@ -39,6 +41,7 @@ trait ScraperTestFixture extends ScalaTestWithActorTestKit with FunSuiteLike wit
   }
 
   override def afterAll(): Unit = {
+    super.afterAll()
     MongoDb.close()
     RabbitMqClient.close()
   }

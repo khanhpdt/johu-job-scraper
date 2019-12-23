@@ -111,7 +111,12 @@ object MongoDb extends TryHelper with Logging {
 
     val collectionsCheck = List(
       CollectionConfig(RawJobSourceCollectionName, Set.empty),
-      CollectionConfig(ScrapedJobCollectionName, Set.empty),
+      CollectionConfig(
+        ScrapedJobCollectionName,
+        Set(
+          IndexConfig(name = "job_key_per_source", Set("rawJobSourceName", "url"), unique = true)
+        )
+      ),
       CollectionConfig(JobParsingErrorCollectionName, Set.empty)
     )
 

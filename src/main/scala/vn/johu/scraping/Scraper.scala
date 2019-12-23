@@ -6,6 +6,6 @@ object Scraper {
 
   sealed trait Command
 
-  case class StartScraping(replyTo: ActorRef[ScrapingCoordinator.JobsScraped]) extends Command
+  case class Scrape(page: Int = 1, replyTo: ActorRef[ScrapingCoordinator.JobsScraped]) extends Command
 
 }

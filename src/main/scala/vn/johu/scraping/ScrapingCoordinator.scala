@@ -24,7 +24,7 @@ class ScrapingCoordinator(
     msg match {
       case StartScraping =>
         logger.info(s"Start coordinating scraping from company...")
-        scraper ! Scraper.StartScraping(context.self)
+        scraper ! Scraper.Scrape(replyTo = context.self)
         this
       case JobsScraped(scrapedJobs) =>
         logger.info(s"Scraped ${scrapedJobs.size} pages. Saving those pages...")

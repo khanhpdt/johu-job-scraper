@@ -1,27 +1,31 @@
 package vn.johu.scraping.itviec
 
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 import scala.collection.mutable
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.matching.Regex
 import scala.util.{Failure, Success}
 
-import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors, TimerScheduler}
 import akka.actor.typed.{ActorRef, Behavior}
-import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
+import reactivemongo.api.ReadConcern
+import reactivemongo.api.bson.{BSONDateTime, BSONObjectID, document}
 
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
-import vn.johu.scraping.Scraper.{Command, StartScraping}
+import vn.johu.scraping.Scraper.{Command, Scrape}
 import vn.johu.scraping.jsoup.{HtmlDoc, HtmlElem, JSoup}
-import vn.johu.scraping.models.ScrapedJobField.ScrapedJobField
+import vn.johu.scraping.models.ScrapedJobParsingField.ScrapedJobField
 import vn.johu.scraping.models._
 import vn.johu.scraping.{Scraper, ScrapingCoordinator, models}
-import vn.johu.utils.{DateUtils, Logging}
+import vn.johu.utils.{Configs, DateUtils, Logging}
 
 class ItViecScraper(
   context: ActorContext[Scraper.Command],
-  jSoup: JSoup
+  jSoup: JSoup,
+  timers: TimerScheduler[Scraper.Command]
 ) extends AbstractBehavior[Scraper.Command] with Logging {
 
   import ItViecScraper._
@@ -30,26 +34,27 @@ class ItViecScraper(
 
   override def onMessage(msg: Command): Behavior[Command] = {
     msg match {
-      case StartScraping(replyTo) =>
-        scrape(replyTo)
+      case Scrape(page, replyTo) =>
+        scrape(page, replyTo)
         this
     }
   }
 
-  private def scrape(replyTo: ActorRef[ScrapingCoordinator.JobsScraped]) = {
-    val url = "https://itviec.com/it-jobs?page=1"
-
+  private def scrape(page: Int, replyTo: ActorRef[ScrapingCoordinator.JobsScraped]) = {
+    val url = getPageUrl(page)
     logger.info(s"Start scraping at url: $url")
 
     val scrapeResultF =
       for {
-        htmlDoc <- jSoup.getAsync(url)
+        htmlDoc <- getHtmlDoc(url)
         rawJobSourceId <- saveHtml(url, htmlDoc)
         parsingResult <- parseJobsFromHtml(htmlDoc, rawJobSourceId)
+        // must prepare before saving to DB b/c we need to check on DB first
+        continueScraping <- shouldScheduleNextScraping(parsingResult)
         _ <- saveParsingResults(parsingResult)
         _ <- publishSuccessfulJobs(parsingResult.jobs)
         _ <- respond(parsingResult.jobs, replyTo)
-        _ <- prepareNextScrape()
+        _ <- scheduleNextScraping(continueScraping, page, replyTo)
       } yield parsingResult
 
     scrapeResultF.onComplete {
@@ -60,6 +65,14 @@ class ItViecScraper(
     }
 
     scrapeResultF
+  }
+
+  private def getPageUrl(page: Int) = {
+    s"https://itviec.com/it-jobs?page=$page"
+  }
+
+  private def getHtmlDoc(url: String) = {
+    jSoup.getAsync(url)
   }
 
   private def parseJobsFromHtml(doc: HtmlDoc, rawJobSourceId: BSONObjectID) = {
@@ -109,20 +122,20 @@ class ItViecScraper(
       opt
     }
 
-    def getUrl = trackError(ScrapedJobField.url) {
+    def getUrl = trackError(ScrapedJobParsingField.url) {
       for {
         elem <- jobElem.selectFirst(".job_content > .job__description > .job__body > .details > .title > a")
         link <- elem.attr("href")
       } yield s"https://itviec.vn/${link.trim.stripPrefix("/")}"
     }
 
-    def getTitle = trackError(ScrapedJobField.title) {
+    def getTitle = trackError(ScrapedJobParsingField.title) {
       for {
         elem <- jobElem.selectFirst(".job_content > .job__description > .job__body > .details > .title > a")
       } yield elem.text().trim
     }
 
-    def getTags = trackError(ScrapedJobField.tags) {
+    def getTags = trackError(ScrapedJobParsingField.tags) {
       for {
         elems <- jobElem.selectOpt(".job_content > .job__description > .job-bottom > .tag-list > a > span")
       } yield elems.map(_.text().trim).toSet
@@ -145,21 +158,21 @@ class ItViecScraper(
       }
     }
 
-    def getPostingDate = trackError(ScrapedJobField.postingDate) {
+    def getPostingDate = trackError(ScrapedJobParsingField.postingDate) {
       for {
         elem <- jobElem.selectFirst(".job_content > .city_and_posted_date > .distance-time-job-posted > span")
         d <- parsePostingDate(elem.text())
       } yield d
     }
 
-    def getCompany = trackError(ScrapedJobField.company) {
+    def getCompany = trackError(ScrapedJobParsingField.company) {
       for {
         elem <- jobElem.selectFirst(".job_content > .logo > .logo-wrapper > a")
         link <- elem.attr("href")
       } yield link.stripPrefix("/companies/").trim
     }
 
-    def getLocation = trackError(ScrapedJobField.location) {
+    def getLocation = trackError(ScrapedJobParsingField.location) {
       for {
         elem <- jobElem.selectFirst(".job_content > .city_and_posted_date > .city > .address > .text")
       } yield elem.text().trim
@@ -183,6 +196,7 @@ class ItViecScraper(
           postingDate = postingDate,
           company = company,
           location = location,
+          rawJobSourceName = RawJobSourceName.ItViec,
           rawJobSourceId = rawJobSourceId
         )
       }
@@ -226,21 +240,67 @@ class ItViecScraper(
     }
   }
 
-  private def prepareNextScrape() = {
-    Future.successful(())
+  private def shouldScheduleNextScraping(parsingResult: ParsingResult) = {
+    val jobKeys = parsingResult.jobs.map(_.url).toSet
+
+    val jobWithSameKeysCount = MongoDb.scrapedJobColl.flatMap { coll =>
+      coll.count(
+        selector = Some(document(
+          ScrapedJobField.url -> document("$in" -> jobKeys),
+          ScrapedJobField.rawJobSourceName -> RawJobSourceName.ItViec.toString
+        )),
+        limit = Some(jobKeys.size),
+        skip = 0,
+        hint = None,
+        readConcern = ReadConcern.Local
+      )
+    }
+
+    for {
+      count <- jobWithSameKeysCount
+    } yield {
+      // continue scraping if there is some new job in the currently scraped jobs
+      val hasNewJob = jobKeys.size > count
+      hasNewJob
+    }
   }
 
   private def respond(jobs: List[ScrapedJob], replyTo: ActorRef[ScrapingCoordinator.JobsScraped]) = {
-    Future.successful {
-      replyTo ! ScrapingCoordinator.JobsScraped(jobs)
+    replyTo ! ScrapingCoordinator.JobsScraped(jobs)
+    Future.successful(())
+  }
+
+  private def scheduleNextScraping(
+    shouldSchedule: Boolean,
+    currentPage: Int,
+    replyTo: ActorRef[ScrapingCoordinator.JobsScraped]
+  ) = {
+    if (!shouldSchedule) {
+      logger.info("Stop scraping as not scheduled.")
+    } else {
+      val nextPage = currentPage + 1
+      logger.info(s"Schedule for the next scraping: currentPage=$currentPage, nextPage=$nextPage...")
+      val config = context.system.settings.config
+      val delay = config.getLong(Configs.ScrapingDelayInMillis)
+      timers.startSingleTimer(
+        ContinueScraping,
+        Scrape(nextPage, replyTo),
+        delay = FiniteDuration(delay, TimeUnit.MILLISECONDS)
+      )
     }
+
+    Future.successful(())
   }
 
 }
 
 object ItViecScraper {
   def apply(jSoup: JSoup): Behavior[Scraper.Command] = {
-    Behaviors.setup[Scraper.Command](ctx => new ItViecScraper(ctx, jSoup))
+    Behaviors.setup[Scraper.Command] { ctx =>
+      Behaviors.withTimers[Scraper.Command] { timers =>
+        new ItViecScraper(ctx, jSoup, timers)
+      }
+    }
   }
 
   object PostingDatePatterns {
@@ -251,6 +311,8 @@ object ItViecScraper {
     val Week: Regex = "^(\\d+)\\s*(week|weeks)\\s*ago$".r
     val Month: Regex = "^(\\d+)\\s*(month|months)\\s*ago$".r
   }
+
+  case object ContinueScraping
 
 }
 
