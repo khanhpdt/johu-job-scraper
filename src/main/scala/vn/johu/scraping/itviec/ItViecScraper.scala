@@ -10,6 +10,7 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 
+import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.scraping.Scraper.{Command, StartScraping}
 import vn.johu.scraping.jsoup.{HtmlDoc, HtmlElem, JSoup}
@@ -46,7 +47,7 @@ class ItViecScraper(
         rawJobSourceId <- saveHtml(url, htmlDoc)
         parsingResult <- parseJobsFromHtml(htmlDoc, rawJobSourceId)
         _ <- saveParsingResults(parsingResult)
-        _ <- publishSuccessfulJobs()
+        _ <- publishSuccessfulJobs(parsingResult.jobs)
         _ <- respond(parsingResult.jobs, replyTo)
         _ <- prepareNextScrape()
       } yield parsingResult
@@ -54,7 +55,7 @@ class ItViecScraper(
     scrapeResultF.onComplete {
       case Failure(ex) =>
         logger.error(s"Error when scraping from url: $url", ex)
-      case Success(jobs) =>
+      case Success(_) =>
         logger.info(s"Successfully scrape from url: $url")
     }
 
@@ -219,8 +220,10 @@ class ItViecScraper(
     } yield (res1, res2)
   }
 
-  private def publishSuccessfulJobs() = {
-    Future.successful(())
+  private def publishSuccessfulJobs(jobs: List[ScrapedJob]) = {
+    Future.traverse(jobs) { job =>
+      RabbitMqClient.publishAsync(job)
+    }
   }
 
   private def prepareNextScrape() = {

@@ -3,6 +3,7 @@ package vn.johu.app
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{Behavior, PostStop, Signal}
 
+import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.utils.Logging
 
@@ -15,14 +16,18 @@ class AppInitializer(context: ActorContext[AppInitializer.Command])
     msg match {
       case InitSystem =>
         logger.info("Initializing system...")
-        MongoDb.init(context.system.settings.config)
+        val config = context.system.settings.config
+        MongoDb.init(config)
+        RabbitMqClient.init(config)
         Behaviors.stopped
     }
   }
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {
     case PostStop =>
-      logger.info("Initialization done. ApplicationInitilizer stopped")
+      logger.info("Application stopped.")
+      MongoDb.close()
+      RabbitMqClient.close()
       this
   }
 }

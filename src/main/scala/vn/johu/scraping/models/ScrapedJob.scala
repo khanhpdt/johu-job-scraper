@@ -2,6 +2,7 @@ package vn.johu.scraping.models
 
 import scala.util.Try
 
+import io.circe.{Encoder, Json}
 import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONDocumentReader, BSONDocumentWriter, BSONObjectID}
 
 case class ScrapedJob(
@@ -40,20 +41,33 @@ object ScrapedJob {
   }
 
   implicit object ScrapedJobWriter extends BSONDocumentWriter[ScrapedJob] {
-    override def writeTry(t: ScrapedJob): Try[BSONDocument] = {
+    override def writeTry(job: ScrapedJob): Try[BSONDocument] = {
       Try {
         BSONDocument(
-          "_id" -> t.id,
-          "url" -> t.url,
-          "title" -> t.title,
-          "tags" -> t.tags,
-          "postingDate" -> t.postingDate,
-          "company" -> t.company,
-          "location" -> t.location,
-          "rawJobSourceId" -> t.rawJobSourceId
+          "_id" -> job.id,
+          "url" -> job.url,
+          "title" -> job.title,
+          "tags" -> job.tags,
+          "postingDate" -> job.postingDate,
+          "company" -> job.company,
+          "location" -> job.location,
+          "rawJobSourceId" -> job.rawJobSourceId
         )
       }
     }
+  }
+
+  implicit val encoder: Encoder[ScrapedJob] = (job: ScrapedJob) => {
+    Json.obj(
+      "_id" -> Json.fromString(job.id.get.stringify),
+      "url" -> Json.fromString(job.url),
+      "title" -> Json.fromString(job.title),
+      "tags" -> Json.fromValues(job.tags.map(Json.fromString)),
+      "postingDate" -> Json.fromLong(job.postingDate.toLong.get),
+      "company" -> Json.fromString(job.company),
+      "location" -> Json.fromString(job.location),
+      "rawJobSourceId" -> Json.fromString(job.rawJobSourceId.stringify)
+    )
   }
 
 }

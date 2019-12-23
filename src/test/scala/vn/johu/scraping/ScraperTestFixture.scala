@@ -8,6 +8,7 @@ import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import org.scalatest.{BeforeAndAfterAll, FunSuiteLike}
 import reactivemongo.api.bson.BSONDocument
 
+import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.utils.Logging
 
@@ -30,12 +31,16 @@ trait ScraperTestFixture extends ScalaTestWithActorTestKit with FunSuiteLike wit
   }
 
   override def beforeAll(): Unit = {
-    MongoDb.init(system.settings.config)
+    val config = system.settings.config
+    MongoDb.init(config)
+    RabbitMqClient.init(config)
+
     deleteAllMongoDocs()
   }
 
   override def afterAll(): Unit = {
     MongoDb.close()
+    RabbitMqClient.close()
   }
 
 }

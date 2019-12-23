@@ -8,6 +8,8 @@ lazy val akkaVersion = "2.5.25"
 lazy val reactiveMongoVersion = "0.19.5"
 lazy val jSoupVersion  ="1.12.1"
 lazy val scalaTestVersion = "3.0.8"
+lazy val rabbitMqVersion = "5.8.0"
+lazy val circeVersion = "0.12.3"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
@@ -16,6 +18,10 @@ libraryDependencies ++= Seq(
   "org.reactivemongo" %% "reactivemongo" % reactiveMongoVersion,
 
   "org.jsoup" % "jsoup" % jSoupVersion,
+
+  "com.rabbitmq" % "amqp-client" % rabbitMqVersion,
+
+  "io.circe" %% "circe-core" % circeVersion,
 
   "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test,
   "org.scalatest" %% "scalatest" % scalaTestVersion % Test
