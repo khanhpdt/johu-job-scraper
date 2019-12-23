@@ -4,15 +4,18 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.scalatest.{BeforeAndAfterAll, FunSuiteLike}
+import akka.actor.testkit.typed.scaladsl.ActorTestKit
+import com.typesafe.config.ConfigFactory
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuiteLike, Matchers}
 import reactivemongo.api.bson.BSONDocument
 
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.utils.Logging
 
-trait ScraperTestFixture extends ScalaTestWithActorTestKit with FunSuiteLike with BeforeAndAfterAll with Logging {
+trait ScraperTestFixture extends FunSuiteLike with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with Logging {
+
+  protected val testKit: ActorTestKit = ActorTestKit("scraper-test-actor-system", ConfigFactory.load())
 
   private def deleteAllMongoDocs(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,19 +34,19 @@ trait ScraperTestFixture extends ScalaTestWithActorTestKit with FunSuiteLike wit
   }
 
   override def beforeAll(): Unit = {
-    super.beforeAll()
-
-    val config = system.settings.config
+    val config = testKit.config
     MongoDb.init(config)
     RabbitMqClient.init(config)
+  }
 
+  override def beforeEach(): Unit = {
     deleteAllMongoDocs()
   }
 
   override def afterAll(): Unit = {
-    super.afterAll()
     MongoDb.close()
     RabbitMqClient.close()
+    testKit.shutdownTestKit()
   }
 
 }
