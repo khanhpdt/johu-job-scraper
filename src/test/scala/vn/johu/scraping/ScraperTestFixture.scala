@@ -41,6 +41,7 @@ trait ScraperTestFixture extends FunSuiteLike with Matchers with BeforeAndAfterA
 
   override def beforeEach(): Unit = {
     deleteAllMongoDocs()
+    RabbitMqClient.clearAll()
   }
 
   override def afterAll(): Unit = {

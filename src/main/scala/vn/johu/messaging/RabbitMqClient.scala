@@ -17,6 +17,7 @@ object RabbitMqClient extends Logging with TryHelper {
   private var channel: Channel = _
 
   private var exchangeName: String = _
+  private var queueName: String = _
   private var routingKey: String = _
 
   def init(config: Config): Unit = {
@@ -35,7 +36,7 @@ object RabbitMqClient extends Logging with TryHelper {
     exchangeName = config.getString(Configs.RabbitMqExchangeName)
     channel.exchangeDeclare(exchangeName, "direct", true)
 
-    val queueName = config.getString(Configs.RabbitMqQueueName)
+    queueName = config.getString(Configs.RabbitMqQueueName)
     channel.queueDeclare(queueName, true, false, false, null)
 
     routingKey = config.getString(Configs.RabbitMqRoutingKey)
@@ -70,6 +71,10 @@ object RabbitMqClient extends Logging with TryHelper {
     }
 
     result
+  }
+
+  def clearAll(): Unit = {
+    channel.queuePurge(queueName)
   }
 
 }
