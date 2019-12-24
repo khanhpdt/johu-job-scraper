@@ -7,10 +7,10 @@ import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.utils.Logging
 
-class AppInitializer(context: ActorContext[AppInitializer.Command])
-  extends AbstractBehavior[AppInitializer.Command] with Logging {
+class AppRootActor(context: ActorContext[AppRootActor.Command])
+  extends AbstractBehavior[AppRootActor.Command] with Logging {
 
-  import AppInitializer._
+  import AppRootActor._
 
   override def onMessage(msg: Command): Behavior[Command] = {
     msg match {
@@ -36,13 +36,13 @@ class AppInitializer(context: ActorContext[AppInitializer.Command])
   }
 }
 
-object AppInitializer {
+object AppRootActor {
 
   sealed trait Command
 
   case object InitSystem extends Command
 
   def apply(): Behavior[Command] = {
-    Behaviors.setup[Command](new AppInitializer(_))
+    Behaviors.setup[Command](new AppRootActor(_))
   }
 }
