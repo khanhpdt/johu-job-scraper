@@ -10,8 +10,8 @@ import scala.util.{Failure, Success}
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors, TimerScheduler}
 import akka.actor.typed.{ActorRef, Behavior}
-import reactivemongo.api.ReadConcern
-import reactivemongo.api.bson.{BSONDateTime, BSONObjectID, document}
+import reactivemongo.api.Cursor
+import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, document}
 
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
@@ -19,7 +19,7 @@ import vn.johu.scraping.Scraper.{Command, Scrape}
 import vn.johu.scraping.jsoup.{HtmlDoc, HtmlElem, JSoup}
 import vn.johu.scraping.models.ScrapedJobParsingField.ScrapedJobField
 import vn.johu.scraping.models._
-import vn.johu.scraping.{Scraper, ScrapingCoordinator, models}
+import vn.johu.scraping.{Scraper, models}
 import vn.johu.utils.{Configs, DateUtils, Logging}
 
 class ItViecScraper(
@@ -40,7 +40,7 @@ class ItViecScraper(
     }
   }
 
-  private def scrape(page: Int, replyTo: ActorRef[ScrapingCoordinator.JobsScraped]) = {
+  private def scrape(page: Int, replyTo: ActorRef[Scraper.JobsScraped]) = {
     val url = getPageUrl(page)
     logger.info(s"Start scraping at url: $url")
 
@@ -49,12 +49,12 @@ class ItViecScraper(
         htmlDoc <- getHtmlDoc(url)
         rawJobSourceId <- saveHtml(url, htmlDoc)
         parsingResult <- parseJobsFromHtml(htmlDoc, rawJobSourceId)
-        // must prepare before saving to DB b/c we need to check on DB first
-        continueScraping <- shouldScheduleNextScraping(parsingResult)
-        _ <- saveParsingResults(parsingResult)
-        _ <- publishSuccessfulJobs(parsingResult.jobs)
-        _ <- respond(parsingResult.jobs, replyTo)
-        _ <- scheduleNextScraping(continueScraping, page, replyTo)
+        newJobs <- filterNewJobs(parsingResult.jobs)
+        shouldScheduleNext <- shouldScheduleNextScraping(newJobs)
+        _ <- saveParsingResults(newJobs, parsingResult.errors)
+        _ <- publishNewJobs(newJobs)
+        _ <- respond(page, newJobs, replyTo)
+        _ <- scheduleNextScraping(shouldScheduleNext, page, replyTo)
       } yield parsingResult
 
     scrapeResultF.onComplete {
@@ -219,61 +219,73 @@ class ItViecScraper(
     }
   }
 
-  private def saveParsingResults(parsingResult: ParsingResult) = {
-    val insertJobsF = MongoDb.scrapedJobColl.flatMap { coll =>
-      coll.insert(ordered = false).many(parsingResult.jobs)
-    }
-
-    val insertErrorsF = MongoDb.jobParsingErrorColl.flatMap { coll =>
-      coll.insert(ordered = false).many(parsingResult.errors)
-    }
-
+  private def saveParsingResults(newJobs: List[ScrapedJob], errors: List[JobParsingError]) = {
+    val insertJobsF =
+      if (newJobs.isEmpty) {
+        Future.successful(Nil)
+      } else {
+        MongoDb.scrapedJobColl.flatMap { coll =>
+          coll.insert(ordered = false).many(newJobs).map(_ => newJobs)
+        }
+      }
+    val insertErrorsF =
+      if (errors.isEmpty) {
+        Future.successful(Nil)
+      } else {
+        MongoDb.jobParsingErrorColl.flatMap { coll =>
+          coll.insert(ordered = false).many(errors).map(_ => errors)
+        }
+      }
     for {
       res1 <- insertJobsF
       res2 <- insertErrorsF
     } yield (res1, res2)
   }
 
-  private def publishSuccessfulJobs(jobs: List[ScrapedJob]) = {
+  private def publishNewJobs(jobs: List[ScrapedJob]) = {
     Future.traverse(jobs) { job =>
       RabbitMqClient.publishAsync(job)
     }
   }
 
-  private def shouldScheduleNextScraping(parsingResult: ParsingResult) = {
-    val jobKeys = parsingResult.jobs.map(_.url).toSet
+  private def filterNewJobs(scrapedJobs: List[ScrapedJob]) = {
+    if (scrapedJobs.isEmpty) {
+      Future.successful(Nil)
+    } else {
+      val jobByKey = scrapedJobs.map(j => j.url -> j).toMap
+      val jobKeys = jobByKey.keySet
+      val existingJobsF = MongoDb.scrapedJobColl.flatMap { coll =>
+        coll.find(
+          selector = document(
+            ScrapedJobField.url -> document("$in" -> jobKeys),
+            ScrapedJobField.rawJobSourceName -> RawJobSourceName.ItViec.toString
+          ),
+          projection = Some(document(ScrapedJobField.url -> 1))
+        ).cursor[BSONDocument]().collect[List](jobKeys.size, Cursor.FailOnError[List[BSONDocument]]())
+      }
 
-    val jobWithSameKeysCount = MongoDb.scrapedJobColl.flatMap { coll =>
-      coll.count(
-        selector = Some(document(
-          ScrapedJobField.url -> document("$in" -> jobKeys),
-          ScrapedJobField.rawJobSourceName -> RawJobSourceName.ItViec.toString
-        )),
-        limit = Some(jobKeys.size),
-        skip = 0,
-        hint = None,
-        readConcern = ReadConcern.Local
-      )
-    }
-
-    for {
-      count <- jobWithSameKeysCount
-    } yield {
-      // continue scraping if there is some new job in the currently scraped jobs
-      val hasNewJob = jobKeys.size > count
-      hasNewJob
+      for {
+        existingJobs <- existingJobsF
+      } yield {
+        val existingJobKeys = existingJobs.map(_.getAsOpt[String](ScrapedJobField.url).get).toSet
+        jobByKey.filterNot(kv => existingJobKeys.contains(kv._1)).values.toList
+      }
     }
   }
 
-  private def respond(jobs: List[ScrapedJob], replyTo: ActorRef[ScrapingCoordinator.JobsScraped]) = {
-    replyTo ! ScrapingCoordinator.JobsScraped(jobs)
+  private def shouldScheduleNextScraping(newJobs: List[ScrapedJob]) = {
+    Future.successful(newJobs.nonEmpty)
+  }
+
+  private def respond(page: Int, jobs: List[ScrapedJob], replyTo: ActorRef[Scraper.JobsScraped]) = {
+    replyTo ! Scraper.JobsScraped(page, jobs)
     Future.successful(())
   }
 
   private def scheduleNextScraping(
     shouldSchedule: Boolean,
     currentPage: Int,
-    replyTo: ActorRef[ScrapingCoordinator.JobsScraped]
+    replyTo: ActorRef[Scraper.JobsScraped]
   ) = {
     if (!shouldSchedule) {
       logger.info("Stop scraping as not scheduled.")
