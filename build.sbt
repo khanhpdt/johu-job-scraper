@@ -10,6 +10,7 @@ lazy val jSoupVersion  ="1.12.1"
 lazy val scalaTestVersion = "3.0.8"
 lazy val rabbitMqVersion = "5.8.0"
 lazy val circeVersion = "0.12.3"
+lazy val quartzVersion = "2.3.2"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
@@ -22,6 +23,8 @@ libraryDependencies ++= Seq(
   "com.rabbitmq" % "amqp-client" % rabbitMqVersion,
 
   "io.circe" %% "circe-core" % circeVersion,
+
+  "org.quartz-scheduler" % "quartz" % quartzVersion,
 
   "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test,
   "org.scalatest" %% "scalatest" % scalaTestVersion % Test

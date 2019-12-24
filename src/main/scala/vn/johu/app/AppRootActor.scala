@@ -5,6 +5,7 @@ import akka.actor.typed.{Behavior, PostStop, Signal}
 
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
+import vn.johu.scheduling.QuartzScheduler
 import vn.johu.utils.Logging
 
 class AppRootActor(context: ActorContext[AppRootActor.Command])
@@ -17,6 +18,9 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
       case InitSystem =>
         initSystem()
         this
+      case RunAllScrapers =>
+        runAllScrapers()
+        this
     }
   }
 
@@ -25,6 +29,7 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
     val config = context.system.settings.config
     MongoDb.init(config)
     RabbitMqClient.init(config)
+    QuartzScheduler.init()
   }
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {
@@ -32,7 +37,12 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
       logger.info("Application stopped.")
       MongoDb.close()
       RabbitMqClient.close()
+      QuartzScheduler.close()
       this
+  }
+
+  private def runAllScrapers(): Unit = {
+    logger.info("Run all scrapers")
   }
 }
 
@@ -41,6 +51,8 @@ object AppRootActor {
   sealed trait Command
 
   case object InitSystem extends Command
+
+  case object RunAllScrapers extends Command
 
   def apply(): Behavior[Command] = {
     Behaviors.setup[Command](new AppRootActor(_))
