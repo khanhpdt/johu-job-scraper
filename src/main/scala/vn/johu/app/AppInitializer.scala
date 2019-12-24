@@ -15,12 +15,16 @@ class AppInitializer(context: ActorContext[AppInitializer.Command])
   override def onMessage(msg: Command): Behavior[Command] = {
     msg match {
       case InitSystem =>
-        logger.info("Initializing system...")
-        val config = context.system.settings.config
-        MongoDb.init(config)
-        RabbitMqClient.init(config)
-        Behaviors.stopped
+        initSystem()
+        this
     }
+  }
+
+  private def initSystem(): Unit = {
+    logger.info("Initializing system...")
+    val config = context.system.settings.config
+    MongoDb.init(config)
+    RabbitMqClient.init(config)
   }
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {
