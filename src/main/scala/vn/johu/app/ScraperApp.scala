@@ -1,15 +1,11 @@
 package vn.johu.app
 
-import akka.actor.typed.{ActorRef, ActorSystem}
+import akka.actor.typed.ActorSystem
 
-object ScraperApp  {
+object ScraperApp extends App {
 
-  var rootActor: ActorRef[AppRootActor.Command] = _
-
-  def main(args: Array[String]): Unit = {
-    rootActor = ActorSystem[AppRootActor.Command](AppRootActor(), "johu-actor-system")
-    rootActor ! AppRootActor.InitSystem
-  }
+  val rootActor = ActorSystem[AppRootActor.Command](AppRootActor(), "johu-actor-system")
+  rootActor ! AppRootActor.InitSystem
 
   def runScrapers(): Unit = {
     rootActor ! AppRootActor.RunAllScrapers
