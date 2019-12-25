@@ -23,6 +23,7 @@ object QuartzScheduler extends Logging {
   }
 
   def close(): Unit = {
+    logger.info("Closing scheduler...")
     scheduler.shutdown()
   }
 

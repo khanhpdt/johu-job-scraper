@@ -34,7 +34,7 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {
     case PostStop =>
-      logger.info("Application stopped.")
+      logger.info("Application stopped. Closing resources...")
       MongoDb.close()
       RabbitMqClient.close()
       QuartzScheduler.close()
