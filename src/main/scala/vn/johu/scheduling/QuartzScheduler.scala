@@ -1,25 +1,27 @@
 package vn.johu.scheduling
 
-import org.quartz.JobBuilder._
+import com.typesafe.config.Config
 import org.quartz.Scheduler
-import org.quartz.SimpleScheduleBuilder._
-import org.quartz.TriggerBuilder._
 import org.quartz.impl.StdSchedulerFactory
 
-import vn.johu.utils.Logging
+import vn.johu.utils.{Configs, Logging}
 
 object QuartzScheduler extends Logging {
 
   private var scheduler: Scheduler = _
 
-  def init(): Unit = {
+  def init(config: Config): Unit = {
     logger.info("Initializing Quartz scheduler...")
 
     val sf = new StdSchedulerFactory()
     scheduler = sf.getScheduler()
     scheduler.start()
 
-    schedule()
+    if (config.getBoolean(Configs.ScrapingEnabled)) {
+      scheduleAllJobs()
+    } else {
+      logger.info("Scraping disabled. Skip scheduling the scrapers.")
+    }
   }
 
   def close(): Unit = {
@@ -27,22 +29,13 @@ object QuartzScheduler extends Logging {
     scheduler.shutdown()
   }
 
-  private def schedule(): Unit = {
+  private def scheduleAllJobs(): Unit = {
     logger.info("Scheduling job ScraperSchedulerJob...")
 
-    val job = newJob(classOf[ScraperSchedulerJob])
-      .withIdentity("ScraperSchedulerJob", "ScraperScheduler")
-      .build()
-
-    val trigger = newTrigger()
-      .withIdentity("ScraperSchedulerJobTrigger", "ScraperSchedulerTrigger")
-      .startNow()
-      .withSchedule(
-        simpleSchedule().withIntervalInSeconds(3).withRepeatCount(5)
-      )
-      .build()
-
+    val (trigger, job) = ScraperSchedulerJob.createNewJob()
     scheduler.scheduleJob(job, trigger)
+
+    logger.info(s"Scheduled job [$job] with trigger [$trigger]")
   }
 
 }

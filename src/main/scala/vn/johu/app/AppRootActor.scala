@@ -29,7 +29,7 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
     val config = context.system.settings.config
     MongoDb.init(config)
     RabbitMqClient.init(config)
-    QuartzScheduler.init()
+    QuartzScheduler.init(config)
   }
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {
