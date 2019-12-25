@@ -6,6 +6,7 @@ import scala.concurrent.ExecutionContext
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, PostStop, Signal}
 
+import vn.johu.http.HttpServer
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.scheduling.QuartzScheduler
@@ -46,6 +47,7 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
     MongoDb.init(config)
     RabbitMqClient.init(config)
     QuartzScheduler.init(config)
+    HttpServer.init(context.system)
   }
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {
@@ -54,6 +56,7 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
       MongoDb.close()
       RabbitMqClient.close()
       QuartzScheduler.close()
+      HttpServer.close()
       this
   }
 
