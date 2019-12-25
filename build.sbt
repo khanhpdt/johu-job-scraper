@@ -1,8 +1,8 @@
 name := "johu-job-scraper"
-
-version := "1.0"
-
+version := "1.0.0"
 scalaVersion := "2.13.1"
+
+enablePlugins(JavaAppPackaging)
 
 lazy val akkaVersion = "2.5.25"
 lazy val reactiveMongoVersion = "0.19.5"
@@ -31,3 +31,19 @@ libraryDependencies ++= Seq(
 )
 
 scalacOptions := Seq("-unchecked", "-deprecation")
+
+dockerBaseImage := "openjdk:8"
+
+javaOptions in Universal ++= Seq(
+  // JVM memory tuning
+  "-J-Xmx1024m",
+  "-J-Xms512m",
+
+  // Use separate configuration file for production environment
+  s"-Dconfig.resource=production.conf",
+
+  // Use separate logger configuration file for production environment
+  s"-Dlogback.configurationFile=logback-prod.xml"
+)
+
+dockerExposedPorts ++= Seq.empty
