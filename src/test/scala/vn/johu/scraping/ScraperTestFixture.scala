@@ -1,7 +1,7 @@
 package vn.johu.scraping
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
@@ -17,8 +17,9 @@ trait ScraperTestFixture extends FunSuiteLike with Matchers with BeforeAndAfterA
 
   protected val testKit: ActorTestKit = ActorTestKit("scraper-test-actor-system", ConfigFactory.load())
 
+  private implicit val ec: ExecutionContext = testKit.system.executionContext
+
   private def deleteAllMongoDocs(): Unit = {
-    import scala.concurrent.ExecutionContext.Implicits.global
     val deleteF = Future.sequence {
       MongoDb.allCollections.map { coll =>
         coll.flatMap(_.delete(ordered = false).one(BSONDocument.empty))

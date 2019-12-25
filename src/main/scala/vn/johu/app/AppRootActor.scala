@@ -1,6 +1,7 @@
 package vn.johu.app
 
 import scala.collection.mutable
+import scala.concurrent.ExecutionContext
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, PostStop, Signal}
@@ -18,6 +19,8 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
   extends AbstractBehavior[AppRootActor.Command] with Logging {
 
   import AppRootActor._
+
+  private implicit val ec: ExecutionContext = context.system.executionContext
 
   private var scrapers = mutable.ListBuffer.empty[ActorRef[Scraper.Command]]
 

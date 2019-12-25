@@ -1,7 +1,7 @@
 package vn.johu.persistence
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 import com.typesafe.config.Config
@@ -14,10 +14,6 @@ import vn.johu.utils.{Configs, Logging, TryHelper}
 
 object MongoDb extends TryHelper with Logging {
 
-  // TODO: Replace this with another context if needed
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   private val ScrapedJobCollectionName = "scraped_job"
   private val RawJobSourceCollectionName = "raw_job_source"
   private val JobParsingErrorCollectionName = "job_parsing_error"
@@ -25,7 +21,7 @@ object MongoDb extends TryHelper with Logging {
   private var dbName: String = _
   private var mongoConnection: MongoConnection = _
 
-  def init(config: Config): Unit = {
+  def init(config: Config)(implicit ec: ExecutionContext): Unit = {
     logger.info("Initializing MongoDb database...")
 
     val hostUrl = config.getString(Configs.MongoHostUrl)
@@ -45,7 +41,7 @@ object MongoDb extends TryHelper with Logging {
     checkDb()
   }
 
-  def close(): Unit = {
+  def close()(implicit ec: ExecutionContext): Unit = {
     logger.info("Closing MongoDb connection...")
     mongoConnection.close()(5.minutes).onComplete {
       case Failure(ex) =>
@@ -60,19 +56,19 @@ object MongoDb extends TryHelper with Logging {
    * It’s generally a good practice not to assign the database and collection references to val (even to lazy val),
    * as it’s better to get a fresh reference each time, to automatically recover from any previous issues (e.g. network failure).
    */
-  def database: Future[DefaultDB] = mongoConnection.database(dbName)
+  def database(implicit ec: ExecutionContext): Future[DefaultDB] = mongoConnection.database(dbName)
 
-  def scrapedJobColl: Future[BSONCollection] = collection(ScrapedJobCollectionName)
+  def scrapedJobColl(implicit ec: ExecutionContext): Future[BSONCollection] = collection(ScrapedJobCollectionName)
 
-  def rawJobSourceColl: Future[BSONCollection] = collection(RawJobSourceCollectionName)
+  def rawJobSourceColl(implicit ec: ExecutionContext): Future[BSONCollection] = collection(RawJobSourceCollectionName)
 
-  def jobParsingErrorColl: Future[BSONCollection] = collection(JobParsingErrorCollectionName)
+  def jobParsingErrorColl(implicit ec: ExecutionContext): Future[BSONCollection] = collection(JobParsingErrorCollectionName)
 
-  def allCollections = List(scrapedJobColl, rawJobSourceColl, jobParsingErrorColl)
+  def allCollections(implicit ec: ExecutionContext) = List(scrapedJobColl, rawJobSourceColl, jobParsingErrorColl)
 
-  private def collection(name: String) = database.map(_.collection[BSONCollection](name))
+  private def collection(name: String)(implicit ec: ExecutionContext) = database.map(_.collection[BSONCollection](name))
 
-  private def checkDb(): Unit = {
+  private def checkDb()(implicit ec: ExecutionContext): Unit = {
     logger.info("Checking database collections...")
 
     def checkCollection(collectionsInDb: Set[String], coll: CollectionConfig) = {
