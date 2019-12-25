@@ -61,14 +61,14 @@ class ItViecScraper(
       case Failure(ex) =>
         logger.error(s"Error when scraping from url: $url", ex)
       case Success(_) =>
-        logger.info(s"Successfully scrape from url: $url")
+        logger.info(s"Successfully scraped from url: $url")
     }
 
     scrapeResultF
   }
 
   private def getPageUrl(page: Int) = {
-    s"https://itviec.com/it-jobs?page=$page"
+    s"$BaseUrl/it-jobs?page=$page"
   }
 
   private def getHtmlDoc(url: String) = {
@@ -76,23 +76,29 @@ class ItViecScraper(
   }
 
   private def parseJobsFromHtml(doc: HtmlDoc, rawJobSourceId: BSONObjectID) = {
+    logger.info("Parsing jobs from html...")
+
     val jobElements = doc.select("#search-results #jobs div.job")
 
     if (jobElements.isEmpty) {
-      logger.info("Not job element found.")
+      logger.info("No job element found.")
       Future.successful(ParsingResult(Nil, Nil))
     } else {
+      logger.info(s"Found ${jobElements.size} job elements")
       Future.successful {
         val results = jobElements.map(parseJobElement(_, rawJobSourceId))
-        ParsingResult(
+        val parsingResult = ParsingResult(
           jobs = results.collect { case Right(value) => value },
           errors = results.collect { case Left(value) => value }
         )
+        logger.info(s"Parsing result: nJobs=${parsingResult.jobs.size}, nErrors=${parsingResult.errors.size}")
+        parsingResult
       }
     }
   }
 
   private def saveHtml(url: String, htmlDoc: HtmlDoc): Future[BSONObjectID] = {
+    logger.info("Saving raw html...")
     MongoDb.rawJobSourceColl.flatMap { coll =>
       val docId = BSONObjectID.generate
       coll.insert(ordered = false).one[RawJobSource](
@@ -126,7 +132,7 @@ class ItViecScraper(
       for {
         elem <- jobElem.selectFirst(".job_content > .job__description > .job__body > .details > .title > a")
         link <- elem.attr("href")
-      } yield s"https://itviec.vn/${link.trim.stripPrefix("/")}"
+      } yield s"$BaseUrl/${link.trim.stripPrefix("/")}"
     }
 
     def getTitle = trackError(ScrapedJobParsingField.title) {
@@ -220,6 +226,8 @@ class ItViecScraper(
   }
 
   private def saveParsingResults(newJobs: List[ScrapedJob], errors: List[JobParsingError]) = {
+    logger.info(s"Saving parsing results: nJobs=${newJobs.size}, errors=${errors.size}")
+
     val insertJobsF =
       if (newJobs.isEmpty) {
         Future.successful(Nil)
@@ -243,6 +251,7 @@ class ItViecScraper(
   }
 
   private def publishNewJobs(jobs: List[ScrapedJob]) = {
+    logger.info(s"Publishing ${jobs.size} new jobs...")
     Future.traverse(jobs) { job =>
       RabbitMqClient.publishAsync(job)
     }
@@ -250,6 +259,7 @@ class ItViecScraper(
 
   private def filterNewJobs(scrapedJobs: List[ScrapedJob]) = {
     if (scrapedJobs.isEmpty) {
+      logger.info("No job has been scraped. So no new job.")
       Future.successful(Nil)
     } else {
       val jobByKey = scrapedJobs.map(j => j.url -> j).toMap
@@ -268,13 +278,23 @@ class ItViecScraper(
         existingJobs <- existingJobsF
       } yield {
         val existingJobKeys = existingJobs.map(_.getAsOpt[String](ScrapedJobField.url).get).toSet
-        jobByKey.filterNot(kv => existingJobKeys.contains(kv._1)).values.toList
+        val newJobs = jobByKey.filterNot(kv => existingJobKeys.contains(kv._1)).values.toList
+        logger.info(s"Found ${newJobs.size} new jobs among the ${scrapedJobs.size} scraped jobs.")
+        newJobs
       }
     }
   }
 
   private def shouldScheduleNextScraping(newJobs: List[ScrapedJob]) = {
-    Future.successful(newJobs.nonEmpty)
+    Future.successful {
+      if (newJobs.nonEmpty) {
+        logger.info("Found new job in the current page. So will try next page...")
+        true
+      } else {
+        logger.info("Found no new job in the current page. So will not try next page.")
+        false
+      }
+    }
   }
 
   private def respond(page: Int, jobs: List[ScrapedJob], replyTo: ActorRef[Scraper.JobsScraped]) = {
@@ -291,7 +311,7 @@ class ItViecScraper(
       logger.info("Stop scraping as not scheduled.")
     } else {
       val nextPage = currentPage + 1
-      logger.info(s"Schedule for the next scraping: currentPage=$currentPage, nextPage=$nextPage...")
+      logger.info(s"Scheduling for the next scraping: currentPage=$currentPage, nextPage=$nextPage...")
       val config = context.system.settings.config
       val delay = config.getLong(Configs.ScrapingDelayInMillis)
       timers.startSingleTimer(
@@ -307,6 +327,9 @@ class ItViecScraper(
 }
 
 object ItViecScraper {
+
+  val BaseUrl = "https://itviec.com"
+
   def apply(jSoup: JSoup): Behavior[Scraper.Command] = {
     Behaviors.setup[Scraper.Command] { ctx =>
       Behaviors.withTimers[Scraper.Command] { timers =>
