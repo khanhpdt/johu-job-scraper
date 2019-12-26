@@ -8,6 +8,7 @@ import akka.actor.typed.{ActorRef, Behavior, PostStop, Signal}
 import vn.johu.scraping.Scraper.JobsScraped
 import vn.johu.scraping.itviec.ItViecScraper
 import vn.johu.scraping.jsoup.JSoup
+import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.utils.Logging
 
 class ScraperManager(context: ActorContext[ScraperManager.Command])
@@ -26,6 +27,9 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
         this
       case WrappedJobsScraped(jobsScraped) =>
         logger.debug(s"Scraped ${jobsScraped.scrapedJobs.size} jobs")
+        this
+      case FixScrapedJobs(rawJobSourceName) =>
+        logger.info(s"Fix scraped jobs from source: ${rawJobSourceName}")
         this
     }
   }
@@ -64,5 +68,7 @@ object ScraperManager {
   case object RunAllScrapers extends Command
 
   case class WrappedJobsScraped(jobsScraped: JobsScraped) extends Command
+
+  case class FixScrapedJobs(jobSourceName: RawJobSourceName) extends Command
 
 }

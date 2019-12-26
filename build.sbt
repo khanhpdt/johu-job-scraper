@@ -7,7 +7,7 @@ enablePlugins(JavaAppPackaging)
 lazy val akkaVersion = "2.5.25"
 lazy val akkaHttpVersion = "10.1.10"
 lazy val reactiveMongoVersion = "0.19.5"
-lazy val jSoupVersion  ="1.12.1"
+lazy val jSoupVersion = "1.12.1"
 lazy val scalaTestVersion = "3.0.8"
 lazy val rabbitMqVersion = "5.8.0"
 lazy val circeVersion = "0.12.3"
@@ -27,7 +27,8 @@ libraryDependencies ++= Seq(
 
   "org.quartz-scheduler" % "quartz" % quartzVersion,
 
-  "com.typesafe.akka" %% "akka-http"   % akkaHttpVersion,
+  "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+  "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-stream" % akkaVersion, // required for akka-http
 
   "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test,
