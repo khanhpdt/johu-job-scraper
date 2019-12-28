@@ -5,7 +5,6 @@ import scala.util.Try
 import reactivemongo.api.bson._
 
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
-import vn.johu.scraping.models.RawJobSourceType.RawJobSourceType
 
 object RawJobSourceType extends Enumeration {
   type RawJobSourceType = Value
@@ -22,7 +21,6 @@ case class RawJobSource(
   url: String,
   sourceName: RawJobSourceName,
   content: String,
-  sourceType: RawJobSourceType,
   scrapingTs: BSONDateTime
 )
 
@@ -36,7 +34,6 @@ object RawJobSource {
           url = doc.getAsOpt[String](Fields.url).get,
           sourceName = RawJobSourceName.withName(doc.getAsOpt[String](Fields.sourceName).get),
           content = doc.getAsOpt[String](Fields.content).get,
-          sourceType = RawJobSourceType.withName(doc.getAsOpt[String](Fields.sourceType).get),
           scrapingTs = doc.getAsOpt[BSONDateTime](Fields.scrapingTs).get
         )
       }
@@ -51,7 +48,6 @@ object RawJobSource {
           Fields.url -> t.url,
           Fields.sourceName -> t.sourceName.toString,
           Fields.content -> t.content,
-          Fields.sourceType -> t.sourceType.toString,
           Fields.scrapingTs -> t.scrapingTs
         )
       }
@@ -63,7 +59,6 @@ object RawJobSource {
     val url = "url"
     val sourceName = "sourceName"
     val content = "content"
-    val sourceType = "sourceType"
     val scrapingTs = "scrapingTs"
   }
 
