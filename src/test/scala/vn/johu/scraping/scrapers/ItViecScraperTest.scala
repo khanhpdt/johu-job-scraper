@@ -1,4 +1,4 @@
-package vn.johu.scraping.itviec
+package vn.johu.scraping.scrapers
 
 import scala.concurrent.duration._
 

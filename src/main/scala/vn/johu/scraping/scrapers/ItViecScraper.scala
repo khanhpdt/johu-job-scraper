@@ -1,4 +1,4 @@
-package vn.johu.scraping.itviec
+package vn.johu.scraping.scrapers
 
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit

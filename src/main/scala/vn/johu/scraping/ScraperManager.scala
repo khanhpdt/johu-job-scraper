@@ -6,7 +6,7 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, PostStop, Signal}
 
 import vn.johu.scraping.Scraper.JobsScraped
-import vn.johu.scraping.itviec.ItViecScraper
+import vn.johu.scraping.scrapers.ItViecScraper
 import vn.johu.scraping.jsoup.JSoup
 import vn.johu.scraping.models.RawJobSourceName
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
