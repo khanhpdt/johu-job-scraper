@@ -148,7 +148,6 @@ class ItViecScraper(
     val url = getPageUrl(page)
     logger.info(s"Start scraping at url: $url")
 
-    // todo: how to handle when there's an error during the scraping?
     val scrapeResultF =
       for {
         htmlDoc <- getHtmlDoc(url)
