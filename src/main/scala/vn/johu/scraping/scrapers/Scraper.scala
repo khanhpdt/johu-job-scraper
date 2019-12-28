@@ -12,15 +12,13 @@ import reactivemongo.api.{Cursor, WriteConcern}
 
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
-import vn.johu.scraping.jsoup.JSoup
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.models._
 import vn.johu.utils.{Configs, DateUtils, Logging}
 
 abstract class Scraper(
   context: ActorContext[Scraper.Command],
-  jSoup: JSoup,
-  timers: TimerScheduler[Scraper.Command]
+  timer: TimerScheduler[Scraper.Command]
 ) extends AbstractBehavior[Scraper.Command] with Logging {
 
   import Scraper._
@@ -137,13 +135,12 @@ abstract class Scraper(
   }
 
   private def scrape(page: Int, replyTo: ActorRef[Scraper.JobsScraped]) = {
-    val url = getPageUrl(page)
-    logger.info(s"Start scraping at url: $url")
+    logger.info(s"Start scraping at page $page...")
 
     val scrapeResultF =
       for {
-        rawJobSourceContent <- getRawJobSourceContent(url)
-        rawJobSource <- saveRawJobSource(url, rawJobSourceContent)
+        rawJobSourceContent <- getRawJobSourceContent(page)
+        rawJobSource <- saveRawJobSource(page, rawJobSourceContent)
         parsingResult <- Future.successful(parseJobsFromRaw(rawJobSource))
         newJobs <- filterNewJobs(parsingResult.jobs)
         shouldScheduleNext <- Future.successful(shouldScheduleNextScraping(newJobs))
@@ -158,25 +155,23 @@ abstract class Scraper(
 
     scrapeResultF.onComplete {
       case Failure(ex) =>
-        logger.error(s"Error when scraping from url: $url", ex)
+        logger.error(s"Error when scraping from page $page", ex)
       case Success(_) =>
-        logger.info(s"Successfully scraped from url: $url")
+        logger.info(s"Successfully scraped from page: $page")
     }
 
     scrapeResultF
   }
 
-  protected def getPageUrl(page: Int): String
-
-  protected def getRawJobSourceContent(url: String): Future[String]
+  protected def getRawJobSourceContent(page: Int): Future[String]
 
   protected def parseJobsFromRaw(rawJobSource: RawJobSource): ParsingResult
 
-  private def saveRawJobSource(url: String, content: String) = {
+  private def saveRawJobSource(page: Int, content: String) = {
     MongoDb.rawJobSourceColl.flatMap { coll =>
       val source = RawJobSource(
         id = Some(BSONObjectID.generate),
-        url = url,
+        page = page,
         sourceName = rawJobSourceName,
         content = content,
         scrapingTs = BSONDateTime(DateUtils.nowMillis())
@@ -263,7 +258,7 @@ abstract class Scraper(
       val nextPage = currentPage + 1
       val config = context.system.settings.config
       val delay = config.getLong(Configs.ScrapingDelayInMillis)
-      timers.startSingleTimer(
+      timer.startSingleTimer(
         timerKey,
         Scrape(nextPage, replyTo),
         delay = FiniteDuration(delay, TimeUnit.MILLISECONDS)

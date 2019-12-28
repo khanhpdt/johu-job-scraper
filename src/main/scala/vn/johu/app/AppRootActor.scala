@@ -5,7 +5,7 @@ import scala.concurrent.ExecutionContext
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, PostStop, Signal}
 
-import vn.johu.http.HttpServer
+import vn.johu.http.{HttpClient, HttpServer}
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.scheduling.QuartzScheduler
@@ -45,6 +45,7 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
     scraperManager ! ScraperManager.Init
 
     HttpServer.init(context.system, scraperManager)
+    HttpClient.init(context.system)
   }
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {

@@ -42,7 +42,7 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
 
   private def init(): Unit = {
     logger.info("Initializing ScraperManager...")
-    Set(RawJobSourceName.ItViec).foreach(addScraper)
+    Set(RawJobSourceName.ItViec, RawJobSourceName.VietnamWorks).foreach(addScraper)
   }
 
   private def runScrapers(jobSources: List[RawJobSourceName.RawJobSourceName]): Unit = {
@@ -52,7 +52,11 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
     } else {
       logger.info(s"Running scrapers from sources: ${jobSources.mkString(",")}")
       jobSources.foreach { source =>
-        getScraper(source) ! Scraper.Scrape(replyTo = jobsScrapedAdapter)
+        val page = source match {
+          case RawJobSourceName.VietnamWorks => 0
+          case _ => 1
+        }
+        getScraper(source) ! Scraper.Scrape(page = page, replyTo = jobsScrapedAdapter)
       }
     }
   }
@@ -70,11 +74,15 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
     val newScraper = jobSource match {
       case RawJobSourceName.ItViec =>
         context.spawn[Scraper.Command](ItViecScraper(JSoup), "ItViecScraper")
+      case RawJobSourceName.VietnamWorks =>
+        context.spawn[Scraper.Command](VietnamWorksScraper(), "VietnamWorksScraper")
       case _ =>
         throw new IllegalArgumentException(s"Scraper for source $jobSource not supported yet.")
     }
 
     scrapers += jobSource -> newScraper
+
+    logger.info(s"Scraper for $jobSource added.")
 
     newScraper
   }

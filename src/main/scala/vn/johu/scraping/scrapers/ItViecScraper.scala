@@ -19,17 +19,14 @@ import vn.johu.utils.DateUtils
 class ItViecScraper(
   context: ActorContext[Scraper.Command],
   jSoup: JSoup,
-  timers: TimerScheduler[Scraper.Command]
-) extends Scraper(context, jSoup, timers) {
+  timer: TimerScheduler[Scraper.Command]
+) extends Scraper(context, timer) {
 
   import ItViecScraper._
 
-  override protected def getPageUrl(page: Int): String = {
-    s"$BaseUrl/it-jobs?page=$page"
-  }
-
-  override protected def getRawJobSourceContent(url: String): Future[String] = {
-    jSoup.getAsync(url).map(_.doc.outerHtml())
+  override protected def getRawJobSourceContent(page: Int): Future[String] = {
+    val pageUrl = s"$BaseUrl/it-jobs?page=$page"
+    jSoup.getAsync(pageUrl).map(_.doc.outerHtml())
   }
 
   override protected def parseJobsFromRaw(rawJobSource: RawJobSource): ParsingResult = {

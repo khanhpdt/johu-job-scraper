@@ -5,7 +5,7 @@ scalaVersion := "2.13.1"
 enablePlugins(JavaAppPackaging)
 
 lazy val akkaVersion = "2.5.25"
-lazy val akkaHttpVersion = "10.1.10"
+lazy val akkaHttpVersion = "10.1.9"
 lazy val reactiveMongoVersion = "0.19.5"
 lazy val jSoupVersion = "1.12.1"
 lazy val scalaTestVersion = "3.0.8"

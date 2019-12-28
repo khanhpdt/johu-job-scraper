@@ -21,7 +21,7 @@ object DateUtils extends Logging {
       case Success(value) =>
         value
       case Failure(ex) =>
-        logger.error(s"Invalid date time format: ${s}. Expect ISO format.")
+        logger.error(s"Invalid date time format: $s. Expect ISO format.")
         throw ex
     }
   }

@@ -2,25 +2,14 @@ package vn.johu.scraping.scrapers
 
 import scala.concurrent.duration._
 
-import akka.actor.typed.ActorRef
 import org.scalatest.BeforeAndAfterEach
 
-import Scraper.JobsScraped
+import vn.johu.scraping.scrapers.Scraper.JobsScraped
 import vn.johu.scraping.{HtmlMock, JSoupMock, ScraperTestFixture}
 
 class ItViecScraperTest extends ScraperTestFixture with BeforeAndAfterEach {
 
   import testKit._
-
-  // make this immutable for us to start/stop for each test method.
-  // reason: our scraper needs to use html mocks so we need to refresh these htmls for each test.
-  // if we don't restart the scraper, the test actor system will reuse the actor for multiple tests when we call spawn method.
-  private var scraper: ActorRef[Scraper.Command] = _
-
-  override def afterEach(): Unit = {
-    super.afterEach()
-    testKit.stop(scraper)
-  }
 
   test("be able to parse jobs from html") {
     val htmlMocks = List(

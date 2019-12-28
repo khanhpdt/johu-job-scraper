@@ -18,7 +18,7 @@ object RawJobSourceName extends Enumeration {
 
 case class RawJobSource(
   id: Option[BSONObjectID],
-  url: String,
+  page: Int,
   sourceName: RawJobSourceName,
   content: String,
   scrapingTs: BSONDateTime
@@ -31,7 +31,7 @@ object RawJobSource {
       Try {
         RawJobSource(
           id = doc.getAsOpt[BSONObjectID](Fields.id),
-          url = doc.getAsOpt[String](Fields.url).get,
+          page = doc.getAsOpt[Int](Fields.page).get,
           sourceName = RawJobSourceName.withName(doc.getAsOpt[String](Fields.sourceName).get),
           content = doc.getAsOpt[String](Fields.content).get,
           scrapingTs = doc.getAsOpt[BSONDateTime](Fields.scrapingTs).get
@@ -45,7 +45,7 @@ object RawJobSource {
       Try {
         BSONDocument(
           Fields.id -> t.id,
-          Fields.url -> t.url,
+          Fields.page -> t.page,
           Fields.sourceName -> t.sourceName.toString,
           Fields.content -> t.content,
           Fields.scrapingTs -> t.scrapingTs
@@ -56,7 +56,7 @@ object RawJobSource {
 
   object Fields {
     val id = "_id"
-    val url = "url"
+    val page = "page"
     val sourceName = "sourceName"
     val content = "content"
     val scrapingTs = "scrapingTs"
