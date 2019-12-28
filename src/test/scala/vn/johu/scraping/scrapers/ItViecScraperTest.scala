@@ -5,8 +5,8 @@ import scala.concurrent.duration._
 import akka.actor.typed.ActorRef
 import org.scalatest.BeforeAndAfterEach
 
-import vn.johu.scraping.Scraper.JobsScraped
-import vn.johu.scraping.{HtmlMock, JSoupMock, Scraper, ScraperTestFixture}
+import Scraper.JobsScraped
+import vn.johu.scraping.{HtmlMock, JSoupMock, ScraperTestFixture}
 
 class ItViecScraperTest extends ScraperTestFixture with BeforeAndAfterEach {
 

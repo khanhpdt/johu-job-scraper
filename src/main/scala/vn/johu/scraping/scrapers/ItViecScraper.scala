@@ -15,11 +15,11 @@ import reactivemongo.api.{Cursor, WriteConcern}
 
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
-import vn.johu.scraping.Scraper.{Command, ParseLocalRawJobSources, Scrape}
+import Scraper.{Command, ParseLocalRawJobSources, Scrape}
 import vn.johu.scraping.jsoup.{HtmlDoc, HtmlElem, JSoup}
 import vn.johu.scraping.models.ScrapedJobParsingField.ScrapedJobField
 import vn.johu.scraping.models._
-import vn.johu.scraping.{Scraper, models}
+import vn.johu.scraping.models
 import vn.johu.utils.{Configs, DateUtils, Logging}
 
 class ItViecScraper(

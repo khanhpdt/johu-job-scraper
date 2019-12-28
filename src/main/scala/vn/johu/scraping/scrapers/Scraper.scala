@@ -1,4 +1,4 @@
-package vn.johu.scraping
+package vn.johu.scraping.scrapers
 
 import akka.actor.typed.ActorRef
 

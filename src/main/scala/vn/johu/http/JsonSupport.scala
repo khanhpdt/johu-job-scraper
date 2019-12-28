@@ -3,8 +3,8 @@ package vn.johu.http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
 
-import vn.johu.scraping.ScraperManager
 import vn.johu.scraping.models.RawJobSourceName
+import vn.johu.scraping.scrapers.ScraperManager
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 

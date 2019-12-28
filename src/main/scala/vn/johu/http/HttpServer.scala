@@ -9,7 +9,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 
-import vn.johu.scraping.ScraperManager
+import vn.johu.scraping.scrapers.ScraperManager
 import vn.johu.utils.Logging
 
 object HttpServer extends Logging {

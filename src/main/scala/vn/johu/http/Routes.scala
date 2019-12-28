@@ -9,7 +9,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 
-import vn.johu.scraping.ScraperManager
+import vn.johu.scraping.scrapers.ScraperManager
 
 class Routes(scraperManager: ActorRef[ScraperManager.Command])(implicit system: ActorSystem[_]) extends JsonSupport {
 

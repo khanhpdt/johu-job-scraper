@@ -9,7 +9,7 @@ import vn.johu.http.HttpServer
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.scheduling.QuartzScheduler
-import vn.johu.scraping.ScraperManager
+import vn.johu.scraping.scrapers.ScraperManager
 import vn.johu.utils.Logging
 
 class AppRootActor(context: ActorContext[AppRootActor.Command])

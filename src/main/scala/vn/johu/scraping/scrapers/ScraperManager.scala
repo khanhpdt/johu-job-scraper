@@ -1,15 +1,14 @@
-package vn.johu.scraping
+package vn.johu.scraping.scrapers
 
 import scala.collection.mutable
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, PostStop, Signal}
 
-import vn.johu.scraping.Scraper.JobsScraped
-import vn.johu.scraping.scrapers.ItViecScraper
 import vn.johu.scraping.jsoup.JSoup
 import vn.johu.scraping.models.RawJobSourceName
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
+import vn.johu.scraping.scrapers.Scraper.JobsScraped
 import vn.johu.utils.Logging
 
 class ScraperManager(context: ActorContext[ScraperManager.Command])
