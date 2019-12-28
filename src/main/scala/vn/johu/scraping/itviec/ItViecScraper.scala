@@ -75,7 +75,6 @@ class ItViecScraper(
              |Result: nJobsUpdated=${result._1}, nJobsInserted=${result._2}, nErrors=${result._3}.
              |""".stripMargin
         )
-
     }
 
     parseResultF
@@ -155,12 +154,15 @@ class ItViecScraper(
         rawJobSourceId <- saveRawJobSource(url, htmlDoc)
         parsingResult <- Future.successful(parseJobsFromHtml(htmlDoc, rawJobSourceId))
         newJobs <- filterNewJobs(parsingResult.jobs)
-        shouldScheduleNext <- shouldScheduleNextScraping(newJobs)
+        shouldScheduleNext <- Future.successful(shouldScheduleNextScraping(newJobs))
         _ <- saveParsingResults(newJobs, parsingResult.errors)
         _ <- publishJobs(newJobs)
         _ <- Future.successful(respond(page, newJobs, replyTo))
         _ <- Future.successful(scheduleNextScraping(shouldScheduleNext, page, replyTo))
-      } yield parsingResult
+      } yield {
+        logger.info(s"Scrape result: nNewJobs=${newJobs.size}, nErrors=${parsingResult.errors.size}")
+        parsingResult
+      }
 
     scrapeResultF.onComplete {
       case Failure(ex) =>
@@ -382,17 +384,7 @@ class ItViecScraper(
     }
   }
 
-  private def shouldScheduleNextScraping(newJobs: List[ScrapedJob]) = {
-    Future.successful {
-      if (newJobs.nonEmpty) {
-        logger.info("Found new job in the current page. So will try next page...")
-        true
-      } else {
-        logger.info("Found no new job in the current page. So will not try next page.")
-        false
-      }
-    }
-  }
+  private def shouldScheduleNextScraping(newJobs: List[ScrapedJob]) = newJobs.nonEmpty
 
   private def respond(page: Int, jobs: List[ScrapedJob], replyTo: ActorRef[Scraper.JobsScraped]): Unit = {
     replyTo ! Scraper.JobsScraped(page, jobs)
@@ -404,10 +396,9 @@ class ItViecScraper(
     replyTo: ActorRef[Scraper.JobsScraped]
   ): Unit = {
     if (!shouldSchedule) {
-      logger.info("Stop scraping as not scheduled.")
+      logger.info("Not schedule for next scraping.")
     } else {
       val nextPage = currentPage + 1
-      logger.info(s"Scheduling for the next scraping: currentPage=$currentPage, nextPage=$nextPage...")
       val config = context.system.settings.config
       val delay = config.getLong(Configs.ScrapingDelayInMillis)
       timers.startSingleTimer(
@@ -415,6 +406,7 @@ class ItViecScraper(
         Scrape(nextPage, replyTo),
         delay = FiniteDuration(delay, TimeUnit.MILLISECONDS)
       )
+      logger.info(s"Scheduled for the next scraping: currentPage=$currentPage, nextPage=$nextPage...")
     }
   }
 

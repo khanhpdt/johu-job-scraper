@@ -42,6 +42,7 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
     QuartzScheduler.init(config)
 
     scraperManager = context.spawn(ScraperManager(), "scraperManager")
+    scraperManager ! ScraperManager.Init
 
     HttpServer.init(context.system, scraperManager)
   }

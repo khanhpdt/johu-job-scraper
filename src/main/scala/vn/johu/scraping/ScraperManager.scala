@@ -23,6 +23,9 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
 
   override def onMessage(msg: Command): Behavior[Command] = {
     msg match {
+      case Init =>
+        init()
+        this
       case RunAllScrapers =>
         runAllScrapers()
         this
@@ -30,21 +33,38 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
         logger.debug(s"Scraped ${jobsScraped.scrapedJobs.size} jobs")
         this
       case ParseLocalJobSources(rawJobSourceName, start, end) =>
-        logger.info(s"Start parsing from local job source: $rawJobSourceName")
         parseLocalJobSources(rawJobSourceName, start, end)
+        this
+      case RunScrapers(jobSources) =>
+        runScrapers(jobSources)
         this
     }
   }
 
+  private def init(): Unit = {
+    logger.info("Initializing ScraperManager...")
+    Set(RawJobSourceName.ItViec).foreach(addScraper)
+  }
+
+  private def runScrapers(jobSources: List[RawJobSourceName.RawJobSourceName]): Unit = {
+    if (jobSources.isEmpty) {
+      logger.info("No sources passed. Run all scrapers.")
+      runAllScrapers()
+    } else {
+      logger.info(s"Running scrapers from sources: ${jobSources.mkString(",")}")
+      jobSources.foreach { source =>
+        getScraper(source) ! Scraper.Scrape(replyTo = jobsScrapedAdapter)
+      }
+    }
+  }
+
   private def parseLocalJobSources(jobSource: RawJobSourceName, startTs: Option[String], endTs: Option[String]): Unit = {
+    logger.info(s"Start parsing from local job source: $jobSource...")
     getScraper(jobSource) ! Scraper.ParseLocalRawJobSources(startTs, endTs)
   }
 
   private def getScraper(jobSource: RawJobSourceName) = {
-    scrapers.get(jobSource) match {
-      case Some(s) => s
-      case None => addScraper(jobSource)
-    }
+    scrapers.getOrElse(jobSource, throw new IllegalArgumentException(s"Scraper for source $jobSource not supported yet."))
   }
 
   private def addScraper(jobSource: RawJobSourceName) = {
@@ -60,20 +80,8 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
     newScraper
   }
 
-  private def scraperSources = scrapers.keys.mkString(", ")
-
   private def runAllScrapers(): Unit = {
-    logger.info("Run all scrapers")
-
-    if (scrapers.isEmpty) {
-      logger.info("Found no scrapers. Creating them...")
-
-      scrapers += RawJobSourceName.ItViec -> addScraper(RawJobSourceName.ItViec)
-
-      logger.info(s"Created scrapers for job source: $scraperSources")
-    }
-
-    logger.info(s"Sending messages to start scraping from sources: $scraperSources...")
+    logger.info(s"Running ${scrapers.size} scrapers: ${scrapers.keys.mkString(", ")}")
     scrapers.foreach { scraper =>
       scraper._2 ! Scraper.Scrape(replyTo = jobsScrapedAdapter)
     }
@@ -103,5 +111,9 @@ object ScraperManager {
     scrapingStartTs: Option[String],
     scrapingEndTs: Option[String]
   ) extends Command
+
+  case class RunScrapers(jobSources: List[RawJobSourceName]) extends Command
+
+  case object Init extends Command
 
 }

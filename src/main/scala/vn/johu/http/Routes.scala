@@ -22,7 +22,7 @@ class Routes(scraperManager: ActorRef[ScraperManager.Command])(implicit system: 
   implicit val scheduler: Scheduler = system.scheduler
 
   lazy val routes: Route = pathPrefix("operations") {
-    concat {
+    concat(
       path("parseLocalJobSources") {
         post {
           entity(as[ScraperManager.ParseLocalJobSources]) { msg =>
@@ -32,8 +32,18 @@ class Routes(scraperManager: ActorRef[ScraperManager.Command])(implicit system: 
             }
           }
         }
+      },
+      path("runScrapers") {
+        post {
+          entity(as[ScraperManager.RunScrapers]) { msg =>
+            complete {
+              scraperManager ! msg
+              HttpResponse()
+            }
+          }
+        }
       }
-    }
+    )
   }
 
 }

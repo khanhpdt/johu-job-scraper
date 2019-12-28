@@ -12,6 +12,8 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     new EnumJsonFormat(RawJobSourceName)
   implicit val fixedScrapedJobsFormat: RootJsonFormat[ScraperManager.ParseLocalJobSources] =
     jsonFormat3(ScraperManager.ParseLocalJobSources)
+  implicit val runScrapersFormat: RootJsonFormat[ScraperManager.RunScrapers] =
+    jsonFormat1(ScraperManager.RunScrapers)
 
 }
 
