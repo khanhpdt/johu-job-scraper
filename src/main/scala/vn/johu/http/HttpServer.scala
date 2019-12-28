@@ -26,7 +26,7 @@ object HttpServer extends Logging {
     val routes = new Routes(scraperManager)
 
     val port = 9090
-    serverBinding = Await.result(Http().bindAndHandle(routes.routes, "localhost", port), 3.minutes)
+    serverBinding = Await.result(Http().bindAndHandle(routes.routes, "0.0.0.0", port), 3.minutes)
 
     logger.info(s"HttpServer started and is listening on port $port")
   }

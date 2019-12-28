@@ -12,4 +12,6 @@ object Scraper {
 
   case class JobsScraped(page: Int, scrapedJobs: List[ScrapedJob])
 
+  case class ParseLocalRawJobSources(startTs: Option[String], endTs: Option[String]) extends Command
+
 }

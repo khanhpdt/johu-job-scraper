@@ -51,4 +51,4 @@ javaOptions in Universal ++= Seq(
   s"-Dlogback.configurationFile=logback-prod.xml"
 )
 
-dockerExposedPorts ++= Seq.empty
+dockerExposedPorts ++= Seq(9090)

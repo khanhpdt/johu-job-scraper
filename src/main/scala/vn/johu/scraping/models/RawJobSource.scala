@@ -22,7 +22,8 @@ case class RawJobSource(
   url: String,
   sourceName: RawJobSourceName,
   content: String,
-  sourceType: RawJobSourceType
+  sourceType: RawJobSourceType,
+  scrapingTs: BSONDateTime
 )
 
 object RawJobSource {
@@ -31,11 +32,12 @@ object RawJobSource {
     override def readDocument(doc: BSONDocument): Try[RawJobSource] = {
       Try {
         RawJobSource(
-          id = doc.getAsOpt[BSONObjectID]("_id"),
-          url = doc.getAsOpt[String]("url").get,
-          sourceName = RawJobSourceName.withName(doc.getAsOpt[String]("sourceName").get),
-          content = doc.getAsOpt[String]("content").get,
-          sourceType = RawJobSourceType.withName(doc.getAsOpt[String]("sourceType").get)
+          id = doc.getAsOpt[BSONObjectID](Fields.id),
+          url = doc.getAsOpt[String](Fields.url).get,
+          sourceName = RawJobSourceName.withName(doc.getAsOpt[String](Fields.sourceName).get),
+          content = doc.getAsOpt[String](Fields.content).get,
+          sourceType = RawJobSourceType.withName(doc.getAsOpt[String](Fields.sourceType).get),
+          scrapingTs = doc.getAsOpt[BSONDateTime](Fields.scrapingTs).get
         )
       }
     }
@@ -45,14 +47,24 @@ object RawJobSource {
     override def writeTry(t: RawJobSource): Try[BSONDocument] = {
       Try {
         BSONDocument(
-          "_id" -> t.id,
-          "url" -> t.url,
-          "sourceName" -> t.sourceName.toString,
-          "content" -> t.content,
-          "sourceType" -> t.sourceType.toString
+          Fields.id -> t.id,
+          Fields.url -> t.url,
+          Fields.sourceName -> t.sourceName.toString,
+          Fields.content -> t.content,
+          Fields.sourceType -> t.sourceType.toString,
+          Fields.scrapingTs -> t.scrapingTs
         )
       }
     }
+  }
+
+  object Fields {
+    val id = "_id"
+    val url = "url"
+    val sourceName = "sourceName"
+    val content = "content"
+    val sourceType = "sourceType"
+    val scrapingTs = "scrapingTs"
   }
 
 }

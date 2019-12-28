@@ -23,9 +23,9 @@ class Routes(scraperManager: ActorRef[ScraperManager.Command])(implicit system: 
 
   lazy val routes: Route = pathPrefix("operations") {
     concat {
-      path("fixScrapedJobs") {
+      path("parseLocalJobSources") {
         post {
-          entity(as[ScraperManager.FixScrapedJobs]) { msg =>
+          entity(as[ScraperManager.ParseLocalJobSources]) { msg =>
             complete {
               scraperManager ! msg
               HttpResponse()

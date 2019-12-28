@@ -10,6 +10,7 @@ import reactivemongo.api.bson.collection.{BSONCollection, BSONSerializationPack}
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.api.{AsyncDriver, DefaultDB, MongoConnection}
 
+import vn.johu.scraping.models.{RawJobSource, ScrapedJob}
 import vn.johu.utils.{Configs, Logging, TryHelper}
 
 object MongoDb extends TryHelper with Logging {
@@ -106,11 +107,28 @@ object MongoDb extends TryHelper with Logging {
     }
 
     val collectionsCheck = List(
-      CollectionConfig(RawJobSourceCollectionName, Set.empty),
+      CollectionConfig(RawJobSourceCollectionName,
+        Set(
+          IndexConfig(
+            name = "source_scraping_ts",
+            fieldNames = Set(RawJobSource.Fields.sourceName, RawJobSource.Fields.scrapingTs),
+            unique = false
+          )
+        )
+      ),
       CollectionConfig(
         ScrapedJobCollectionName,
         Set(
-          IndexConfig(name = "job_key_per_source", Set("rawJobSourceName", "url"), unique = true)
+          IndexConfig(
+            name = "job_url",
+            fieldNames = Set(ScrapedJob.Fields.url),
+            unique = true
+          ),
+          IndexConfig(
+            name = "job_key_per_source",
+            fieldNames = Set(ScrapedJob.Fields.rawJobSourceName, ScrapedJob.Fields.url),
+            unique = true
+          )
         )
       ),
       CollectionConfig(JobParsingErrorCollectionName, Set.empty)

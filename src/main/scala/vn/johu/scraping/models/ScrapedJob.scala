@@ -24,33 +24,21 @@ object ScrapedJobParsingField extends Enumeration {
   val url, title, tags, postingDate, company, location = Value
 }
 
-object ScrapedJobField {
-  val id = "_id"
-  val url = "url"
-  val title = "title"
-  val tags = "tags"
-  val postingDate = "postingDate"
-  val company = "company"
-  val location = "location"
-  val rawJobSourceName = "rawJobSourceName"
-  val rawJobSourceId = "rawJobSourceId"
-}
-
 object ScrapedJob {
 
   implicit object ScrapedJobReader extends BSONDocumentReader[ScrapedJob] {
     override def readDocument(doc: BSONDocument): Try[ScrapedJob] = {
       Try {
         ScrapedJob(
-          id = doc.getAsOpt[BSONObjectID](ScrapedJobField.id),
-          url = doc.getAsOpt[String](ScrapedJobField.url).get,
-          title = doc.getAsOpt[String](ScrapedJobField.title).get,
-          tags = doc.getAsOpt[Array[String]](ScrapedJobField.tags).get.toSet,
-          postingDate = doc.getAsOpt[BSONDateTime](ScrapedJobField.postingDate).get,
-          company = doc.getAsOpt[String](ScrapedJobField.company).get,
-          location = doc.getAsOpt[String](ScrapedJobField.location).get,
-          rawJobSourceName = RawJobSourceName.withName(doc.getAsOpt[String](ScrapedJobField.rawJobSourceName).get),
-          rawJobSourceId = doc.getAsOpt[BSONObjectID](ScrapedJobField.rawJobSourceId).get
+          id = doc.getAsOpt[BSONObjectID](Fields.id),
+          url = doc.getAsOpt[String](Fields.url).get,
+          title = doc.getAsOpt[String](Fields.title).get,
+          tags = doc.getAsOpt[Array[String]](Fields.tags).get.toSet,
+          postingDate = doc.getAsOpt[BSONDateTime](Fields.postingDate).get,
+          company = doc.getAsOpt[String](Fields.company).get,
+          location = doc.getAsOpt[String](Fields.location).get,
+          rawJobSourceName = RawJobSourceName.withName(doc.getAsOpt[String](Fields.rawJobSourceName).get),
+          rawJobSourceId = doc.getAsOpt[BSONObjectID](Fields.rawJobSourceId).get
         )
       }
     }
@@ -60,15 +48,15 @@ object ScrapedJob {
     override def writeTry(job: ScrapedJob): Try[BSONDocument] = {
       Try {
         BSONDocument(
-          ScrapedJobField.id -> job.id,
-          ScrapedJobField.url -> job.url,
-          ScrapedJobField.title -> job.title,
-          ScrapedJobField.tags -> job.tags,
-          ScrapedJobField.postingDate -> job.postingDate,
-          ScrapedJobField.company -> job.company,
-          ScrapedJobField.location -> job.location,
-          ScrapedJobField.rawJobSourceName -> job.rawJobSourceName.toString,
-          ScrapedJobField.rawJobSourceId -> job.rawJobSourceId
+          Fields.id -> job.id,
+          Fields.url -> job.url,
+          Fields.title -> job.title,
+          Fields.tags -> job.tags,
+          Fields.postingDate -> job.postingDate,
+          Fields.company -> job.company,
+          Fields.location -> job.location,
+          Fields.rawJobSourceName -> job.rawJobSourceName.toString,
+          Fields.rawJobSourceId -> job.rawJobSourceId
         )
       }
     }
@@ -76,14 +64,26 @@ object ScrapedJob {
 
   implicit val encoder: Encoder[ScrapedJob] = (job: ScrapedJob) => {
     Json.obj(
-      ScrapedJobField.id -> Json.fromString(job.id.get.stringify),
-      ScrapedJobField.url -> Json.fromString(job.url),
-      ScrapedJobField.title -> Json.fromString(job.title),
-      ScrapedJobField.tags -> Json.fromValues(job.tags.map(Json.fromString)),
-      ScrapedJobField.postingDate -> Json.fromLong(job.postingDate.toLong.get),
-      ScrapedJobField.company -> Json.fromString(job.company),
-      ScrapedJobField.location -> Json.fromString(job.location)
+      Fields.id -> Json.fromString(job.id.get.stringify),
+      Fields.url -> Json.fromString(job.url),
+      Fields.title -> Json.fromString(job.title),
+      Fields.tags -> Json.fromValues(job.tags.map(Json.fromString)),
+      Fields.postingDate -> Json.fromLong(job.postingDate.toLong.get),
+      Fields.company -> Json.fromString(job.company),
+      Fields.location -> Json.fromString(job.location)
     )
+  }
+
+  object Fields {
+    val id = "_id"
+    val url = "url"
+    val title = "title"
+    val tags = "tags"
+    val postingDate = "postingDate"
+    val company = "company"
+    val location = "location"
+    val rawJobSourceName = "rawJobSourceName"
+    val rawJobSourceId = "rawJobSourceId"
   }
 
 }
