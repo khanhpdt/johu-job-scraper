@@ -24,7 +24,7 @@ class ItViecScraperTest extends ScraperTestFixture with BeforeAndAfterEach {
 
   test("be able to parse jobs from html") {
     val htmlMocks = List(
-      HtmlMock("https://itviec.com/it-jobs?page=1", "sample_htmls/itviec/job_page_1.html")
+      HtmlMock("https://itviec.com/it-jobs?page=1", "sample_raw_data/itviec/job_page_1.html")
     )
 
     scraper = spawn[Scraper.Command](ItViecScraper(JSoupMock(htmlMocks)))
@@ -39,8 +39,8 @@ class ItViecScraperTest extends ScraperTestFixture with BeforeAndAfterEach {
 
   test("should continue scraping when all jobs were not scraped before") {
     val htmlMocks = List(
-      HtmlMock("https://itviec.com/it-jobs?page=1", "sample_htmls/itviec/job_page_1.html"),
-      HtmlMock("https://itviec.com/it-jobs?page=2", "sample_htmls/itviec/job_page_2.html")
+      HtmlMock("https://itviec.com/it-jobs?page=1", "sample_raw_data/itviec/job_page_1.html"),
+      HtmlMock("https://itviec.com/it-jobs?page=2", "sample_raw_data/itviec/job_page_2.html")
     )
 
     scraper = spawn[Scraper.Command](ItViecScraper(JSoupMock(htmlMocks)))
@@ -64,8 +64,8 @@ class ItViecScraperTest extends ScraperTestFixture with BeforeAndAfterEach {
 
   test("should not continue scraping if all jobs are already scraped") {
     val htmlMocks = List(
-      HtmlMock("https://itviec.com/it-jobs?page=1", "sample_htmls/itviec/job_page_1.html"),
-      HtmlMock("https://itviec.com/it-jobs?page=2", "sample_htmls/itviec/job_page_1.html")
+      HtmlMock("https://itviec.com/it-jobs?page=1", "sample_raw_data/itviec/job_page_1.html"),
+      HtmlMock("https://itviec.com/it-jobs?page=2", "sample_raw_data/itviec/job_page_1.html")
     )
     scraper = spawn[Scraper.Command](ItViecScraper(JSoupMock(htmlMocks)))
     val probe = createTestProbe[JobsScraped]()
