@@ -282,5 +282,3 @@ object Scraper {
   case class ParseLocalRawJobSources(startTs: Option[String], endTs: Option[String]) extends Command
 
 }
-
-case class JobParsingResult(jobs: List[ScrapedJob], errors: List[JobParsingError])

@@ -24,6 +24,7 @@ libraryDependencies ++= Seq(
   "com.rabbitmq" % "amqp-client" % rabbitMqVersion,
 
   "io.circe" %% "circe-core" % circeVersion,
+  "io.circe" %% "circe-parser" % circeVersion,
 
   "org.quartz-scheduler" % "quartz" % quartzVersion,
 

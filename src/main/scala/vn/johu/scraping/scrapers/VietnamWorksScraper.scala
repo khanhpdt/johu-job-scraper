@@ -32,11 +32,11 @@ class VietnamWorksScraper(
          |}
          |""".stripMargin
 
-    httpClient.post(BaseUrl, body.getBytes).map(_.toString)
+    httpClient.post(RawSourceUrl, body.getBytes).map(_.toString)
   }
 
   override protected def parseJobsFromRaw(rawJobSource: RawJobSource): JobParsingResult = {
-    JobParsingResult(jobs = Nil, errors = Nil)
+    VietnamWorksParser.parseJobs(rawJobSource)
   }
 
   override protected val timerKey: Any = TimerKey
@@ -45,7 +45,7 @@ class VietnamWorksScraper(
 
 object VietnamWorksScraper {
 
-  private val BaseUrl = s"https://jf8q26wwud-dsn.algolia.net/1/indexes/*/queries" +
+  private val RawSourceUrl = s"https://jf8q26wwud-dsn.algolia.net/1/indexes/*/queries" +
     s"?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%20(lite)%203.24.5%3Binstantsearch.js%201.6.0%3BJS%20Helper%202.21.2" +
     s"&x-algolia-application-id=JF8Q26WWUD" +
     s"&x-algolia-api-key=NGJhZDA0N2ZjNDZmNTgxYzVlMzBiZTQxODVmODRiYWQwYWJiODQ1N2VhNGE4NTBhZmJiYzE3NTQ1ZTVkMWM0OHRhZ0ZpbHRlcnM9JnVzZXJUb2tlbj0zOWZlMzYyYTZmZmFjYzQ1ZWM2ZmRjOGRhMTMyNGFjMw%3D%3D"

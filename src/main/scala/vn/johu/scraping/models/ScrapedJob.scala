@@ -14,15 +14,10 @@ case class ScrapedJob(
   tags: Set[String],
   postingDate: BSONDateTime,
   company: String,
-  location: String,
+  locations: Set[String],
   rawJobSourceName: RawJobSourceName,
   rawJobSourceId: BSONObjectID
 )
-
-object ScrapedJobParsingField extends Enumeration {
-  type ScrapedJobField = Value
-  val url, title, tags, postingDate, company, location = Value
-}
 
 object ScrapedJob {
 
@@ -36,7 +31,7 @@ object ScrapedJob {
           tags = doc.getAsOpt[Array[String]](Fields.tags).get.toSet,
           postingDate = doc.getAsOpt[BSONDateTime](Fields.postingDate).get,
           company = doc.getAsOpt[String](Fields.company).get,
-          location = doc.getAsOpt[String](Fields.location).get,
+          locations = doc.getAsOpt[Array[String]](Fields.locations).get.toSet,
           rawJobSourceName = RawJobSourceName.withName(doc.getAsOpt[String](Fields.rawJobSourceName).get),
           rawJobSourceId = doc.getAsOpt[BSONObjectID](Fields.rawJobSourceId).get
         )
@@ -54,7 +49,7 @@ object ScrapedJob {
           Fields.tags -> job.tags,
           Fields.postingDate -> job.postingDate,
           Fields.company -> job.company,
-          Fields.location -> job.location,
+          Fields.locations -> job.locations,
           Fields.rawJobSourceName -> job.rawJobSourceName.toString,
           Fields.rawJobSourceId -> job.rawJobSourceId
         )
@@ -70,7 +65,7 @@ object ScrapedJob {
       Fields.tags -> Json.fromValues(job.tags.map(Json.fromString)),
       Fields.postingDate -> Json.fromLong(job.postingDate.toLong.get),
       Fields.company -> Json.fromString(job.company),
-      Fields.location -> Json.fromString(job.location)
+      Fields.locations -> Json.fromValues(job.locations.map(Json.fromString))
     )
   }
 
@@ -81,7 +76,7 @@ object ScrapedJob {
     val tags = "tags"
     val postingDate = "postingDate"
     val company = "company"
-    val location = "location"
+    val locations = "locations"
     val rawJobSourceName = "rawJobSourceName"
     val rawJobSourceId = "rawJobSourceId"
   }
