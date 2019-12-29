@@ -29,14 +29,14 @@ class ItViecScraper(
     jSoup.getAsync(pageUrl).map(_.doc.outerHtml())
   }
 
-  override protected def parseJobsFromRaw(rawJobSource: RawJobSource): ParsingResult = {
+  override protected def parseJobsFromRaw(rawJobSource: RawJobSource): JobParsingResult = {
     val doc = HtmlDoc.fromHtml(rawJobSource.content)
     val jobElements = doc.select("#search-results #jobs div.job")
     if (jobElements.isEmpty) {
-      ParsingResult(Nil, Nil)
+      JobParsingResult(Nil, Nil)
     } else {
       val results = jobElements.map(parseJobElement(_, rawJobSource.id.get))
-      ParsingResult(
+      JobParsingResult(
         jobs = results.collect { case Right(value) => value },
         errors = results.collect { case Left(value) => value }
       )

@@ -165,7 +165,7 @@ abstract class Scraper(
 
   protected def getRawJobSourceContent(page: Int): Future[String]
 
-  protected def parseJobsFromRaw(rawJobSource: RawJobSource): ParsingResult
+  protected def parseJobsFromRaw(rawJobSource: RawJobSource): JobParsingResult
 
   private def saveRawJobSource(page: Int, content: String) = {
     MongoDb.rawJobSourceColl.flatMap { coll =>
@@ -253,7 +253,7 @@ abstract class Scraper(
     replyTo: ActorRef[Scraper.JobsScraped]
   ): Unit = {
     if (!shouldSchedule) {
-      logger.info("Not schedule for next scraping.")
+      logger.info("Next scraping skipped.")
     } else {
       val nextPage = currentPage + 1
       val config = context.system.settings.config
@@ -263,7 +263,7 @@ abstract class Scraper(
         Scrape(nextPage, replyTo),
         delay = FiniteDuration(delay, TimeUnit.MILLISECONDS)
       )
-      logger.info(s"Scheduled for the next scraping: currentPage=$currentPage, nextPage=$nextPage...")
+      logger.info(s"Next scraping scheduled for page $nextPage.")
     }
   }
 
@@ -283,4 +283,4 @@ object Scraper {
 
 }
 
-case class ParsingResult(jobs: List[ScrapedJob], errors: List[JobParsingError])
+case class JobParsingResult(jobs: List[ScrapedJob], errors: List[JobParsingError])

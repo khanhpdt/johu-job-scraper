@@ -10,16 +10,26 @@ import vn.johu.http.HttpClient
 class HttpClientMock(responseMocks: Seq[HttpResponseMock]) extends HttpClient {
 
   override def post(url: String, body: Array[Byte]): Future[JsObject] = {
+    val mock = getMock(url)
+    Future.successful {
+      Source.fromResource(mock.jsonFilePath).mkString.parseJson.asJsObject
+    }
+  }
+
+  private def getMock(url: String) = {
     responseMocks.find(_.url == url) match {
-      case Some(mock) =>
-        Future.successful {
-          Source.fromResource(mock.jsonFilePath).mkString.parseJson.asJsObject
-        }
+      case Some(found) =>
+        found
       case None =>
-        throw new IllegalArgumentException(s"Please provide http response mock for url: $url")
+        responseMocks.find(_.url.isEmpty)
+          .getOrElse(throw new IllegalArgumentException(s"Please provide http response mock for url: $url"))
     }
   }
 
 }
 
-case class HttpResponseMock(url: String, jsonFilePath: String)
+object HttpClientMock {
+  def apply(mocks: Seq[HttpResponseMock]) = new HttpClientMock(mocks)
+}
+
+case class HttpResponseMock(url: String = "", jsonFilePath: String)

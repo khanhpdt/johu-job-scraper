@@ -2,12 +2,10 @@ package vn.johu.scraping.scrapers
 
 import scala.concurrent.duration._
 
-import org.scalatest.BeforeAndAfterEach
-
 import vn.johu.scraping.scrapers.Scraper.JobsScraped
 import vn.johu.scraping.{HtmlMock, JSoupMock, ScraperTestFixture}
 
-class ItViecScraperTest extends ScraperTestFixture with BeforeAndAfterEach {
+class ItViecScraperTest extends ScraperTestFixture {
 
   import testKit._
 

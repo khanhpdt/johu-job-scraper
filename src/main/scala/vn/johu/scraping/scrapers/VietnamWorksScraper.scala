@@ -35,8 +35,8 @@ class VietnamWorksScraper(
     httpClient.post(BaseUrl, body.getBytes).map(_.toString)
   }
 
-  override protected def parseJobsFromRaw(rawJobSource: RawJobSource): ParsingResult = {
-    ParsingResult(jobs = Nil, errors = Nil)
+  override protected def parseJobsFromRaw(rawJobSource: RawJobSource): JobParsingResult = {
+    JobParsingResult(jobs = Nil, errors = Nil)
   }
 
   override protected val timerKey: Any = TimerKey
