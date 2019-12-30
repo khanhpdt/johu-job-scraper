@@ -13,7 +13,7 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val fixedScrapedJobsFormat: RootJsonFormat[ScraperManager.ParseLocalJobSources] =
     jsonFormat3(ScraperManager.ParseLocalJobSources)
   implicit val runScrapersFormat: RootJsonFormat[ScraperManager.RunScrapers] =
-    jsonFormat1(ScraperManager.RunScrapers)
+    jsonFormat2(ScraperManager.RunScrapers)
 
 }
 

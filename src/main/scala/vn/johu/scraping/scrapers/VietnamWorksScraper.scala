@@ -20,13 +20,14 @@ class VietnamWorksScraper(
   override protected val rawJobSourceName: RawJobSourceName = RawJobSourceName.VietnamWorks
 
   override protected def getRawJobSourceContent(page: Int): Future[String] = {
+    // page in Vietnamworks starts from 0
     val body =
       s"""
          |{
          |    "requests": [
          |        {
          |            "indexName": "vnw_job_v2_35",
-         |            "params": "query=&hitsPerPage=50&page=$page&restrictSearchableAttributes=%5B%22jobTitle%22%2C%22skills%22%2C%22company%22%5D"
+         |            "params": "query=&hitsPerPage=50&page=${page - 1}&restrictSearchableAttributes=%5B%22jobTitle%22%2C%22skills%22%2C%22company%22%5D"
          |        }
          |    ]
          |}

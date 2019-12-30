@@ -16,10 +16,10 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
     scraper = spawn[Scraper.Command](VietnamWorksScraper(HttpClientMock(responseMocks)))
     val probe = createTestProbe[JobsScraped]()
 
-    scraper ! Scraper.Scrape(page = 0, replyTo = probe.ref)
+    scraper ! Scraper.Scrape(replyTo = probe.ref)
 
     val response = probe.receiveMessage()
-    response.page shouldBe 0
+    response.page shouldBe 1
     response.scrapedJobs should have length 50
   }
 
@@ -31,10 +31,10 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
     scraper = spawn[Scraper.Command](VietnamWorksScraper(HttpClientMock(responseMocks)))
     val probe = createTestProbe[JobsScraped]()
 
-    scraper ! Scraper.Scrape(page = 0, replyTo = probe.ref)
+    scraper ! Scraper.Scrape(replyTo = probe.ref)
 
     val response = probe.receiveMessage()
-    response.page shouldBe 0
+    response.page shouldBe 1
     response.scrapedJobs should have length 1
 
     val job = response.scrapedJobs.head

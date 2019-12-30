@@ -34,8 +34,8 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
       case ParseLocalJobSources(rawJobSourceName, start, end) =>
         parseLocalJobSources(rawJobSourceName, start, end)
         this
-      case RunScrapers(jobSources) =>
-        runScrapers(jobSources)
+      case RunScrapers(jobSources, endPage) =>
+        runScrapers(jobSources, endPage)
         this
     }
   }
@@ -45,18 +45,14 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
     Set(RawJobSourceName.ItViec, RawJobSourceName.VietnamWorks).foreach(addScraper)
   }
 
-  private def runScrapers(jobSources: List[RawJobSourceName.RawJobSourceName]): Unit = {
+  private def runScrapers(jobSources: List[RawJobSourceName.RawJobSourceName], endPage: Option[Int]): Unit = {
     if (jobSources.isEmpty) {
       logger.info("No sources passed. Run all scrapers.")
       runAllScrapers()
     } else {
       logger.info(s"Running scrapers from sources: ${jobSources.mkString(",")}")
       jobSources.foreach { source =>
-        val page = source match {
-          case RawJobSourceName.VietnamWorks => 0
-          case _ => 1
-        }
-        getScraper(source) ! Scraper.Scrape(page = page, replyTo = jobsScrapedAdapter)
+        getScraper(source) ! Scraper.Scrape(endPage = endPage, replyTo = jobsScrapedAdapter)
       }
     }
   }
@@ -119,7 +115,7 @@ object ScraperManager {
     scrapingEndTs: Option[String]
   ) extends Command
 
-  case class RunScrapers(jobSources: List[RawJobSourceName]) extends Command
+  case class RunScrapers(jobSources: List[RawJobSourceName], endPage: Option[Int] = None) extends Command
 
   case object Init extends Command
 

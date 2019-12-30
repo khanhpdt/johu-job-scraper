@@ -27,8 +27,8 @@ abstract class Scraper(
 
   override def onMessage(msg: Command): Behavior[Command] = {
     msg match {
-      case Scrape(page, replyTo) =>
-        scrape(page, replyTo)
+      case Scrape(page, endPage, replyTo) =>
+        scrape(page, endPage, replyTo)
         this
       case ParseLocalRawJobSources(startTs, endTs) =>
         parseLocalRawJobSources(startTs, endTs)
@@ -134,7 +134,7 @@ abstract class Scraper(
     }
   }
 
-  private def scrape(page: Int, replyTo: ActorRef[Scraper.JobsScraped]) = {
+  private def scrape(page: Int, endPage: Option[Int], replyTo: ActorRef[Scraper.JobsScraped]) = {
     logger.info(s"Start scraping at page $page...")
 
     val scrapeResultF =
@@ -143,11 +143,11 @@ abstract class Scraper(
         rawJobSource <- saveRawJobSource(page, rawJobSourceContent)
         parsingResult <- Future.successful(parseJobsFromRaw(rawJobSource))
         newJobs <- filterNewJobs(parsingResult.jobs)
-        shouldScheduleNext <- Future.successful(shouldScheduleNextScraping(newJobs))
+        shouldScheduleNext <- Future.successful(shouldScheduleNextScraping(page, endPage, newJobs))
         _ <- saveParsingResults(newJobs, parsingResult.errors)
         _ <- publishJobs(newJobs)
         _ <- Future.successful(respond(page, newJobs, replyTo))
-        _ <- Future.successful(scheduleNextScraping(shouldScheduleNext, page, replyTo))
+        _ <- Future.successful(scheduleNextScraping(shouldScheduleNext, page, endPage, replyTo))
       } yield {
         logger.info(s"Scrape result: nNewJobs=${newJobs.size}, nErrors=${parsingResult.errors.size}")
         parsingResult
@@ -241,7 +241,21 @@ abstract class Scraper(
     }
   }
 
-  private def shouldScheduleNextScraping(newJobs: List[ScrapedJob]) = newJobs.nonEmpty
+  private def shouldScheduleNextScraping(
+    currentPage: Int,
+    endPage: Option[Int],
+    newJobs: List[ScrapedJob]
+  ) = {
+    if (newJobs.isEmpty) {
+      logger.info("No new jobs found. Skip scheduling next scraping.")
+      false
+    } else if (endPage.exists(_ <= currentPage)) {
+      logger.info(s"Reached end page: currentPage=$currentPage, endPage=${endPage.get}. Skip scheduling next scraping.")
+      false
+    } else {
+      true
+    }
+  }
 
   private def respond(page: Int, jobs: List[ScrapedJob], replyTo: ActorRef[Scraper.JobsScraped]): Unit = {
     replyTo ! Scraper.JobsScraped(page, jobs)
@@ -250,6 +264,7 @@ abstract class Scraper(
   private def scheduleNextScraping(
     shouldSchedule: Boolean,
     currentPage: Int,
+    endPage: Option[Int],
     replyTo: ActorRef[Scraper.JobsScraped]
   ): Unit = {
     if (!shouldSchedule) {
@@ -260,7 +275,7 @@ abstract class Scraper(
       val delay = config.getLong(Configs.ScrapingDelayInMillis)
       timer.startSingleTimer(
         timerKey,
-        Scrape(nextPage, replyTo),
+        Scrape(nextPage, endPage, replyTo),
         delay = FiniteDuration(delay, TimeUnit.MILLISECONDS)
       )
       logger.info(s"Next scraping scheduled for page $nextPage.")
@@ -275,7 +290,7 @@ object Scraper {
 
   sealed trait Command
 
-  case class Scrape(page: Int = 1, replyTo: ActorRef[JobsScraped]) extends Command
+  case class Scrape(page: Int = 1, endPage: Option[Int] = None, replyTo: ActorRef[JobsScraped]) extends Command
 
   case class JobsScraped(page: Int, scrapedJobs: List[ScrapedJob])
 

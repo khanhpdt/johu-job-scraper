@@ -5,7 +5,6 @@ import io.circe.{Decoder, DecodingFailure, Json}
 import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 
 import vn.johu.scraping.models.{JobParsingError, RawJobSource, ScrapedJob}
-import vn.johu.utils.DateUtils
 
 object VietnamWorksParser extends Parser {
 
