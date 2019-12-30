@@ -28,11 +28,10 @@ object HttpClient extends HttpClient with Logging with SprayJsonSupport with Def
   private implicit var ec: ExecutionContext = _
 
   def init(actorSystem: akka.actor.typed.ActorSystem[_]): Unit = {
-    logger.info("Initializing HttpClient...")
-
     untypedActorSystem = actorSystem.toUntyped
     am = ActorMaterializer()(untypedActorSystem)
     ec = actorSystem.executionContext
+    logger.info("HttpClient initialized.")
   }
 
   override def post(url: String, body: Array[Byte]): Future[JsObject] = {
