@@ -2,7 +2,7 @@ package vn.johu.scraping.models
 
 import scala.util.Try
 
-import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONDocumentReader, BSONDocumentWriter, BSONObjectID, BSONTimestamp}
+import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONDocumentReader, BSONDocumentWriter, BSONObjectID}
 
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 
@@ -16,8 +16,8 @@ case class ScrapedJob(
   locations: Set[String],
   rawJobSourceName: RawJobSourceName,
   rawJobSourceId: BSONObjectID,
-  createdTs: Option[BSONTimestamp] = None,
-  modifiedTs: Option[BSONTimestamp] = None
+  createdTs: Option[BSONDateTime] = None,
+  modifiedTs: Option[BSONDateTime] = None
 )
 
 object ScrapedJob {
@@ -35,8 +35,8 @@ object ScrapedJob {
           locations = doc.getAsOpt[Array[String]](Fields.locations).get.toSet,
           rawJobSourceName = RawJobSourceName.withName(doc.getAsOpt[String](Fields.rawJobSourceName).get),
           rawJobSourceId = doc.getAsOpt[BSONObjectID](Fields.rawJobSourceId).get,
-          createdTs = doc.getAsOpt[BSONTimestamp](Fields.createdTs),
-          modifiedTs = doc.getAsOpt[BSONTimestamp](Fields.modifiedTs)
+          createdTs = doc.getAsOpt[BSONDateTime](Fields.createdTs),
+          modifiedTs = doc.getAsOpt[BSONDateTime](Fields.modifiedTs)
         )
       }
     }

@@ -8,7 +8,7 @@ import scala.util.{Failure, Success}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, TimerScheduler}
 import akka.actor.typed.{ActorRef, Behavior}
 import io.circe.{Encoder, Json}
-import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, BSONTimestamp, document}
+import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, document}
 import reactivemongo.api.{Cursor, WriteConcern}
 
 import vn.johu.messaging.RabbitMqClient
@@ -205,8 +205,8 @@ abstract class Scraper(
 
   private def addTechnicalFields(job: ScrapedJob) = {
     var result = job
-    if (job.createdTs.isEmpty) result = result.copy(createdTs = Some(BSONTimestamp(DateUtils.nowMillis())))
-    if (job.modifiedTs.isEmpty) result = result.copy(modifiedTs = Some(BSONTimestamp(DateUtils.nowMillis())))
+    if (job.createdTs.isEmpty) result = result.copy(createdTs = Some(BSONDateTime(DateUtils.nowMillis())))
+    if (job.modifiedTs.isEmpty) result = result.copy(modifiedTs = Some(BSONDateTime(DateUtils.nowMillis())))
     result
   }
 
