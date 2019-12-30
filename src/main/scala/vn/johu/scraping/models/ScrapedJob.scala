@@ -2,8 +2,7 @@ package vn.johu.scraping.models
 
 import scala.util.Try
 
-import io.circe.{Encoder, Json}
-import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONDocumentReader, BSONDocumentWriter, BSONObjectID}
+import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONDocumentReader, BSONDocumentWriter, BSONObjectID, BSONTimestamp}
 
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 
@@ -16,7 +15,9 @@ case class ScrapedJob(
   company: String,
   locations: Set[String],
   rawJobSourceName: RawJobSourceName,
-  rawJobSourceId: BSONObjectID
+  rawJobSourceId: BSONObjectID,
+  createdTs: Option[BSONTimestamp] = None,
+  modifiedTs: Option[BSONTimestamp] = None
 )
 
 object ScrapedJob {
@@ -33,7 +34,9 @@ object ScrapedJob {
           company = doc.getAsOpt[String](Fields.company).get,
           locations = doc.getAsOpt[Array[String]](Fields.locations).get.toSet,
           rawJobSourceName = RawJobSourceName.withName(doc.getAsOpt[String](Fields.rawJobSourceName).get),
-          rawJobSourceId = doc.getAsOpt[BSONObjectID](Fields.rawJobSourceId).get
+          rawJobSourceId = doc.getAsOpt[BSONObjectID](Fields.rawJobSourceId).get,
+          createdTs = doc.getAsOpt[BSONTimestamp](Fields.createdTs),
+          modifiedTs = doc.getAsOpt[BSONTimestamp](Fields.modifiedTs)
         )
       }
     }
@@ -51,22 +54,12 @@ object ScrapedJob {
           Fields.company -> job.company,
           Fields.locations -> job.locations,
           Fields.rawJobSourceName -> job.rawJobSourceName.toString,
-          Fields.rawJobSourceId -> job.rawJobSourceId
+          Fields.rawJobSourceId -> job.rawJobSourceId,
+          Fields.createdTs -> job.createdTs,
+          Fields.modifiedTs -> job.modifiedTs
         )
       }
     }
-  }
-
-  implicit val encoder: Encoder[ScrapedJob] = (job: ScrapedJob) => {
-    Json.obj(
-      Fields.id -> Json.fromString(job.id.get.stringify),
-      Fields.url -> Json.fromString(job.url),
-      Fields.title -> Json.fromString(job.title),
-      Fields.tags -> Json.fromValues(job.tags.map(Json.fromString)),
-      Fields.postingDate -> Json.fromLong(job.postingDate.toLong.get),
-      Fields.company -> Json.fromString(job.company),
-      Fields.locations -> Json.fromValues(job.locations.map(Json.fromString))
-    )
   }
 
   object Fields {
@@ -79,6 +72,8 @@ object ScrapedJob {
     val locations = "locations"
     val rawJobSourceName = "rawJobSourceName"
     val rawJobSourceId = "rawJobSourceId"
+    val createdTs = "createdTs"
+    val modifiedTs = "modifiedTs"
   }
 
 }

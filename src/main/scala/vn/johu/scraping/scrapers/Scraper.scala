@@ -7,12 +7,14 @@ import scala.util.{Failure, Success}
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, TimerScheduler}
 import akka.actor.typed.{ActorRef, Behavior}
-import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, document}
+import io.circe.{Encoder, Json}
+import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, BSONTimestamp, document}
 import reactivemongo.api.{Cursor, WriteConcern}
 
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
+import vn.johu.scraping.models.ScrapedJob.Fields
 import vn.johu.scraping.models._
 import vn.johu.utils.{Configs, DateUtils, Logging}
 
@@ -112,8 +114,9 @@ abstract class Scraper(
     if (jobs.isEmpty) {
       Future.successful(Nil)
     } else {
+      val jobsToUpdate = jobs.map(addTechnicalFields)
       val updateResultF = MongoDb.scrapedJobColl.flatMap { coll =>
-        Future.traverse(jobs) { job =>
+        Future.traverse(jobsToUpdate) { job =>
           val jobToUpdate = job.copy(id = None)
           coll.findAndUpdate(
             selector = document(ScrapedJob.Fields.url -> jobToUpdate.url),
@@ -130,7 +133,7 @@ abstract class Scraper(
           )
         }
       }
-      updateResultF.map(_ => jobs)
+      updateResultF.map(_ => jobsToUpdate)
     }
   }
 
@@ -194,9 +197,17 @@ abstract class Scraper(
       Future.successful(Nil)
     } else {
       MongoDb.scrapedJobColl.flatMap { coll =>
-        coll.insert(ordered = false).many(jobs).map(_ => jobs)
+        val jobsToInsert = jobs.map(addTechnicalFields)
+        coll.insert(ordered = false).many(jobsToInsert).map(_ => jobsToInsert)
       }
     }
+  }
+
+  private def addTechnicalFields(job: ScrapedJob) = {
+    var result = job
+    if (job.createdTs.isEmpty) result = result.copy(createdTs = Some(BSONTimestamp(DateUtils.nowMillis())))
+    if (job.modifiedTs.isEmpty) result = result.copy(modifiedTs = Some(BSONTimestamp(DateUtils.nowMillis())))
+    result
   }
 
   private def insertErrors(errors: List[JobParsingError]) = {
@@ -210,6 +221,7 @@ abstract class Scraper(
   }
 
   private def publishJobs(jobs: List[ScrapedJob]) = {
+    implicit val encoder: Encoder[ScrapedJob] = scrapedJobRabbitMqEncoder
     Future.traverse(jobs) { job =>
       RabbitMqClient.publishAsync(job)
     }
@@ -295,5 +307,17 @@ object Scraper {
   case class JobsScraped(page: Int, scrapedJobs: List[ScrapedJob])
 
   case class ParseLocalRawJobSources(startTs: Option[String], endTs: Option[String]) extends Command
+
+  val scrapedJobRabbitMqEncoder: Encoder[ScrapedJob] = (job: ScrapedJob) => {
+    Json.obj(
+      Fields.id -> Json.fromString(job.id.get.stringify),
+      Fields.url -> Json.fromString(job.url),
+      Fields.title -> Json.fromString(job.title),
+      Fields.tags -> Json.fromValues(job.tags.map(Json.fromString)),
+      Fields.postingDate -> Json.fromLong(job.postingDate.toLong.get),
+      Fields.company -> Json.fromString(job.company),
+      Fields.locations -> Json.fromValues(job.locations.map(Json.fromString))
+    )
+  }
 
 }
