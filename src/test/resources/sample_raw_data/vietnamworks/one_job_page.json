@@ -1,0 +1,170 @@
+{
+  "results": [
+    {
+      "exhaustiveNbHits": true,
+      "hits": [
+        {
+          "_geoloc": {
+            "lat": 10.8018492,
+            "lng": 106.7362259
+          },
+          "_highlightResult": {
+            "company": {
+              "matchLevel": "none",
+              "matchedWords": [],
+              "value": "Home Credit Vietnam"
+            },
+            "jobDescription": {
+              "matchLevel": "none",
+              "matchedWords": [],
+              "value": "- Collection call-center system support, prevent and trouble-shooting. Identify the issue, incident, and report/contact other parties for a solution\n- Participate in test relating to call center and test scenarios writer.\n- Collecting the business requirements, support for suggesting changes for improvement.\n- To be in charge of Campaigns/calling list management and develop the report. \n- Communicate with the relative department on technical/process and perform the process to support activities."
+            },
+            "jobRequirement": {
+              "matchLevel": "none",
+              "matchedWords": [],
+              "value": "- Bachelor degree in IT major is preferred\n- At least 1-year experience in IT support, supporting end-users. \n- Able to do issue analysis, trouble-shooting to support and resolve the incident in applications\n- Understand the enterprise IT architecture practices, application integration\n- Good English Communications \n- Advanced skill of Microsoft Office\n- Have Oracle skill is preferred"
+            },
+            "jobTitle": {
+              "matchLevel": "none",
+              "matchedWords": [],
+              "value": "Application Support Specialist"
+            },
+            "skills": [
+              {
+                "matchLevel": "none",
+                "matchedWords": [],
+                "value": "End-User Support"
+              },
+              {
+                "matchLevel": "none",
+                "matchedWords": [],
+                "value": "It Helpdesk"
+              },
+              {
+                "matchLevel": "none",
+                "matchedWords": [],
+                "value": "Technical Support"
+              },
+              {
+                "matchLevel": "none",
+                "matchedWords": [],
+                "value": "System Support"
+              },
+              {
+                "matchLevel": "none",
+                "matchedWords": [],
+                "value": "It Support"
+              }
+            ]
+          },
+          "alias": "application-support-specialist-3",
+          "benefits": [
+            {
+              "benefitIconName": "fa-dollar",
+              "benefitId": 1,
+              "benefitName": "Bonus",
+              "benefitValue": "13th Salary Fixed and KPI Bonus"
+            },
+            {
+              "benefitIconName": "fa-file-image-o",
+              "benefitId": 3,
+              "benefitName": "Paid Leave",
+              "benefitValue": "15 Annual Leaves"
+            },
+            {
+              "benefitIconName": "fa-graduation-cap",
+              "benefitId": 4,
+              "benefitName": "Training",
+              "benefitValue": "Professional and Transparent Working Environment"
+            }
+          ],
+          "categories": [
+            "IT - Hardware/Networking",
+            "IT - Software",
+            "Finance/Investment"
+          ],
+          "categoryIds": [
+            35,
+            55,
+            59
+          ],
+          "categoryVIs": [
+            "IT - Phần mềm",
+            "IT-Phần cứng/Mạng",
+            "Tài chính/Đầu tư"
+          ],
+          "classifiedConfidenceRoles": [
+            0.966213724209143
+          ],
+          "classifiedConfidenceSkills": [
+            0.717520242470358,
+            0.0491424972768088
+          ],
+          "classifiedRoles": [
+            "DevOps"
+          ],
+          "classifiedSkills": [
+            "Others",
+            ".Net"
+          ],
+          "company": "Home Credit Vietnam",
+          "companyId": 27341,
+          "companyLogo": "https://images.vietnamworks.com/pictureofcompany/5a/10480385.png",
+          "expiredDate": 1578761999,
+          "isPremium": false,
+          "isPriorityJob": false,
+          "isSalaryVisible": false,
+          "isShowLogo": true,
+          "isShowLogoInSearchResult": true,
+          "isShowLogoInSearchResult35": true,
+          "isShowLogoInSearchResult55": true,
+          "isShowLogoInSearchResult59": true,
+          "jobDescription": "- Collection call-center system support, prevent and trouble-shooting. Identify the issue, incident, and report/contact other parties for a solution\n- Participate in test relating to call center and test scenarios writer.\n- Collecting the business requirements, support for suggesting changes for improvement.\n- To be in charge of Campaigns/calling list management and develop the report. \n- Communicate with the relative department on technical/process and perform the process to support activities.",
+          "jobId": 1199830,
+          "jobLevel": "Experienced (non-manager)",
+          "jobLevelId": 5,
+          "jobLevelVI": "Nhân viên",
+          "jobRequirement": "- Bachelor degree in IT major is preferred\n- At least 1-year experience in IT support, supporting end-users. \n- Able to do issue analysis, trouble-shooting to support and resolve the incident in applications\n- Understand the enterprise IT architecture practices, application integration\n- Good English Communications \n- Advanced skill of Microsoft Office\n- Have Oracle skill is preferred",
+          "jobSalary": 1000,
+          "jobTitle": "Application Support Specialist",
+          "locationIds": [
+            29
+          ],
+          "locationVIs": [
+            "Hồ Chí Minh"
+          ],
+          "locations": [
+            "Ho Chi Minh"
+          ],
+          "objectID": "1199830",
+          "onlineDate": 1577530825,
+          "priorityOrder": 1577530825,
+          "priorityOrder35": 1577530825,
+          "priorityOrder55": 1577530825,
+          "priorityOrder59": 1577530825,
+          "publishedDate": 1576148426,
+          "salaryMax": 1000,
+          "salaryMin": 500,
+          "skills": [
+            "End-User Support",
+            "It Helpdesk",
+            "Technical Support",
+            "System Support",
+            "It Support"
+          ],
+          "timestamp": "20191229023043",
+          "userId": 891316,
+          "visibilityDisplay": 1
+        }
+      ],
+      "hitsPerPage": 50,
+      "index": "vnw_job_v2_35",
+      "nbHits": 8306,
+      "nbPages": 20,
+      "page": 0,
+      "params": "query=&hitsPerPage=50&page=0&restrictSearchableAttributes=%5B%22jobTitle%22%2C%22skills%22%2C%22company%22%5D&tagFilters=&userToken=39fe362a6ffacc45ec6fdc8da1324ac3",
+      "processingTimeMS": 9,
+      "query": ""
+    }
+  ]
+}

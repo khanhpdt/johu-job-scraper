@@ -30,7 +30,7 @@ trait Parser extends Logging {
     if (company.isEmpty) errors += "Missing company"
     if (locations.forall(_.isEmpty)) errors += "Missing locations"
 
-    if (errors.isEmpty) {
+    if (errors.nonEmpty) {
       val id = BSONObjectID.generate()
       logger.error(s"Could not parse job element. One of the required field is missing. Error id: [${id.stringify}]")
       Left(JobParsingError(

@@ -1,10 +1,11 @@
 package vn.johu.scraping.scrapers
 
 import io.circe.parser.parse
-import io.circe.{DecodingFailure, Json}
-import reactivemongo.api.bson.BSONObjectID
+import io.circe.{Decoder, DecodingFailure, Json}
+import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 
 import vn.johu.scraping.models.{JobParsingError, RawJobSource, ScrapedJob}
+import vn.johu.utils.DateUtils
 
 object VietnamWorksParser extends Parser {
 
@@ -38,26 +39,57 @@ object VietnamWorksParser extends Parser {
   private def parseJobElement(jobElement: Json, rawJobSource: RawJobSource): Either[JobParsingError, ScrapedJob] = {
     import VietnamWorksScraper.BaseUrl
 
-    def get[T](key: String) = jobElement.hcursor.get[T](key)
+    def get[T: Decoder](key: String) = jobElement.hcursor.get[T](key)
 
-    implicit def converter[T](e: Either[DecodingFailure, T]) = e.toOption
+    import scala.language.implicitConversions
+    implicit def converter[T](e: Either[DecodingFailure, T]): Option[T] = e.toOption
 
     def getUrl = {
       for {
         alias <- get[String]("alias")
         jobId <- get[Long]("jobId")
-      } yield s"$BaseUrl/$alias-$jobId-jv"
+      } yield s"$BaseUrl/${alias.trim}-$jobId-jv"
     }
 
     def getTitle = {
       for {
         title <- get[String]("jobTitle")
-      } yield title
+      } yield title.trim
+    }
+
+    def getTags = {
+      for {
+        skills <- get[Set[String]]("skills")
+      } yield skills.map(_.trim)
+    }
+
+    def getPostingDate = {
+      for {
+        onlineDate <- get[Long]("onlineDate")
+      } yield BSONDateTime(onlineDate * 1000)
+    }
+
+    def getCompany = {
+      for {
+        company <- get[String]("company")
+      } yield company.trim
+    }
+
+    def getLocations = {
+      for {
+        locations <- get[Set[String]]("locations")
+      } yield locations.map(_.trim)
     }
 
     buildScrapedJob(
       url = getUrl,
       title = getTitle,
+      tags = getTags,
+      postingDate = getPostingDate,
+      company = getCompany,
+      locations = getLocations,
+      rawJobSource = rawJobSource,
+      rawJobElementSource = jobElement.toString
     )
   }
 
