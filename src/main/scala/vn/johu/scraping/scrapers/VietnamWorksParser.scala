@@ -1,7 +1,7 @@
 package vn.johu.scraping.scrapers
 
-import io.circe.Json
 import io.circe.parser.parse
+import io.circe.{DecodingFailure, Json}
 import reactivemongo.api.bson.BSONObjectID
 
 import vn.johu.scraping.models.{JobParsingError, RawJobSource, ScrapedJob}
@@ -36,7 +36,29 @@ object VietnamWorksParser extends Parser {
   }
 
   private def parseJobElement(jobElement: Json, rawJobSource: RawJobSource): Either[JobParsingError, ScrapedJob] = {
+    import VietnamWorksScraper.BaseUrl
 
+    def get[T](key: String) = jobElement.hcursor.get[T](key)
+
+    implicit def converter[T](e: Either[DecodingFailure, T]) = e.toOption
+
+    def getUrl = {
+      for {
+        alias <- get[String]("alias")
+        jobId <- get[Long]("jobId")
+      } yield s"$BaseUrl/$alias-$jobId-jv"
+    }
+
+    def getTitle = {
+      for {
+        title <- get[String]("jobTitle")
+      } yield title
+    }
+
+    buildScrapedJob(
+      url = getUrl,
+      title = getTitle,
+    )
   }
 
 }

@@ -45,6 +45,8 @@ class VietnamWorksScraper(
 
 object VietnamWorksScraper {
 
+  val BaseUrl = "https://www.vietnamworks.com"
+
   private val RawSourceUrl = s"https://jf8q26wwud-dsn.algolia.net/1/indexes/*/queries" +
     s"?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%20(lite)%203.24.5%3Binstantsearch.js%201.6.0%3BJS%20Helper%202.21.2" +
     s"&x-algolia-application-id=JF8Q26WWUD" +
