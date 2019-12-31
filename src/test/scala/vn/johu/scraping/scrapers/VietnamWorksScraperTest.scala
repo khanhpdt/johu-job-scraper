@@ -1,7 +1,11 @@
 package vn.johu.scraping.scrapers
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+import vn.johu.persistence.DocRepo
 import vn.johu.scraping.models.RawJobSourceName
-import vn.johu.scraping.scrapers.Scraper.JobsScraped
+import vn.johu.scraping.scrapers.Scraper.ScrapeResult
 import vn.johu.scraping.{HttpClientMock, HttpResponseMock, ScraperTestFixture}
 
 class VietnamWorksScraperTest extends ScraperTestFixture {
@@ -14,13 +18,14 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
     )
 
     scraper = spawn[Scraper.Command](VietnamWorksScraper(HttpClientMock(responseMocks)))
-    val probe = createTestProbe[JobsScraped]()
+    val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
 
     val response = probe.receiveMessage()
     response.page shouldBe 1
-    response.scrapedJobs should have length 50
+    response.newJobs should have length 50
+    response.existingJobs should have length 0
   }
 
   test("parse job details correctly") {
@@ -29,15 +34,16 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
     )
 
     scraper = spawn[Scraper.Command](VietnamWorksScraper(HttpClientMock(responseMocks)))
-    val probe = createTestProbe[JobsScraped]()
+    val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
 
     val response = probe.receiveMessage()
     response.page shouldBe 1
-    response.scrapedJobs should have length 1
+    response.newJobs should have length 1
+    response.existingJobs should have length 0
 
-    val job = response.scrapedJobs.head
+    val job = response.newJobs.head
     job.id shouldBe defined
     job.url shouldBe s"${VietnamWorksScraper.BaseUrl}/application-support-specialist-3-1199830-jv"
     job.title shouldBe "Application Support Specialist"
@@ -54,18 +60,25 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
     )
 
     scraper = spawn[Scraper.Command](VietnamWorksScraper(HttpClientMock(responseMocks)))
-    val probe = createTestProbe[JobsScraped]()
+    val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
 
-    var response = probe.receiveMessage()
-    response.page shouldBe 1
-    response.scrapedJobs should have length 1
+    val existingJob = probe.awaitAssert {
+      val jobs = Await.result(DocRepo.findAllJobs(), 100.milliseconds)
+      jobs should have length 1
+      jobs.head
+    }
 
     // next scraping
     scraper ! Scraper.Scrape(replyTo = probe.ref)
 
-    // todo: assert modifiedTs changed
+    probe.awaitAssert {
+      val jobs = Await.result(DocRepo.findAllJobs(), 100.milliseconds)
+      jobs should have length 1
+      jobs.head.id shouldBe existingJob.id
+      jobs.head.modifiedTs.get.value should be > existingJob.modifiedTs.get.value
+    }
   }
 
 }

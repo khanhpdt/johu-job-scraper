@@ -3,7 +3,7 @@ package vn.johu.persistence
 import scala.concurrent.{ExecutionContext, Future}
 
 import reactivemongo.api.Cursor
-import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, document}
+import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, ElementProducer, document}
 
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.models.{JobParsingError, RawJobSource, ScrapedJob}
@@ -76,15 +76,33 @@ object DocRepo {
     }
   }
 
-  def findJobs(jobUrls: Set[String], rawJobSourceName: RawJobSourceName)(implicit ec: ExecutionContext): Future[List[BSONDocument]] = {
+  def findJobs(
+    jobUrls: Set[String],
+    rawJobSourceName: RawJobSourceName,
+    fields: Set[String]
+  )(implicit ec: ExecutionContext): Future[List[BSONDocument]] = {
     MongoDb.scrapedJobColl.flatMap { coll =>
       coll.find(
         selector = document(
           ScrapedJob.Fields.url -> document("$in" -> jobUrls),
           ScrapedJob.Fields.rawJobSourceName -> rawJobSourceName.toString
         ),
-        projection = Some(document(ScrapedJob.Fields.url -> 1))
+        projection = Some(document(
+          fields.toSeq.map { f =>
+            val result: ElementProducer = (f, 1)
+            result
+          }: _*)
+        )
       ).cursor[BSONDocument]().collect[List](jobUrls.size, Cursor.FailOnError[List[BSONDocument]]())
+    }
+  }
+
+  def findAllJobs()(implicit ec: ExecutionContext): Future[List[ScrapedJob]] = {
+    MongoDb.scrapedJobColl.flatMap { coll =>
+      coll.find(
+        selector = document(),
+        projection = Option.empty[BSONDocument]
+      ).cursor[ScrapedJob]().collect[List](-1, Cursor.FailOnError[List[ScrapedJob]]())
     }
   }
 

@@ -19,7 +19,7 @@ trait ScraperTestFixture extends FunSuiteLike with Matchers with BeforeAndAfterA
 
   protected val testKit: ActorTestKit = ActorTestKit("scraper-test-actor-system", ConfigFactory.load())
 
-  private implicit val ec: ExecutionContext = testKit.system.executionContext
+  protected implicit val ec: ExecutionContext = testKit.system.executionContext
 
   // make this mutable for us to start/stop for each test method.
   // reason: our scraper needs to use data mocks so we need to refresh these data for each test.

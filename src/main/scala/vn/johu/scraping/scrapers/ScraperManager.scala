@@ -8,7 +8,7 @@ import akka.actor.typed.{ActorRef, Behavior, PostStop, Signal}
 import vn.johu.scraping.jsoup.JSoup
 import vn.johu.scraping.models.RawJobSourceName
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
-import vn.johu.scraping.scrapers.Scraper.JobsScraped
+import vn.johu.scraping.scrapers.Scraper.ScrapeResult
 import vn.johu.utils.Logging
 
 class ScraperManager(context: ActorContext[ScraperManager.Command])
@@ -18,7 +18,7 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
 
   private var scrapers = mutable.Map.empty[RawJobSourceName, ActorRef[Scraper.Command]]
 
-  private val jobsScrapedAdapter = context.messageAdapter[JobsScraped](WrappedJobsScraped.apply)
+  private val jobsScrapedAdapter = context.messageAdapter[ScrapeResult](WrappedJobsScraped.apply)
 
   override def onMessage(msg: Command): Behavior[Command] = {
     msg match {
@@ -29,7 +29,7 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
         runAllScrapers()
         this
       case WrappedJobsScraped(jobsScraped) =>
-        logger.debug(s"Scraped ${jobsScraped.scrapedJobs.size} jobs")
+        logger.debug(s"Scraped ${jobsScraped.newJobs.size} jobs")
         this
       case ParseLocalJobSources(rawJobSourceName, start, end) =>
         parseLocalJobSources(rawJobSourceName, start, end)
@@ -107,7 +107,7 @@ object ScraperManager {
 
   case object RunAllScrapers extends Command
 
-  case class WrappedJobsScraped(jobsScraped: JobsScraped) extends Command
+  case class WrappedJobsScraped(jobsScraped: ScrapeResult) extends Command
 
   case class ParseLocalJobSources(
     jobSourceName: RawJobSourceName,

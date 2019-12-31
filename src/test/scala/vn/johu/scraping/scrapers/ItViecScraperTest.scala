@@ -2,7 +2,7 @@ package vn.johu.scraping.scrapers
 
 import scala.concurrent.duration._
 
-import vn.johu.scraping.scrapers.Scraper.JobsScraped
+import vn.johu.scraping.scrapers.Scraper.ScrapeResult
 import vn.johu.scraping.{HtmlMock, JSoupMock, ScraperTestFixture}
 
 class ItViecScraperTest extends ScraperTestFixture {
@@ -15,13 +15,14 @@ class ItViecScraperTest extends ScraperTestFixture {
     )
 
     scraper = spawn[Scraper.Command](ItViecScraper(JSoupMock(htmlMocks)))
-    val probe = createTestProbe[JobsScraped]()
+    val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
 
     val response = probe.receiveMessage()
     response.page shouldBe 1
-    response.scrapedJobs should have length 20
+    response.newJobs should have length 20
+    response.existingJobs should have length 0
   }
 
   test("should continue scraping when all jobs were not scraped before") {
@@ -31,19 +32,19 @@ class ItViecScraperTest extends ScraperTestFixture {
     )
 
     scraper = spawn[Scraper.Command](ItViecScraper(JSoupMock(htmlMocks)))
-    val probe = createTestProbe[JobsScraped]()
+    val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
 
     val response = probe.receiveMessage()
     response.page shouldBe 1
-    response.scrapedJobs should have length 20
+    response.newJobs should have length 20
 
     probe.awaitAssert(
       {
         val response = probe.receiveMessage()
         response.page shouldBe 2
-        response.scrapedJobs should have length 20
+        response.newJobs should have length 20
       },
       500.milliseconds
     )
@@ -55,22 +56,25 @@ class ItViecScraperTest extends ScraperTestFixture {
       HtmlMock("https://itviec.com/it-jobs?page=2", "sample_raw_data/itviec/job_page_1.html")
     )
     scraper = spawn[Scraper.Command](ItViecScraper(JSoupMock(htmlMocks)))
-    val probe = createTestProbe[JobsScraped]()
+    val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
     var response = probe.receiveMessage()
     response.page shouldBe 1
-    response.scrapedJobs should have length 20
+    response.newJobs should have length 20
+    response.existingJobs should have length 0
 
     response = probe.receiveMessage()
     response.page shouldBe 2
-    response.scrapedJobs shouldBe empty
+    response.newJobs shouldBe empty
+    response.existingJobs should have length 20
 
     // start another scraping
     scraper ! Scraper.Scrape(replyTo = probe.ref)
     response = probe.receiveMessage()
     response.page shouldBe 1
-    response.scrapedJobs shouldBe empty
+    response.newJobs shouldBe empty
+    response.existingJobs should have length 20
 
     // no scraping of page 2
     probe.expectNoMessage()

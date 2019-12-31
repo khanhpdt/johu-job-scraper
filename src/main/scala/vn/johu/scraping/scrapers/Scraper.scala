@@ -51,7 +51,7 @@ abstract class Scraper(
               s"""Parse job source [${source.id.get.stringify}] result:
                  |nExistingJobs=${existingJobs.size}, nNewJobs=${newJobs.size}, nErrors=${parsingResult.errors.size}.
                  |""".stripMargin)
-            (existingJobs.size, newJobs.size, parsingResult.errors.size)
+            ScrapingResult(existingJobs = existingJobs, newJobs = newJobs, errors = parsingResult.errors)
           }
         }
       }
@@ -60,7 +60,9 @@ abstract class Scraper(
       case Failure(ex) =>
         logger.error(s"Error when parsing from local job sources with params: startTs=$startTs, endTs=$endTs.", ex)
       case Success(results) =>
-        val result = results.foldLeft((0, 0, 0))((r, elem) => (r._1 + elem._1, r._2 + elem._2, r._3 + elem._3))
+        val result = results.foldLeft((0, 0, 0)) { (acc, elem) =>
+          (acc._1 + elem.existingJobs.size, acc._2 + elem.newJobs.size, acc._3 + elem.errors.size)
+        }
         logger.info(
           s"""Success parsing from local job sources with params: startTs=$startTs, endTs=$endTs.
              |Result: nJobsUpdated=${result._1}, nJobsInserted=${result._2}, nErrors=${result._3}.
@@ -97,7 +99,7 @@ abstract class Scraper(
     ).map(_ => ())
   }
 
-  private def scrape(page: Int, endPage: Option[Int], replyTo: ActorRef[Scraper.JobsScraped]) = {
+  private def scrape(page: Int, endPage: Option[Int], replyTo: ActorRef[Scraper.ScrapeResult]) = {
     logger.info(s"Start scraping at page $page...")
 
     val scrapeResultF =
@@ -105,15 +107,14 @@ abstract class Scraper(
         rawJobSourceContent <- getRawJobSourceContent(page)
         rawJobSource <- DocRepo.insertRawJobSource(rawJobSourceName, page, rawJobSourceContent)
         parsingResult <- Future.successful(parseJobsFromRaw(rawJobSource))
-        newJobs <- filterNewJobs(parsingResult.jobs)
+        (existingJobs, newJobs) <- partitionExistingAndNewJobs(parsingResult.jobs)
         shouldScheduleNext <- Future.successful(shouldScheduleNextScraping(page, endPage, newJobs))
-        _ <- saveParsingResults(newJobs, parsingResult.errors)
-        _ <- publishJobs(newJobs)
-        _ <- Future.successful(respond(page, newJobs, replyTo))
+        _ <- saveLocalParsingResults(existingJobs, newJobs, parsingResult.errors)
+        _ <- publishJobs(existingJobs ++ newJobs)
         _ <- Future.successful(scheduleNextScraping(shouldScheduleNext, page, endPage, replyTo))
       } yield {
         logger.info(s"Scrape result: nNewJobs=${newJobs.size}, nErrors=${parsingResult.errors.size}")
-        parsingResult
+        ScrapingResult(existingJobs = existingJobs, newJobs = newJobs, errors = parsingResult.errors)
       }
 
     scrapeResultF.onComplete {
@@ -123,21 +124,14 @@ abstract class Scraper(
         logger.info(s"Successfully scraped from page: $page")
     }
 
-    scrapeResultF
+    for {scrapeResult <- scrapeResultF} yield {
+      replyTo ! Scraper.ScrapeResult(page = page, newJobs = scrapeResult.newJobs, existingJobs = scrapeResult.existingJobs)
+    }
   }
 
   protected def getRawJobSourceContent(page: Int): Future[String]
 
   protected def parseJobsFromRaw(rawJobSource: RawJobSource): JobParsingResult
-
-  private def saveParsingResults(newJobs: List[ScrapedJob], errors: List[JobParsingError]) = {
-    val insertJobsF = DocRepo.insertJobs(newJobs)
-    val insertErrorsF = DocRepo.insertErrors(errors)
-    for {
-      res1 <- insertJobsF
-      res2 <- insertErrorsF
-    } yield (res1, res2)
-  }
 
   private def publishJobs(jobs: List[ScrapedJob]) = {
     implicit val encoder: Encoder[ScrapedJob] = scrapedJobRabbitMqEncoder
@@ -152,7 +146,7 @@ abstract class Scraper(
     } else {
       val jobByUrl = scrapedJobs.map(j => j.url -> j).toMap
       for {
-        existingJobs <- DocRepo.findJobs(jobByUrl.keySet, rawJobSourceName)
+        existingJobs <- DocRepo.findJobs(jobByUrl.keySet, rawJobSourceName, Set(ScrapedJob.Fields.url))
       } yield {
         val existingJobUrls = existingJobs.map(_.getAsOpt[String](ScrapedJob.Fields.url).get).toSet
         val newJobs = jobByUrl.filterNot(kv => existingJobUrls.contains(kv._1)).values.toList
@@ -177,15 +171,11 @@ abstract class Scraper(
     }
   }
 
-  private def respond(page: Int, jobs: List[ScrapedJob], replyTo: ActorRef[Scraper.JobsScraped]): Unit = {
-    replyTo ! Scraper.JobsScraped(page, jobs)
-  }
-
   private def scheduleNextScraping(
     shouldSchedule: Boolean,
     currentPage: Int,
     endPage: Option[Int],
-    replyTo: ActorRef[Scraper.JobsScraped]
+    replyTo: ActorRef[Scraper.ScrapeResult]
   ): Unit = {
     if (!shouldSchedule) {
       logger.info("Next scraping skipped.")
@@ -210,9 +200,9 @@ object Scraper {
 
   sealed trait Command
 
-  case class Scrape(page: Int = 1, endPage: Option[Int] = None, replyTo: ActorRef[JobsScraped]) extends Command
+  case class Scrape(page: Int = 1, endPage: Option[Int] = None, replyTo: ActorRef[ScrapeResult]) extends Command
 
-  case class JobsScraped(page: Int, scrapedJobs: List[ScrapedJob])
+  case class ScrapeResult(page: Int, newJobs: List[ScrapedJob], existingJobs: List[ScrapedJob])
 
   case class ParseLocalRawJobSources(startTs: Option[String], endTs: Option[String]) extends Command
 
@@ -229,3 +219,5 @@ object Scraper {
   }
 
 }
+
+case class ScrapingResult(existingJobs: List[ScrapedJob], newJobs: List[ScrapedJob], errors: List[JobParsingError])
