@@ -8,15 +8,13 @@ import scala.util.{Failure, Success}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, TimerScheduler}
 import akka.actor.typed.{ActorRef, Behavior}
 import io.circe.{Encoder, Json}
-import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, document}
-import reactivemongo.api.{Cursor, WriteConcern}
 
 import vn.johu.messaging.RabbitMqClient
-import vn.johu.persistence.MongoDb
+import vn.johu.persistence.DocRepo
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.models.ScrapedJob.Fields
 import vn.johu.scraping.models._
-import vn.johu.utils.{Configs, DateUtils, Logging}
+import vn.johu.utils.{Configs, Logging}
 
 abstract class Scraper(
   context: ActorContext[Scraper.Command],
@@ -40,7 +38,7 @@ abstract class Scraper(
 
   private def parseLocalRawJobSources(startTs: Option[String], endTs: Option[String]) = {
     val parseResultF =
-      findJobSources(startTs, endTs).flatMap { sources =>
+      DocRepo.findRawJobSources(rawJobSourceName, startTs, endTs).flatMap { sources =>
         logger.info(s"Found ${sources.size} job sources.")
         Future.traverse(sources) { source =>
           val parsingResult = parseJobsFromRaw(source)
@@ -73,21 +71,6 @@ abstract class Scraper(
     parseResultF
   }
 
-  private def findJobSources(startTs: Option[String], endTs: Option[String]) = {
-    val startTimeOpt = startTs.map(DateUtils.parseDateTime)
-    val endTimeOpt = endTs.map(DateUtils.parseDateTime)
-
-    var query = document(RawJobSource.Fields.sourceName -> rawJobSourceName.toString)
-    startTimeOpt.foreach(t => query ++= RawJobSource.Fields.scrapingTs -> document("$gte" -> t))
-    endTimeOpt.foreach(t => query ++= RawJobSource.Fields.scrapingTs -> document("$lte" -> t))
-
-    MongoDb.rawJobSourceColl.flatMap { coll =>
-      coll.find(query)
-        .cursor[RawJobSource]()
-        .collect[List](-1, Cursor.FailOnError[List[RawJobSource]]())
-    }
-  }
-
   protected def rawJobSourceName: RawJobSourceName
 
   private def partitionExistingAndNewJobs(jobs: List[ScrapedJob]) = {
@@ -100,41 +83,18 @@ abstract class Scraper(
     }
   }
 
-  private def saveLocalParsingResults(existingJobs: List[ScrapedJob], newJobs: List[ScrapedJob], errors: List[JobParsingError]) = {
+  private def saveLocalParsingResults(
+    existingJobs: List[ScrapedJob],
+    newJobs: List[ScrapedJob],
+    errors: List[JobParsingError]
+  ) = {
     Future.sequence(
       List(
-        updateJobs(existingJobs),
-        insertJobs(newJobs),
-        insertErrors(errors)
+        DocRepo.updateJobs(existingJobs),
+        DocRepo.insertJobs(newJobs),
+        DocRepo.insertErrors(errors)
       )
     ).map(_ => ())
-  }
-
-  private def updateJobs(jobs: List[ScrapedJob]) = {
-    if (jobs.isEmpty) {
-      Future.successful(Nil)
-    } else {
-      val jobsToUpdate = jobs.map(j => setTechnicalFields(j, modifiedTs = Some(BSONDateTime(DateUtils.nowMillis()))))
-      val updateResultF = MongoDb.scrapedJobColl.flatMap { coll =>
-        Future.traverse(jobsToUpdate) { job =>
-          val jobToUpdate = job.copy(id = None)
-          coll.findAndUpdate(
-            selector = document(ScrapedJob.Fields.url -> jobToUpdate.url),
-            update = jobToUpdate,
-            fetchNewObject = false,
-            upsert = false,
-            sort = None,
-            fields = None,
-            bypassDocumentValidation = false,
-            writeConcern = WriteConcern.Acknowledged,
-            maxTime = None,
-            collation = None,
-            arrayFilters = Seq.empty
-          )
-        }
-      }
-      updateResultF.map(_ => jobsToUpdate)
-    }
   }
 
   private def scrape(page: Int, endPage: Option[Int], replyTo: ActorRef[Scraper.JobsScraped]) = {
@@ -143,7 +103,7 @@ abstract class Scraper(
     val scrapeResultF =
       for {
         rawJobSourceContent <- getRawJobSourceContent(page)
-        rawJobSource <- saveRawJobSource(page, rawJobSourceContent)
+        rawJobSource <- DocRepo.insertRawJobSource(rawJobSourceName, page, rawJobSourceContent)
         parsingResult <- Future.successful(parseJobsFromRaw(rawJobSource))
         newJobs <- filterNewJobs(parsingResult.jobs)
         shouldScheduleNext <- Future.successful(shouldScheduleNextScraping(page, endPage, newJobs))
@@ -170,68 +130,13 @@ abstract class Scraper(
 
   protected def parseJobsFromRaw(rawJobSource: RawJobSource): JobParsingResult
 
-  private def saveRawJobSource(page: Int, content: String) = {
-    MongoDb.rawJobSourceColl.flatMap { coll =>
-      val source = RawJobSource(
-        id = Some(BSONObjectID.generate),
-        page = page,
-        sourceName = rawJobSourceName,
-        content = content,
-        scrapingTs = BSONDateTime(DateUtils.nowMillis())
-      )
-      coll.insert(ordered = false).one[RawJobSource](source).map(_ => source)
-    }
-  }
-
   private def saveParsingResults(newJobs: List[ScrapedJob], errors: List[JobParsingError]) = {
-    val insertJobsF = insertJobs(newJobs)
-    val insertErrorsF = insertErrors(errors)
+    val insertJobsF = DocRepo.insertJobs(newJobs)
+    val insertErrorsF = DocRepo.insertErrors(errors)
     for {
       res1 <- insertJobsF
       res2 <- insertErrorsF
     } yield (res1, res2)
-  }
-
-  private def insertJobs(jobs: List[ScrapedJob]) = {
-    if (jobs.isEmpty) {
-      Future.successful(Nil)
-    } else {
-      MongoDb.scrapedJobColl.flatMap { coll =>
-        val jobsToInsert = jobs.map { j =>
-          val now = BSONDateTime(DateUtils.nowMillis())
-          setTechnicalFields(j, createdTs = Some(now), modifiedTs = Some(now))
-        }
-        coll.insert(ordered = false).many(jobsToInsert).map(_ => jobsToInsert)
-      }
-    }
-  }
-
-  private def setTechnicalFields(
-    job: ScrapedJob,
-    createdTs: Option[BSONDateTime] = None,
-    modifiedTs: Option[BSONDateTime] = None
-  ) = {
-    var result = job
-
-    createdTs.foreach { ts =>
-      result = result.copy(createdTs = Some(ts))
-    }
-
-    modifiedTs.foreach { ts =>
-      result = result.copy(modifiedTs = Some(ts))
-    }
-
-    result
-  }
-
-  private def insertErrors(errors: List[JobParsingError]) = {
-    if (errors.isEmpty) {
-      Future.successful(Nil)
-    } else {
-      MongoDb.jobParsingErrorColl.flatMap { coll =>
-        coll.insert(ordered = false).many(errors).map(_ => errors)
-      }
-    }
   }
 
   private def publishJobs(jobs: List[ScrapedJob]) = {
@@ -245,23 +150,12 @@ abstract class Scraper(
     if (scrapedJobs.isEmpty) {
       Future.successful(Nil)
     } else {
-      val jobByKey = scrapedJobs.map(j => j.url -> j).toMap
-      val jobKeys = jobByKey.keySet
-      val existingJobsF = MongoDb.scrapedJobColl.flatMap { coll =>
-        coll.find(
-          selector = document(
-            ScrapedJob.Fields.url -> document("$in" -> jobKeys),
-            ScrapedJob.Fields.rawJobSourceName -> rawJobSourceName.toString
-          ),
-          projection = Some(document(ScrapedJob.Fields.url -> 1))
-        ).cursor[BSONDocument]().collect[List](jobKeys.size, Cursor.FailOnError[List[BSONDocument]]())
-      }
-
+      val jobByUrl = scrapedJobs.map(j => j.url -> j).toMap
       for {
-        existingJobs <- existingJobsF
+        existingJobs <- DocRepo.findJobs(jobByUrl.keySet, rawJobSourceName)
       } yield {
-        val existingJobKeys = existingJobs.map(_.getAsOpt[String](ScrapedJob.Fields.url).get).toSet
-        val newJobs = jobByKey.filterNot(kv => existingJobKeys.contains(kv._1)).values.toList
+        val existingJobUrls = existingJobs.map(_.getAsOpt[String](ScrapedJob.Fields.url).get).toSet
+        val newJobs = jobByUrl.filterNot(kv => existingJobUrls.contains(kv._1)).values.toList
         newJobs
       }
     }

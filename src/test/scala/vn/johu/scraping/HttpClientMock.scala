@@ -7,10 +7,19 @@ import spray.json._
 
 import vn.johu.http.HttpClient
 
-class HttpClientMock(responseMocks: Seq[HttpResponseMock]) extends HttpClient {
+class HttpClientMock(responseMocks: Seq[HttpResponseMock], mockSequentially: Boolean = false) extends HttpClient {
+
+  private var requestNumber = 0
 
   override def post(url: String, body: Array[Byte]): Future[JsObject] = {
-    val mock = getMock(url)
+    val mock =
+      if (mockSequentially) {
+        val res = responseMocks(requestNumber)
+        requestNumber += 1
+        res
+      } else {
+        getMock(url)
+      }
     Future.successful {
       Source.fromResource(mock.jsonFilePath).mkString.parseJson.asJsObject
     }
@@ -29,7 +38,7 @@ class HttpClientMock(responseMocks: Seq[HttpResponseMock]) extends HttpClient {
 }
 
 object HttpClientMock {
-  def apply(mocks: Seq[HttpResponseMock]) = new HttpClientMock(mocks)
+  def apply(mocks: Seq[HttpResponseMock], mockSequentially: Boolean = false) = new HttpClientMock(mocks, mockSequentially)
 }
 
 case class HttpResponseMock(url: String = "", jsonFilePath: String)

@@ -48,4 +48,24 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
     job.rawJobSourceName shouldBe RawJobSourceName.VietnamWorks
   }
 
+  test("be able to update job") {
+    val responseMocks = List(
+      HttpResponseMock(jsonFilePath = "sample_raw_data/vietnamworks/one_job_page.json")
+    )
+
+    scraper = spawn[Scraper.Command](VietnamWorksScraper(HttpClientMock(responseMocks)))
+    val probe = createTestProbe[JobsScraped]()
+
+    scraper ! Scraper.Scrape(replyTo = probe.ref)
+
+    var response = probe.receiveMessage()
+    response.page shouldBe 1
+    response.scrapedJobs should have length 1
+
+    // next scraping
+    scraper ! Scraper.Scrape(replyTo = probe.ref)
+
+    // todo: assert modifiedTs changed
+  }
+
 }
