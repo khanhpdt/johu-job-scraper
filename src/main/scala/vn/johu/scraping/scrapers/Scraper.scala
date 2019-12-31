@@ -114,7 +114,7 @@ abstract class Scraper(
     if (jobs.isEmpty) {
       Future.successful(Nil)
     } else {
-      val jobsToUpdate = jobs.map(addTechnicalFields)
+      val jobsToUpdate = jobs.map(j => setTechnicalFields(j, modifiedTs = Some(BSONDateTime(DateUtils.nowMillis()))))
       val updateResultF = MongoDb.scrapedJobColl.flatMap { coll =>
         Future.traverse(jobsToUpdate) { job =>
           val jobToUpdate = job.copy(id = None)
@@ -197,16 +197,30 @@ abstract class Scraper(
       Future.successful(Nil)
     } else {
       MongoDb.scrapedJobColl.flatMap { coll =>
-        val jobsToInsert = jobs.map(addTechnicalFields)
+        val jobsToInsert = jobs.map { j =>
+          val now = BSONDateTime(DateUtils.nowMillis())
+          setTechnicalFields(j, createdTs = Some(now), modifiedTs = Some(now))
+        }
         coll.insert(ordered = false).many(jobsToInsert).map(_ => jobsToInsert)
       }
     }
   }
 
-  private def addTechnicalFields(job: ScrapedJob) = {
+  private def setTechnicalFields(
+    job: ScrapedJob,
+    createdTs: Option[BSONDateTime] = None,
+    modifiedTs: Option[BSONDateTime] = None
+  ) = {
     var result = job
-    if (job.createdTs.isEmpty) result = result.copy(createdTs = Some(BSONDateTime(DateUtils.nowMillis())))
-    if (job.modifiedTs.isEmpty) result = result.copy(modifiedTs = Some(BSONDateTime(DateUtils.nowMillis())))
+
+    createdTs.foreach { ts =>
+      result = result.copy(createdTs = Some(ts))
+    }
+
+    modifiedTs.foreach { ts =>
+      result = result.copy(modifiedTs = Some(ts))
+    }
+
     result
   }
 
