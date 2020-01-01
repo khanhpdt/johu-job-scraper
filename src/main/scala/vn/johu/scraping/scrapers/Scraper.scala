@@ -1,5 +1,6 @@
 package vn.johu.scraping.scrapers
 
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -8,13 +9,14 @@ import scala.util.{Failure, Success}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, TimerScheduler}
 import akka.actor.typed.{ActorRef, Behavior}
 import io.circe.{Encoder, Json}
+import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.DocRepo
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.models.ScrapedJob.Fields
 import vn.johu.scraping.models._
-import vn.johu.utils.{Configs, Logging}
+import vn.johu.utils.{Configs, DateUtils, Logging}
 
 abstract class Scraper(
   context: ActorContext[Scraper.Command],
@@ -102,6 +104,8 @@ abstract class Scraper(
   private def scrape(page: Int, endPage: Option[Int], replyTo: ActorRef[Scraper.ScrapeResult]) = {
     logger.info(s"Start scraping at page $page...")
 
+    val startTime = DateUtils.now()
+
     val scrapeResultF =
       for {
         rawJobSourceContent <- getRawJobSourceContent(page)
@@ -111,6 +115,7 @@ abstract class Scraper(
         shouldScheduleNext <- Future.successful(shouldScheduleNextScraping(page, endPage, newJobs))
         _ <- saveLocalParsingResults(existingJobs, newJobs, parsingResult.errors)
         _ <- publishJobs(existingJobs ++ newJobs)
+        _ <- saveScrapingHistory(rawJobSource, existingJobs, newJobs, parsingResult.errors, startTime, DateUtils.now())
         _ <- Future.successful(scheduleNextScraping(shouldScheduleNext, page, endPage, replyTo))
       } yield {
         logger.info(s"Scrape result: nNewJobs=${newJobs.size}, nErrors=${parsingResult.errors.size}")
@@ -127,6 +132,28 @@ abstract class Scraper(
     for {scrapeResult <- scrapeResultF} yield {
       replyTo ! Scraper.ScrapeResult(page = page, newJobs = scrapeResult.newJobs, existingJobs = scrapeResult.existingJobs)
     }
+  }
+
+  private def saveScrapingHistory(
+    rawJobSource: RawJobSource,
+    existingJobs: List[ScrapedJob],
+    newJobs: List[ScrapedJob],
+    errors: List[JobParsingError],
+    startTime: LocalDateTime,
+    endTime: LocalDateTime
+  ): Future[Unit] = {
+    DocRepo.insertScrapingHistory(
+      JobScrapingHistory(
+        id = BSONObjectID.generate(),
+        rawJobSourceId = rawJobSource.id.get,
+        rawJobSourceName = rawJobSource.sourceName,
+        newJobIds = newJobs.flatMap(_.id),
+        existingJobIds = existingJobs.flatMap(_.id),
+        errorIds = errors.map(_.id),
+        startTime = BSONDateTime(DateUtils.toMillis(startTime)),
+        endTime = BSONDateTime(DateUtils.toMillis(endTime))
+      )
+    ).map(_ => ())
   }
 
   protected def getRawJobSourceContent(page: Int): Future[String]

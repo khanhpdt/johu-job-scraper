@@ -6,11 +6,6 @@ import reactivemongo.api.bson._
 
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 
-object RawJobSourceType extends Enumeration {
-  type RawJobSourceType = Value
-  val Html, Json = Value
-}
-
 object RawJobSourceName extends Enumeration {
   type RawJobSourceName = Value
   val ItViec, VietnamWorks = Value

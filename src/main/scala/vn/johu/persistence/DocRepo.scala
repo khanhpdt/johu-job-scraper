@@ -6,7 +6,7 @@ import reactivemongo.api.Cursor
 import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, ElementProducer, document}
 
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
-import vn.johu.scraping.models.{JobParsingError, RawJobSource, ScrapedJob}
+import vn.johu.scraping.models.{JobParsingError, JobScrapingHistory, RawJobSource, ScrapedJob}
 import vn.johu.utils.DateUtils
 
 object DocRepo {
@@ -149,6 +149,12 @@ object DocRepo {
         scrapingTs = BSONDateTime(DateUtils.nowMillis())
       )
       coll.insert(ordered = false).one[RawJobSource](source).map(_ => source)
+    }
+  }
+
+  def insertScrapingHistory(hist: JobScrapingHistory)(implicit ec: ExecutionContext): Future[JobScrapingHistory] = {
+    MongoDb.jobScrapingHistoryColl.flatMap { coll =>
+      coll.insert(ordered = false).one(hist).map(_ => hist)
     }
   }
 
