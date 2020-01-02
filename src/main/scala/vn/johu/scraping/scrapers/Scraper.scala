@@ -78,12 +78,19 @@ abstract class Scraper(
   protected def rawJobSourceName: RawJobSourceName
 
   private def partitionExistingAndNewJobs(jobs: List[ScrapedJob]) = {
-    for {
-      newJobs <- filterNewJobs(jobs)
-    } yield {
-      val newJobKeys = newJobs.map(_.url).toSet
-      val existingJobs = jobs.filterNot(j => newJobKeys.contains(j.url))
-      (existingJobs, newJobs)
+    if (jobs.isEmpty) {
+      Future.successful((Nil, Nil))
+    } else {
+      for {
+        jobsInDb <- DocRepo.findJobs(jobs.map(_.url).toSet, rawJobSourceName, Set(ScrapedJob.Fields.url))
+      } yield {
+        val jobsInDbByUrl = jobsInDb.map(j => j.getAsOpt[String](ScrapedJob.Fields.url).get -> j).toMap
+        val (existingJobs, newJobs) = jobs.partition(j => jobsInDbByUrl.contains(j.url))
+        val existingJobsWithIds = existingJobs.map { j =>
+          j.copy(id = jobsInDbByUrl(j.url).getAsOpt[BSONObjectID](ScrapedJob.Fields.id))
+        }
+        (existingJobsWithIds, newJobs)
+      }
     }
   }
 
@@ -164,21 +171,6 @@ abstract class Scraper(
     implicit val encoder: Encoder[ScrapedJob] = scrapedJobRabbitMqEncoder
     Future.traverse(jobs) { job =>
       RabbitMqClient.publishAsync(job)
-    }
-  }
-
-  private def filterNewJobs(scrapedJobs: List[ScrapedJob]) = {
-    if (scrapedJobs.isEmpty) {
-      Future.successful(Nil)
-    } else {
-      val jobByUrl = scrapedJobs.map(j => j.url -> j).toMap
-      for {
-        existingJobs <- DocRepo.findJobs(jobByUrl.keySet, rawJobSourceName, Set(ScrapedJob.Fields.url))
-      } yield {
-        val existingJobUrls = existingJobs.map(_.getAsOpt[String](ScrapedJob.Fields.url).get).toSet
-        val newJobs = jobByUrl.filterNot(kv => existingJobUrls.contains(kv._1)).values.toList
-        newJobs
-      }
     }
   }
 
