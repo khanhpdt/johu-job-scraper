@@ -241,7 +241,8 @@ object Scraper {
       Fields.tags -> Json.fromValues(job.tags.map(Json.fromString)),
       Fields.postingDate -> Json.fromLong(job.postingDate.toLong.get),
       Fields.company -> Json.fromString(job.company),
-      Fields.locations -> Json.fromValues(job.locations.map(Json.fromString))
+      Fields.locations -> Json.fromValues(job.locations.map(Json.fromString)),
+      Fields.rawJobSourceName -> Json.fromString(job.rawJobSourceName.toString)
     )
   }
 
