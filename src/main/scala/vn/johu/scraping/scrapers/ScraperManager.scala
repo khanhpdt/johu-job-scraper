@@ -41,8 +41,8 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
   }
 
   private def init(): Unit = {
-    logger.info("Initializing ScraperManager...")
     Set(RawJobSourceName.ItViec, RawJobSourceName.VietnamWorks).foreach(addScraper)
+    logger.info("ScraperManager initialized.")
   }
 
   private def runScrapers(jobSources: List[RawJobSourceName.RawJobSourceName], endPage: Option[Int]): Unit = {

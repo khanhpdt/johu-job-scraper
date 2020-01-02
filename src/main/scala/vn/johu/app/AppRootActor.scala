@@ -41,11 +41,13 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
     RabbitMqClient.init(config)
     QuartzScheduler.init(config)
 
+    HttpClient.init(context.system)
+
     scraperManager = context.spawn(ScraperManager(), "scraperManager")
-    scraperManager ! ScraperManager.Init
 
     HttpServer.init(context.system, scraperManager)
-    HttpClient.init(context.system)
+
+    scraperManager ! ScraperManager.Init
   }
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {
