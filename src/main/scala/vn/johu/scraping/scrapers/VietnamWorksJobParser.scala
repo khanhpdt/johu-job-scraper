@@ -6,7 +6,7 @@ import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 
 import vn.johu.scraping.models.{JobParsingError, RawJobSource, ScrapedJob}
 
-object VietnamWorksParser extends Parser {
+object VietnamWorksJobParser extends JobParser {
 
   override def parseJobs(rawJobSource: RawJobSource): JobParsingResult = {
     parse(rawJobSource.content) match {
@@ -36,7 +36,7 @@ object VietnamWorksParser extends Parser {
   }
 
   private def parseJobElement(jobElement: Json, rawJobSource: RawJobSource): Either[JobParsingError, ScrapedJob] = {
-    import VietnamWorksScraper.BaseUrl
+    import VietnamWorksJobScraper.BaseUrl
 
     def get[T: Decoder](key: String) = jobElement.hcursor.get[T](key)
 

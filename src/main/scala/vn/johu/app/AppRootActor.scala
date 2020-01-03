@@ -9,7 +9,7 @@ import vn.johu.http.{HttpClient, HttpServer}
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.MongoDb
 import vn.johu.scheduling.QuartzScheduler
-import vn.johu.scraping.scrapers.ScraperManager
+import vn.johu.scraping.scrapers.JobScraperManager
 import vn.johu.utils.Logging
 
 class AppRootActor(context: ActorContext[AppRootActor.Command])
@@ -19,7 +19,7 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
 
   private implicit val ec: ExecutionContext = context.system.executionContext
 
-  private var scraperManager: ActorRef[ScraperManager.Command] = _
+  private var scraperManager: ActorRef[JobScraperManager.Command] = _
 
   override def onMessage(msg: Command): Behavior[Command] = {
     msg match {
@@ -27,7 +27,7 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
         initSystem()
         this
       case RunAllScrapers =>
-        scraperManager ! ScraperManager.RunAllScrapers
+        scraperManager ! JobScraperManager.ScrapeAllSources
         this
     }
   }
@@ -43,11 +43,11 @@ class AppRootActor(context: ActorContext[AppRootActor.Command])
 
     HttpClient.init(context.system)
 
-    scraperManager = context.spawn(ScraperManager(), "scraperManager")
+    scraperManager = context.spawn(JobScraperManager(), "scraperManager")
 
     HttpServer.init(context.system, scraperManager)
 
-    scraperManager ! ScraperManager.Init
+    scraperManager ! JobScraperManager.Init
   }
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {

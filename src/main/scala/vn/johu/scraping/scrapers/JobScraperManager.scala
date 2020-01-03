@@ -11,31 +11,31 @@ import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.scrapers.Scraper.ScrapeResult
 import vn.johu.utils.Logging
 
-class ScraperManager(context: ActorContext[ScraperManager.Command])
-  extends AbstractBehavior[ScraperManager.Command] with Logging {
+class JobScraperManager(context: ActorContext[JobScraperManager.Command])
+  extends AbstractBehavior[JobScraperManager.Command] with Logging {
 
-  import ScraperManager._
+  import JobScraperManager._
 
   private var scrapers = mutable.Map.empty[RawJobSourceName, ActorRef[Scraper.Command]]
 
-  private val jobsScrapedAdapter = context.messageAdapter[ScrapeResult](WrappedJobsScraped.apply)
+  private val jobsScrapedAdapter = context.messageAdapter[ScrapeResult](WrappedScrapeResult.apply)
 
   override def onMessage(msg: Command): Behavior[Command] = {
     msg match {
       case Init =>
         init()
         this
-      case RunAllScrapers =>
-        runAllScrapers()
+      case ScrapeAllSources =>
+        scrapeFromAllSources()
         this
-      case WrappedJobsScraped(jobsScraped) =>
-        logger.debug(s"Scraped ${jobsScraped.newJobs.size} jobs")
+      case WrappedScrapeResult(scrapeResult) =>
+        logger.debug(s"Scraped ${scrapeResult.newJobs.size} jobs")
         this
-      case ParseLocalJobSources(rawJobSourceName, start, end) =>
+      case ParseRawJobSources(rawJobSourceName, start, end) =>
         parseLocalJobSources(rawJobSourceName, start, end)
         this
-      case RunScrapers(jobSources, endPage) =>
-        runScrapers(jobSources, endPage)
+      case ScrapeFromSources(jobSources, endPage) =>
+        scrapeFromSources(jobSources, endPage)
         this
     }
   }
@@ -45,10 +45,10 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
     logger.info("ScraperManager initialized.")
   }
 
-  private def runScrapers(jobSources: List[RawJobSourceName.RawJobSourceName], endPage: Option[Int]): Unit = {
+  private def scrapeFromSources(jobSources: List[RawJobSourceName.RawJobSourceName], endPage: Option[Int]): Unit = {
     if (jobSources.isEmpty) {
       logger.info("No sources passed. Run all scrapers.")
-      runAllScrapers()
+      scrapeFromAllSources()
     } else {
       logger.info(s"Running scrapers from sources: ${jobSources.mkString(",")}")
       jobSources.foreach { source =>
@@ -69,9 +69,9 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
   private def addScraper(jobSource: RawJobSourceName) = {
     val newScraper = jobSource match {
       case RawJobSourceName.ItViec =>
-        context.spawn[Scraper.Command](ItViecScraper(JSoup), "ItViecScraper")
+        context.spawn[Scraper.Command](ItViecJobScraper(JSoup), "ItViecScraper")
       case RawJobSourceName.VietnamWorks =>
-        context.spawn[Scraper.Command](VietnamWorksScraper(), "VietnamWorksScraper")
+        context.spawn[Scraper.Command](VietnamWorksJobScraper(), "VietnamWorksScraper")
       case _ =>
         throw new IllegalArgumentException(s"Scraper for source $jobSource not supported yet.")
     }
@@ -83,7 +83,7 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
     newScraper
   }
 
-  private def runAllScrapers(): Unit = {
+  private def scrapeFromAllSources(): Unit = {
     logger.info(s"Running ${scrapers.size} scrapers: ${scrapers.keys.mkString(", ")}")
     scrapers.foreach { scraper =>
       scraper._2 ! Scraper.Scrape(replyTo = jobsScrapedAdapter)
@@ -97,25 +97,25 @@ class ScraperManager(context: ActorContext[ScraperManager.Command])
   }
 }
 
-object ScraperManager {
+object JobScraperManager {
 
   def apply(): Behavior[Command] = {
-    Behaviors.setup[Command](ctx => new ScraperManager(ctx))
+    Behaviors.setup[Command](ctx => new JobScraperManager(ctx))
   }
 
   sealed trait Command
 
-  case object RunAllScrapers extends Command
+  case object ScrapeAllSources extends Command
 
-  case class WrappedJobsScraped(jobsScraped: ScrapeResult) extends Command
+  case class ScrapeFromSources(jobSources: List[RawJobSourceName], endPage: Option[Int] = None) extends Command
 
-  case class ParseLocalJobSources(
+  case class WrappedScrapeResult(scrapeResult: ScrapeResult) extends Command
+
+  case class ParseRawJobSources(
     jobSourceName: RawJobSourceName,
     scrapingStartTs: Option[String],
     scrapingEndTs: Option[String]
   ) extends Command
-
-  case class RunScrapers(jobSources: List[RawJobSourceName], endPage: Option[Int] = None) extends Command
 
   case object Init extends Command
 

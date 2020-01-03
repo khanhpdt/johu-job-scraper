@@ -9,9 +9,9 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 
-import vn.johu.scraping.scrapers.ScraperManager
+import vn.johu.scraping.scrapers.JobScraperManager
 
-class Routes(scraperManager: ActorRef[ScraperManager.Command])(implicit system: ActorSystem[_]) extends JsonSupport {
+class Routes(scraperManager: ActorRef[JobScraperManager.Command])(implicit system: ActorSystem[_]) extends JsonSupport {
 
   // asking someone requires a timeout and a scheduler, if the timeout hits without response
   // the ask is failed with a TimeoutException
@@ -25,7 +25,7 @@ class Routes(scraperManager: ActorRef[ScraperManager.Command])(implicit system: 
     concat(
       path("parseLocalJobSources") {
         post {
-          entity(as[ScraperManager.ParseLocalJobSources]) { msg =>
+          entity(as[JobScraperManager.ParseRawJobSources]) { msg =>
             complete {
               scraperManager ! msg
               HttpResponse()
@@ -35,7 +35,7 @@ class Routes(scraperManager: ActorRef[ScraperManager.Command])(implicit system: 
       },
       path("runScrapers") {
         post {
-          entity(as[ScraperManager.RunScrapers]) { msg =>
+          entity(as[JobScraperManager.ScrapeFromSources]) { msg =>
             complete {
               scraperManager ! msg
               HttpResponse()

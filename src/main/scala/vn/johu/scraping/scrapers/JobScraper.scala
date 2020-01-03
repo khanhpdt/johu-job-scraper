@@ -47,7 +47,7 @@ abstract class Scraper(
           for {
             (existingJobs, newJobs) <- partitionExistingAndNewJobs(parsingResult.jobs)
             _ <- saveLocalParsingResults(existingJobs, newJobs, parsingResult.errors)
-            _ <- publishJobs(existingJobs ++ newJobs)
+            _ <- publishJobs(newJobs)
           } yield {
             logger.info(
               s"""Parse job source [${source.id.get.stringify}] result:
@@ -121,7 +121,7 @@ abstract class Scraper(
         (existingJobs, newJobs) <- partitionExistingAndNewJobs(parsingResult.jobs)
         shouldScheduleNext <- Future.successful(shouldScheduleNextScraping(page, endPage, newJobs))
         _ <- saveLocalParsingResults(existingJobs, newJobs, parsingResult.errors)
-        _ <- publishJobs(existingJobs ++ newJobs)
+        _ <- publishJobs(newJobs)
         _ <- saveScrapingHistory(rawJobSource, existingJobs, newJobs, parsingResult.errors, startTime, DateUtils.now())
         _ <- Future.successful(scheduleNextScraping(shouldScheduleNext, page, endPage, replyTo))
       } yield {

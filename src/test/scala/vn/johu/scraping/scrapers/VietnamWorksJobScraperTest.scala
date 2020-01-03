@@ -8,7 +8,7 @@ import vn.johu.scraping.models.RawJobSourceName
 import vn.johu.scraping.scrapers.Scraper.ScrapeResult
 import vn.johu.scraping.{HttpClientMock, HttpResponseMock, ScraperTestFixture}
 
-class VietnamWorksScraperTest extends ScraperTestFixture {
+class VietnamWorksJobScraperTest extends ScraperTestFixture {
 
   import testKit._
 
@@ -17,7 +17,7 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
       HttpResponseMock(jsonFilePath = "sample_raw_data/vietnamworks/job_page_0.json")
     )
 
-    scraper = spawn[Scraper.Command](VietnamWorksScraper(HttpClientMock(responseMocks)))
+    scraper = spawn[Scraper.Command](VietnamWorksJobScraper(HttpClientMock(responseMocks)))
     val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
@@ -33,7 +33,7 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
       HttpResponseMock(jsonFilePath = "sample_raw_data/vietnamworks/one_job_page.json")
     )
 
-    scraper = spawn[Scraper.Command](VietnamWorksScraper(HttpClientMock(responseMocks)))
+    scraper = spawn[Scraper.Command](VietnamWorksJobScraper(HttpClientMock(responseMocks)))
     val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
@@ -45,7 +45,7 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
 
     val job = response.newJobs.head
     job.id shouldBe defined
-    job.url shouldBe s"${VietnamWorksScraper.BaseUrl}/application-support-specialist-3-1199830-jv"
+    job.url shouldBe s"${VietnamWorksJobScraper.BaseUrl}/application-support-specialist-3-1199830-jv"
     job.title shouldBe "Application Support Specialist"
     job.tags should contain theSameElementsAs Set("End-User Support", "It Helpdesk", "Technical Support", "System Support", "It Support")
     job.postingDate.toLong.get shouldBe 1577530825000L
@@ -59,7 +59,7 @@ class VietnamWorksScraperTest extends ScraperTestFixture {
       HttpResponseMock(jsonFilePath = "sample_raw_data/vietnamworks/one_job_page.json")
     )
 
-    scraper = spawn[Scraper.Command](VietnamWorksScraper(HttpClientMock(responseMocks)))
+    scraper = spawn[Scraper.Command](VietnamWorksJobScraper(HttpClientMock(responseMocks)))
     val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)

@@ -9,14 +9,14 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 
-import vn.johu.scraping.scrapers.ScraperManager
+import vn.johu.scraping.scrapers.JobScraperManager
 import vn.johu.utils.Logging
 
 object HttpServer extends Logging {
 
   private var serverBinding: ServerBinding = _
 
-  def init(actorSystem: ActorSystem[Nothing], scraperManager: ActorRef[ScraperManager.Command]): Unit = {
+  def init(actorSystem: ActorSystem[Nothing], scraperManager: ActorRef[JobScraperManager.Command]): Unit = {
     logger.info("Starting HttpServer...")
 
     implicit val as: ActorSystem[Nothing] = actorSystem

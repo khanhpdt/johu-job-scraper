@@ -5,7 +5,7 @@ import scala.concurrent.duration._
 import vn.johu.scraping.scrapers.Scraper.ScrapeResult
 import vn.johu.scraping.{HtmlMock, JSoupMock, ScraperTestFixture}
 
-class ItViecScraperTest extends ScraperTestFixture {
+class ItViecJobScraperTest extends ScraperTestFixture {
 
   import testKit._
 
@@ -14,7 +14,7 @@ class ItViecScraperTest extends ScraperTestFixture {
       HtmlMock("https://itviec.com/it-jobs?page=1", "sample_raw_data/itviec/job_page_1.html")
     )
 
-    scraper = spawn[Scraper.Command](ItViecScraper(JSoupMock(htmlMocks)))
+    scraper = spawn[Scraper.Command](ItViecJobScraper(JSoupMock(htmlMocks)))
     val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
@@ -31,7 +31,7 @@ class ItViecScraperTest extends ScraperTestFixture {
       HtmlMock("https://itviec.com/it-jobs?page=2", "sample_raw_data/itviec/job_page_2.html")
     )
 
-    scraper = spawn[Scraper.Command](ItViecScraper(JSoupMock(htmlMocks)))
+    scraper = spawn[Scraper.Command](ItViecJobScraper(JSoupMock(htmlMocks)))
     val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)
@@ -55,7 +55,7 @@ class ItViecScraperTest extends ScraperTestFixture {
       HtmlMock("https://itviec.com/it-jobs?page=1", "sample_raw_data/itviec/job_page_1.html"),
       HtmlMock("https://itviec.com/it-jobs?page=2", "sample_raw_data/itviec/job_page_1.html")
     )
-    scraper = spawn[Scraper.Command](ItViecScraper(JSoupMock(htmlMocks)))
+    scraper = spawn[Scraper.Command](ItViecJobScraper(JSoupMock(htmlMocks)))
     val probe = createTestProbe[ScrapeResult]()
 
     scraper ! Scraper.Scrape(replyTo = probe.ref)

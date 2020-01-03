@@ -7,10 +7,10 @@ import reactivemongo.api.bson.BSONDateTime
 
 import vn.johu.scraping.jsoup.{HtmlDoc, HtmlElem}
 import vn.johu.scraping.models._
-import vn.johu.scraping.scrapers.ItViecScraper.BaseUrl
+import vn.johu.scraping.scrapers.ItViecJobScraper.BaseUrl
 import vn.johu.utils.DateUtils
 
-object ItViecParser extends Parser {
+object ItViecJobParser extends JobParser {
 
   private object PostingDatePatterns {
     val Second: Regex = "^(\\d+)\\s*(second|seconds)\\s*ago$".r

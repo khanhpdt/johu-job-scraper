@@ -9,13 +9,13 @@ import vn.johu.http.HttpClient
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.models.{RawJobSource, RawJobSourceName}
 
-class VietnamWorksScraper(
+class VietnamWorksJobScraper(
   context: ActorContext[Scraper.Command],
   timers: TimerScheduler[Scraper.Command],
   httpClient: HttpClient
 ) extends Scraper(context, timers) {
 
-  import VietnamWorksScraper._
+  import VietnamWorksJobScraper._
 
   override protected val rawJobSourceName: RawJobSourceName = RawJobSourceName.VietnamWorks
 
@@ -37,14 +37,14 @@ class VietnamWorksScraper(
   }
 
   override protected def parseJobsFromRaw(rawJobSource: RawJobSource): JobParsingResult = {
-    VietnamWorksParser.parseJobs(rawJobSource)
+    VietnamWorksJobParser.parseJobs(rawJobSource)
   }
 
   override protected val timerKey: Any = TimerKey
 
 }
 
-object VietnamWorksScraper {
+object VietnamWorksJobScraper {
 
   val BaseUrl = "https://www.vietnamworks.com"
 
@@ -56,7 +56,7 @@ object VietnamWorksScraper {
   def apply(httpClient: HttpClient = HttpClient): Behavior[Scraper.Command] = {
     Behaviors.setup[Scraper.Command] { ctx =>
       Behaviors.withTimers[Scraper.Command] { timer =>
-        new VietnamWorksScraper(ctx, timer, httpClient)
+        new VietnamWorksJobScraper(ctx, timer, httpClient)
       }
     }
   }

@@ -7,7 +7,7 @@ import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 import vn.johu.scraping.models.{JobParsingError, RawJobSource, ScrapedJob}
 import vn.johu.utils.Logging
 
-trait Parser extends Logging {
+trait JobParser extends Logging {
 
   def parseJobs(rawJobSource: RawJobSource): JobParsingResult
 

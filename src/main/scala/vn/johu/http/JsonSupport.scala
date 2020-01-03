@@ -4,16 +4,16 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
 
 import vn.johu.scraping.models.RawJobSourceName
-import vn.johu.scraping.scrapers.ScraperManager
+import vn.johu.scraping.scrapers.JobScraperManager
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit val rawJobSourceNameFormat: EnumJsonFormat[RawJobSourceName.type] =
     new EnumJsonFormat(RawJobSourceName)
-  implicit val fixedScrapedJobsFormat: RootJsonFormat[ScraperManager.ParseLocalJobSources] =
-    jsonFormat3(ScraperManager.ParseLocalJobSources)
-  implicit val runScrapersFormat: RootJsonFormat[ScraperManager.RunScrapers] =
-    jsonFormat2(ScraperManager.RunScrapers)
+  implicit val fixedScrapedJobsFormat: RootJsonFormat[JobScraperManager.ParseRawJobSources] =
+    jsonFormat3(JobScraperManager.ParseRawJobSources)
+  implicit val runScrapersFormat: RootJsonFormat[JobScraperManager.ScrapeFromSources] =
+    jsonFormat2(JobScraperManager.ScrapeFromSources)
 
 }
 
