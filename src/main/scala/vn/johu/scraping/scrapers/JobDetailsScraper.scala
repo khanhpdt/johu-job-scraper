@@ -11,13 +11,14 @@ import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
 
 import vn.johu.persistence.MongoDb
 import vn.johu.scraping.jsoup.{HtmlDoc, JSoup}
-import vn.johu.scraping.models.{ScrapedJob, ScrapedJobDetails}
+import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
+import vn.johu.scraping.models.{RawJobSourceName, ScrapedJob, ScrapedJobDetails}
 import vn.johu.utils.{Configs, DateUtils, Logging}
 
 class JobDetailsScraper(
   context: ActorContext[JobDetailsScraper.Command],
   timer: TimerScheduler[JobDetailsScraper.Command],
-  timerKey: Any,
+  rawJobSourceName: RawJobSourceName,
   jSoup: JSoup
 ) extends AbstractBehavior[JobDetailsScraper.Command] with Logging {
 
@@ -57,7 +58,7 @@ class JobDetailsScraper(
     }
   }
 
-  private def saveScrapedJobDetails(job: ScrapedJob, htmlTry: Try[HtmlDoc]) = {
+  private def saveScrapedJobDetails(job: ScrapedJob, htmlTry: Try[HtmlDoc]): Future[ScrapedJobDetails] = {
     htmlTry match {
       case Success(jobHtml) =>
         saveScrapedJobDetails(job.id.get, html = Some(jobHtml.doc.body().outerHtml()))
@@ -84,7 +85,7 @@ class JobDetailsScraper(
       val config = context.system.settings.config
       val delay = FiniteDuration(config.getLong(Configs.ScrapingJobDetailsDelayInMillis), TimeUnit.MILLISECONDS)
       timer.startSingleTimer(
-        timerKey,
+        getTimerKey(rawJobSourceName),
         ScrapeJobDetailsPeriodically(remainingJobs, allScrapedJobDetails, request.replyTo),
         delay = delay
       )
@@ -92,11 +93,23 @@ class JobDetailsScraper(
     }
   }
 
+  def getTimerKey(rawJobSourceName: RawJobSourceName): Any = {
+    rawJobSourceName match {
+      case RawJobSourceName.ItViec =>
+        ItViecJobDetailsScrapingTimerKey
+      case RawJobSourceName.VietnamWorks =>
+        VietnamWorksJobDetailsScrapingTimerKey
+      case _ =>
+        throw new IllegalArgumentException(s"Not supporting $rawJobSourceName yet.")
+    }
+  }
+
+
   private def saveScrapedJobDetails(
     scrapedJobId: BSONObjectID,
     html: Option[String] = None,
     error: Option[String] = None
-  ) = {
+  ): Future[ScrapedJobDetails] = {
     MongoDb.scrapedJobDetailsColl.flatMap { coll =>
       val jobDetails = ScrapedJobDetails(
         id = BSONObjectID.generate(),
@@ -119,10 +132,10 @@ class JobDetailsScraper(
 
 object JobDetailsScraper {
 
-  def apply(jSoup: JSoup = JSoup, timerKey: Any): Behavior[Command] = {
+  def apply(jSoup: JSoup = JSoup, rawJobSourceName: RawJobSourceName): Behavior[Command] = {
     Behaviors.setup { ctx =>
       Behaviors.withTimers { timer =>
-        new JobDetailsScraper(ctx, timer, timerKey, jSoup)
+        new JobDetailsScraper(ctx, timer, rawJobSourceName, jSoup)
       }
     }
   }
@@ -141,5 +154,9 @@ object JobDetailsScraper {
     scrapedJobDetailsList: List[ScrapedJobDetails],
     replyTo: ActorRef[ScrapeJobDetailsResult]
   ) extends Command
+
+  private case object ItViecJobDetailsScrapingTimerKey
+
+  private case object VietnamWorksJobDetailsScrapingTimerKey
 
 }

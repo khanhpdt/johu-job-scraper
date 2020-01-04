@@ -5,7 +5,7 @@ import scala.concurrent.duration._
 
 import vn.johu.persistence.DocRepo
 import vn.johu.scraping.models.RawJobSourceName
-import vn.johu.scraping.scrapers.Scraper.ScrapeResult
+import vn.johu.scraping.scrapers.Scraper.ScrapePagesResult
 import vn.johu.scraping.{HttpClientMock, HttpResponseMock, ScraperTestFixture}
 
 class VietnamWorksJobScraperTest extends ScraperTestFixture {
@@ -18,12 +18,12 @@ class VietnamWorksJobScraperTest extends ScraperTestFixture {
     )
 
     scraper = spawn[Scraper.Command](VietnamWorksJobScraper(HttpClientMock(responseMocks)))
-    val probe = createTestProbe[ScrapeResult]()
+    val probe = createTestProbe[ScrapePagesResult]()
 
-    scraper ! Scraper.Scrape(replyTo = probe.ref)
+    scraper ! Scraper.ScrapePages(replyTo = probe.ref)
 
     val response = probe.receiveMessage()
-    response.page shouldBe 1
+    response.startPage shouldBe 1
     response.newJobs should have length 50
     response.existingJobs should have length 0
   }
@@ -34,12 +34,12 @@ class VietnamWorksJobScraperTest extends ScraperTestFixture {
     )
 
     scraper = spawn[Scraper.Command](VietnamWorksJobScraper(HttpClientMock(responseMocks)))
-    val probe = createTestProbe[ScrapeResult]()
+    val probe = createTestProbe[ScrapePagesResult]()
 
-    scraper ! Scraper.Scrape(replyTo = probe.ref)
+    scraper ! Scraper.ScrapePages(replyTo = probe.ref)
 
     val response = probe.receiveMessage()
-    response.page shouldBe 1
+    response.startPage shouldBe 1
     response.newJobs should have length 1
     response.existingJobs should have length 0
 
@@ -60,9 +60,9 @@ class VietnamWorksJobScraperTest extends ScraperTestFixture {
     )
 
     scraper = spawn[Scraper.Command](VietnamWorksJobScraper(HttpClientMock(responseMocks)))
-    val probe = createTestProbe[ScrapeResult]()
+    val probe = createTestProbe[ScrapePagesResult]()
 
-    scraper ! Scraper.Scrape(replyTo = probe.ref)
+    scraper ! Scraper.ScrapePages(replyTo = probe.ref)
 
     val existingJob = probe.awaitAssert {
       val jobs = Await.result(DocRepo.findAllJobs(), 100.milliseconds)
@@ -71,7 +71,7 @@ class VietnamWorksJobScraperTest extends ScraperTestFixture {
     }
 
     // next scraping
-    scraper ! Scraper.Scrape(replyTo = probe.ref)
+    scraper ! Scraper.ScrapePages(replyTo = probe.ref)
 
     probe.awaitAssert {
       val jobs = Await.result(DocRepo.findAllJobs(), 100.milliseconds)
