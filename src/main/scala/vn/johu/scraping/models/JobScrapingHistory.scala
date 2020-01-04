@@ -19,7 +19,7 @@ case class JobScrapingHistory(
 
 object JobScrapingHistory {
 
-  implicit object JobParsingErrorReader extends BSONDocumentReader[JobScrapingHistory] {
+  implicit object JobScrapingHistoryReader extends BSONDocumentReader[JobScrapingHistory] {
     override def readDocument(doc: BSONDocument): Try[JobScrapingHistory] = {
       Try {
         JobScrapingHistory(
@@ -36,7 +36,7 @@ object JobScrapingHistory {
     }
   }
 
-  implicit object JobParsingErrorWriter extends BSONDocumentWriter[JobScrapingHistory] {
+  implicit object JobScrapingHistoryWriter extends BSONDocumentWriter[JobScrapingHistory] {
     override def writeTry(t: JobScrapingHistory): Try[BSONDocument] = {
       Try {
         BSONDocument(

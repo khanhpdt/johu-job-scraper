@@ -16,6 +16,7 @@ import vn.johu.utils.{Configs, Logging, TryHelper}
 object MongoDb extends TryHelper with Logging {
 
   private val ScrapedJobCollectionName = "scraped_job"
+  private val ScrapedJobDetailsCollectionName = "scraped_job_details"
   private val RawJobSourceCollectionName = "raw_job_source"
   private val JobParsingErrorCollectionName = "job_parsing_error"
   private val JobScrapingHistoryCollectionName = "job_scraping_history"
@@ -61,6 +62,8 @@ object MongoDb extends TryHelper with Logging {
   def database(implicit ec: ExecutionContext): Future[DefaultDB] = mongoConnection.database(dbName)
 
   def scrapedJobColl(implicit ec: ExecutionContext): Future[BSONCollection] = collection(ScrapedJobCollectionName)
+
+  def scrapedJobDetailsColl(implicit ec: ExecutionContext): Future[BSONCollection] = collection(ScrapedJobDetailsCollectionName)
 
   def rawJobSourceColl(implicit ec: ExecutionContext): Future[BSONCollection] = collection(RawJobSourceCollectionName)
 
@@ -135,6 +138,7 @@ object MongoDb extends TryHelper with Logging {
           )
         )
       ),
+      CollectionConfig(ScrapedJobDetailsCollectionName, Set.empty),
       CollectionConfig(JobParsingErrorCollectionName, Set.empty),
       CollectionConfig(JobScrapingHistoryCollectionName, Set.empty),
     )

@@ -4,6 +4,7 @@ object Configs {
 
   val ScrapingEnabled = "johu.scraping.enabled"
   val ScrapingDelayInMillis = "johu.scraping.delayInMillis"
+  val ScrapingJobDetailsDelayInMillis = "johu.scraping.scrapingJobDetailsDelayInMillis"
 
   val MongoHostUrl = "johu.mongo.host-url"
   val MongoDbName = "johu.mongo.db-name"

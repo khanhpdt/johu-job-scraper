@@ -5,7 +5,7 @@ import scala.concurrent.Future
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, TimerScheduler}
 
-import vn.johu.scraping.jsoup.JSoup
+import vn.johu.scraping.jsoup.{JSoup, JSoupHelper}
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.models._
 
@@ -19,7 +19,7 @@ class ItViecJobScraper(
 
   override protected def getRawJobSourceContent(page: Int): Future[String] = {
     val pageUrl = s"$BaseUrl/it-jobs?page=$page"
-    jSoup.getAsync(pageUrl).map(_.doc.outerHtml())
+    JSoupHelper.getHtml(jSoup, pageUrl)
   }
 
   override protected def parseJobsFromRaw(rawJobSource: RawJobSource): JobParsingResult = {
