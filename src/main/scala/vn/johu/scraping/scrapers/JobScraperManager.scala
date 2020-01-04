@@ -12,7 +12,7 @@ import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.models.{RawJobSourceName, ScrapedJob}
 import vn.johu.scraping.scrapers.JobDetailsScraper.ScrapeJobDetailsResult
 import vn.johu.scraping.scrapers.Scraper.ScrapePagesResult
-import vn.johu.utils.Logging
+import vn.johu.utils.{Configs, Logging}
 
 class JobScraperManager(
   context: ActorContext[JobScraperManager.Command],
@@ -125,7 +125,8 @@ class JobScraperManager(
   }
 
   private def scheduleScrapingJobDetails(result: ScrapePagesResult): Unit = {
-    val delay = FiniteDuration(1, TimeUnit.HOURS)
+    val config = context.system.settings.config
+    val delay = FiniteDuration(config.getLong(Configs.ScrapingJobDetailsAfterScrapingJobsDelayInSeconds), TimeUnit.SECONDS)
 
     timer.startSingleTimer(
       getTimerKey(result.rawJobSourceName),
