@@ -46,7 +46,7 @@ abstract class Scraper(
           val parsingResult = parseJobsFromRaw(source)
           for {
             (existingJobs, newJobs) <- partitionExistingAndNewJobs(parsingResult.jobs)
-            _ <- saveLocalParsingResults(existingJobs, newJobs, parsingResult.errors)
+            _ <- saveParsingResults(existingJobs, newJobs, parsingResult.errors)
             _ <- publishJobs(newJobs)
           } yield {
             logger.info(
@@ -94,7 +94,7 @@ abstract class Scraper(
     }
   }
 
-  private def saveLocalParsingResults(
+  private def saveParsingResults(
     existingJobs: List[ScrapedJob],
     newJobs: List[ScrapedJob],
     errors: List[JobParsingError]
@@ -120,7 +120,7 @@ abstract class Scraper(
         parsingResult <- Future.successful(parseJobsFromRaw(rawJobSource))
         (existingJobs, newJobs) <- partitionExistingAndNewJobs(parsingResult.jobs)
         shouldScheduleNext <- Future.successful(shouldScheduleNextScraping(page, endPage, newJobs))
-        _ <- saveLocalParsingResults(existingJobs, newJobs, parsingResult.errors)
+        _ <- saveParsingResults(existingJobs, newJobs, parsingResult.errors)
         _ <- publishJobs(newJobs)
         _ <- saveScrapingHistory(rawJobSource, existingJobs, newJobs, parsingResult.errors, startTime, DateUtils.now())
         _ <- Future.successful(scheduleNextScraping(shouldScheduleNext, page, endPage, replyTo))
