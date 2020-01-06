@@ -44,7 +44,11 @@ class JobScraperManager(
         scrapeFromSources(jobSources, endPage)
         this
       case ScrapeFromSourcesResult(result) =>
-        scheduleScrapingJobDetails(result)
+        if (getConfig.getBoolean(Configs.ScrapingJobDetailsAfterScrapingJobsEnabled)) {
+          scheduleScrapingJobDetails(result)
+        } else {
+          logger.info("Scraping job details after jobs is disabled.")
+        }
         this
       case ScrapeJobDetails(rawJobSourceName, jobs) =>
         scrapeJobDetails(rawJobSourceName, jobs)
@@ -125,7 +129,7 @@ class JobScraperManager(
   }
 
   private def scheduleScrapingJobDetails(result: ScrapePagesResult): Unit = {
-    val config = context.system.settings.config
+    val config = getConfig
     val delay = FiniteDuration(config.getLong(Configs.ScrapingJobDetailsAfterScrapingJobsDelayInSeconds), TimeUnit.SECONDS)
 
     timer.startSingleTimer(
@@ -139,6 +143,8 @@ class JobScraperManager(
         s"from ${result.rawJobSourceName} in ${delay.toMinutes} minutes."
     )
   }
+
+  private def getConfig = context.system.settings.config
 
   def getTimerKey(rawJobSourceName: RawJobSourceName): Any = {
     rawJobSourceName match {
