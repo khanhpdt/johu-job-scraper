@@ -1,6 +1,5 @@
 package vn.johu.scraping.scrapers
 
-import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -119,65 +118,67 @@ abstract class Scraper(
   private def scrapePeriodically(req: ScrapePeriodically): Future[Unit] = {
     logger.info(s"Start scraping at page ${req.startPage}...")
 
-    val startTime = DateUtils.now()
+    markScrapingStart().flatMap { scrapingHistory =>
+      logger.info(s"Created a new scraping record ${scrapingHistory.id}.")
+      val scrapeResultF =
+        for {
+          rawJobSourceContent <- getRawJobSourceContent(req.startPage)
+          rawJobSource <- DocRepo.insertRawJobSource(rawJobSourceName, req.startPage, rawJobSourceContent)
+          parsingResult <- Future.successful(parseJobsFromRaw(rawJobSource))
+          (existingJobs, newJobs) <- partitionExistingAndNewJobs(parsingResult.jobs)
+          isDone <- Future.successful(isScrapingDone(req.startPage, req.endPage, newJobs))
+          _ <- saveParsingResults(existingJobs, newJobs, parsingResult.errors)
+          _ <- publishJobs(newJobs)
+        } yield {
+          logger.info(s"Scrape result: nNewJobs=${newJobs.size}, nErrors=${parsingResult.errors.size}")
+          (isDone, rawJobSource, PageScrapingResult(existingJobs = existingJobs, newJobs = newJobs, errors = parsingResult.errors))
+        }
 
-    val scrapeResultF =
-      for {
-        rawJobSourceContent <- getRawJobSourceContent(req.startPage)
-        rawJobSource <- DocRepo.insertRawJobSource(rawJobSourceName, req.startPage, rawJobSourceContent)
-        parsingResult <- Future.successful(parseJobsFromRaw(rawJobSource))
-        (existingJobs, newJobs) <- partitionExistingAndNewJobs(parsingResult.jobs)
-        isDone <- Future.successful(isScrapingDone(req.startPage, req.endPage, newJobs))
-        _ <- saveParsingResults(existingJobs, newJobs, parsingResult.errors)
-        _ <- publishJobs(newJobs)
-        _ <- saveScrapingHistory(rawJobSource, existingJobs, newJobs, parsingResult.errors, startTime, DateUtils.now())
-      } yield {
-        logger.info(s"Scrape result: nNewJobs=${newJobs.size}, nErrors=${parsingResult.errors.size}")
-        (isDone, PageScrapingResult(existingJobs = existingJobs, newJobs = newJobs, errors = parsingResult.errors))
+      scrapeResultF.onComplete {
+        case Failure(ex) =>
+          logger.error(s"Error when scraping from page ${req.startPage}", ex)
+          markScrapingEnd(scrapingHistory.copy(scrapingError = Some(ex.getMessage)))
+        case Success((_, rawJobSource, result)) =>
+          logger.info(s"Successfully scraped from page: ${req.startPage}")
+          markScrapingEnd(
+            scrapingHistory.copy(
+              rawJobSourceId = rawJobSource.id,
+              newJobIds = result.newJobs.flatMap(_.id),
+              existingJobIds = result.existingJobs.flatMap(_.id),
+              parsingErrorIds = result.errors.map(_.id)
+            )
+          )
       }
 
-    scrapeResultF.onComplete {
-      case Failure(ex) =>
-        logger.error(s"Error when scraping from page ${req.startPage}", ex)
-      case Success(_) =>
-        logger.info(s"Successfully scraped from page: ${req.startPage}")
-    }
-
-    for {
-      (isDone, pageScrapingResult) <- scrapeResultF
-    } yield {
-      val currentResult = req.currentResult.copy(
-        newJobs = req.currentResult.newJobs ++ pageScrapingResult.newJobs,
-        existingJobs = req.currentResult.existingJobs ++ pageScrapingResult.existingJobs,
-      )
-      if (!isDone) {
-        scheduleNextScraping(req, currentResult)
-      } else {
-        logger.info("Scraping done.")
-        req.replyTo ! currentResult
+      for {
+        (isDone, _, pageScrapingResult) <- scrapeResultF
+      } yield {
+        val currentResult = req.currentResult.copy(
+          newJobs = req.currentResult.newJobs ++ pageScrapingResult.newJobs,
+          existingJobs = req.currentResult.existingJobs ++ pageScrapingResult.existingJobs,
+        )
+        if (!isDone) {
+          scheduleNextScraping(req, currentResult)
+        } else {
+          logger.info("Scraping done.")
+          req.replyTo ! currentResult
+        }
       }
     }
   }
 
-  private def saveScrapingHistory(
-    rawJobSource: RawJobSource,
-    existingJobs: List[ScrapedJob],
-    newJobs: List[ScrapedJob],
-    errors: List[JobParsingError],
-    startTime: LocalDateTime,
-    endTime: LocalDateTime
-  ): Future[Unit] = {
-    DocRepo.insertScrapingHistory(
-      JobScrapingHistory(
-        id = BSONObjectID.generate(),
-        rawJobSourceId = rawJobSource.id.get,
-        rawJobSourceName = rawJobSource.sourceName,
-        newJobIds = newJobs.flatMap(_.id),
-        existingJobIds = existingJobs.flatMap(_.id),
-        errorIds = errors.map(_.id),
-        startTime = BSONDateTime(DateUtils.toMillis(startTime)),
-        endTime = BSONDateTime(DateUtils.toMillis(endTime))
-      )
+  private def markScrapingStart(): Future[JobScrapingHistory] = {
+    val history = JobScrapingHistory(
+      id = BSONObjectID.generate(),
+      rawJobSourceName = rawJobSourceName,
+      startTime = BSONDateTime(DateUtils.nowMillis())
+    )
+    DocRepo.insertScrapingHistory(history)
+  }
+
+  private def markScrapingEnd(scrapingHistory: JobScrapingHistory): Future[Unit] = {
+    DocRepo.saveScrapingHistory(
+      scrapingHistory.copy(endTime = Some(BSONDateTime(DateUtils.nowMillis())))
     ).map(_ => ())
   }
 

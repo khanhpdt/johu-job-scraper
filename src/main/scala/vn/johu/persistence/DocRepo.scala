@@ -4,6 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import reactivemongo.api.Cursor
 import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, ElementProducer, document}
+import reactivemongo.api.commands.UpdateWriteResult
 
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.models.{JobParsingError, JobScrapingHistory, RawJobSource, ScrapedJob}
@@ -155,6 +156,15 @@ object DocRepo {
   def insertScrapingHistory(hist: JobScrapingHistory)(implicit ec: ExecutionContext): Future[JobScrapingHistory] = {
     MongoDb.jobScrapingHistoryColl.flatMap { coll =>
       coll.insert(ordered = false).one(hist).map(_ => hist)
+    }
+  }
+
+  def saveScrapingHistory(hist: JobScrapingHistory)(implicit ec: ExecutionContext): Future[UpdateWriteResult] = {
+    MongoDb.jobScrapingHistoryColl.flatMap { coll =>
+      coll.update(ordered = false).one(
+        q = document(JobScrapingHistory.Fields.id -> hist.id),
+        u = hist
+      )
     }
   }
 
