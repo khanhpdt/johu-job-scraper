@@ -84,7 +84,7 @@ class JobScraperManager(
         case RawJobSourceName.ItViec =>
           context.spawn[JobDetailsScraper.Command](JobDetailsScraper(JSoup, jobSource), "ItViecJobDetailsScraper")
         case RawJobSourceName.VietnamWorks =>
-          context.spawn[JobDetailsScraper.Command](JobDetailsScraper(JSoup, jobSource), "VietnamWorksScraper")
+          context.spawn[JobDetailsScraper.Command](JobDetailsScraper(JSoup, jobSource), "VietnamWorksJobDetailsScraper")
         case _ =>
           throw new IllegalArgumentException(s"Job details Scraper for source $jobSource not supported yet.")
       }
