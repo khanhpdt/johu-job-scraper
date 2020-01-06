@@ -124,7 +124,7 @@ class JobDetailsScraper(
 
   override def onSignal: PartialFunction[Signal, Behavior[Command]] = {
     case PostStop =>
-      logger.info("JobDetailScraper stopped")
+      logger.info(s"${getClass.getSimpleName} stopped")
       this
   }
 
