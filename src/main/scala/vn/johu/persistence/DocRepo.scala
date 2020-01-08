@@ -60,6 +60,7 @@ object DocRepo {
                 Fields.title -> job.title,
                 Fields.tags -> job.tags,
                 Fields.postingDate -> job.postingDate,
+                Fields.otherPostingDates -> job.otherPostingDates,
                 Fields.company -> job.company,
                 Fields.locations -> job.locations,
                 Fields.rawJobSourceName -> job.rawJobSourceName.toString,
