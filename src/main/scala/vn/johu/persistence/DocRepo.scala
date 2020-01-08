@@ -53,7 +53,7 @@ object DocRepo {
         val updateBuilder = coll.update(ordered = false)
         val updates = Future.sequence(jobs.map { job =>
           updateBuilder.element(
-            q = document(Fields.url -> job.url),
+            q = document(Fields.id -> job.id.get),
             u = document(
               "$set" -> document(
                 Fields.url -> job.url,
@@ -77,7 +77,7 @@ object DocRepo {
     }
   }
 
-  def findJobs(
+  def findJobsWithFields(
     jobUrls: Set[String],
     rawJobSourceName: RawJobSourceName,
     fields: Set[String]
@@ -95,6 +95,21 @@ object DocRepo {
           }: _*)
         )
       ).cursor[BSONDocument]().collect[List](jobUrls.size, Cursor.FailOnError[List[BSONDocument]]())
+    }
+  }
+
+  def findJobsByUrls(
+    jobUrls: Set[String],
+    rawJobSourceName: RawJobSourceName
+  )(implicit ec: ExecutionContext): Future[List[ScrapedJob]] = {
+    MongoDb.scrapedJobColl.flatMap { coll =>
+      coll.find(
+        selector = document(
+          ScrapedJob.Fields.url -> document("$in" -> jobUrls),
+          ScrapedJob.Fields.rawJobSourceName -> rawJobSourceName.toString
+        ),
+        projection = Option.empty[BSONDocument]
+      ).cursor[ScrapedJob]().collect[List](jobUrls.size, Cursor.FailOnError[List[ScrapedJob]]())
     }
   }
 

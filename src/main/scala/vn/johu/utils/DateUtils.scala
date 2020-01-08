@@ -32,6 +32,12 @@ object DateUtils extends Logging {
     LocalDateTime.ofInstant(Instant.ofEpochMilli(d1.value), ZoneId.systemDefault())
   }
 
+  def isAfterAtLeast(d1: BSONDateTime, d2: BSONDateTime, nDays: Int): Boolean = {
+    val (dt1, dt2) = (toDateTime(d1), toDateTime(d2))
+    val upperBound = dt2.plusDays(nDays)
+    dt1.isEqual(upperBound) || dt1.isAfter(upperBound)
+  }
+
   def isSameDate(d1: BSONDateTime, d2: BSONDateTime): Boolean = {
     toDateTime(d1).toLocalDate.isEqual(toDateTime(d2).toLocalDate)
   }

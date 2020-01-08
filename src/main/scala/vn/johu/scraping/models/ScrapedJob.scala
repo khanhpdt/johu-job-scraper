@@ -12,6 +12,7 @@ case class ScrapedJob(
   title: String,
   tags: Set[String],
   postingDate: BSONDateTime,
+  otherPostingDates: List[BSONDateTime] = Nil,
   company: String,
   locations: Set[String],
   rawJobSourceName: RawJobSourceName,
@@ -31,6 +32,7 @@ object ScrapedJob {
           title = doc.getAsOpt[String](Fields.title).get,
           tags = doc.getAsOpt[Array[String]](Fields.tags).get.toSet,
           postingDate = doc.getAsOpt[BSONDateTime](Fields.postingDate).get,
+          otherPostingDates = doc.getAsOpt[Array[BSONDateTime]](Fields.otherPostingDates).map(_.toList).getOrElse(Nil),
           company = doc.getAsOpt[String](Fields.company).get,
           locations = doc.getAsOpt[Array[String]](Fields.locations).get.toSet,
           rawJobSourceName = RawJobSourceName.withName(doc.getAsOpt[String](Fields.rawJobSourceName).get),
@@ -51,6 +53,7 @@ object ScrapedJob {
           Fields.title -> job.title,
           Fields.tags -> job.tags,
           Fields.postingDate -> job.postingDate,
+          Fields.otherPostingDates -> job.otherPostingDates,
           Fields.company -> job.company,
           Fields.locations -> job.locations,
           Fields.rawJobSourceName -> job.rawJobSourceName.toString,
@@ -68,6 +71,7 @@ object ScrapedJob {
     val title = "title"
     val tags = "tags"
     val postingDate = "postingDate"
+    val otherPostingDates = "otherPostingDates"
     val company = "company"
     val locations = "locations"
     val rawJobSourceName = "rawJobSourceName"

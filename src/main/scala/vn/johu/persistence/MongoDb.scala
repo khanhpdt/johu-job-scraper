@@ -129,7 +129,7 @@ object MongoDb extends TryHelper with Logging {
           IndexConfig(
             name = "job_url",
             fieldNames = Set(ScrapedJob.Fields.url),
-            unique = true
+            unique = false
           ),
           IndexConfig(
             name = "job_key_per_source",
