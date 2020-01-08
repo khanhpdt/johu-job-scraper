@@ -8,7 +8,7 @@ import scala.util.{Failure, Success}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, TimerScheduler}
 import akka.actor.typed.{ActorRef, Behavior}
 import io.circe.{Encoder, Json}
-import reactivemongo.api.bson.{BSONDateTime, BSONObjectID}
+import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID}
 
 import vn.johu.messaging.RabbitMqClient
 import vn.johu.persistence.DocRepo
@@ -54,7 +54,7 @@ abstract class Scraper(
           for {
             (existingJobs, newJobs) <- partitionExistingAndNewJobs(parsingResult.jobs)
             _ <- saveParsingResults(existingJobs, newJobs, parsingResult.errors)
-            _ <- publishJobs(newJobs)
+            _ <- publishJobs(existingJobs ++ newJobs)
           } yield {
             logger.info(
               s"""Parse job source [${source.id.get.stringify}] result:
@@ -84,20 +84,37 @@ abstract class Scraper(
 
   protected def rawJobSourceName: RawJobSourceName
 
-  private def partitionExistingAndNewJobs(jobs: List[ScrapedJob]): Future[(List[ScrapedJob], List[ScrapedJob])] = {
-    if (jobs.isEmpty) {
+  private def partitionExistingAndNewJobs(scrapedJobs: List[ScrapedJob]): Future[(List[ScrapedJob], List[ScrapedJob])] = {
+    if (scrapedJobs.isEmpty) {
       Future.successful((Nil, Nil))
     } else {
       for {
-        jobsInDb <- DocRepo.findJobs(jobs.map(_.url).toSet, rawJobSourceName, Set(ScrapedJob.Fields.url))
+        jobsInDb <- DocRepo.findJobs(
+          jobUrls = scrapedJobs.map(_.url).toSet,
+          rawJobSourceName = rawJobSourceName,
+          fields = Set(ScrapedJob.Fields.url, ScrapedJob.Fields.postingDate)
+        )
       } yield {
         val jobsInDbByUrl = jobsInDb.map(j => j.getAsOpt[String](ScrapedJob.Fields.url).get -> j).toMap
-        val (existingJobs, newJobs) = jobs.partition(j => jobsInDbByUrl.contains(j.url))
+        val (existingJobs, newJobs) = scrapedJobs.partition(isDuplicatedWithExistingJob(jobsInDbByUrl, _))
         val existingJobsWithIds = existingJobs.map { j =>
           j.copy(id = jobsInDbByUrl(j.url).getAsOpt[BSONObjectID](ScrapedJob.Fields.id))
         }
         (existingJobsWithIds, newJobs)
       }
+    }
+  }
+
+  private def isDuplicatedWithExistingJob(
+    jobsInDbByUrl: Map[String, BSONDocument],
+    scrapedJob: ScrapedJob
+  ): Boolean = {
+    jobsInDbByUrl.get(scrapedJob.url) match {
+      case Some(jobInDbWithSameUrl) =>
+        val otherPostingDateOpt = jobInDbWithSameUrl.getAsOpt[BSONDateTime](ScrapedJob.Fields.url)
+        otherPostingDateOpt.fold(false)(DateUtils.isSameDate(_, scrapedJob.postingDate))
+      case None =>
+        false
     }
   }
 
@@ -128,7 +145,7 @@ abstract class Scraper(
           (existingJobs, newJobs) <- partitionExistingAndNewJobs(parsingResult.jobs)
           isDone <- Future.successful(isScrapingDone(req.startPage, req.endPage, newJobs))
           _ <- saveParsingResults(existingJobs, newJobs, parsingResult.errors)
-          _ <- publishJobs(newJobs)
+          _ <- publishJobs(existingJobs ++ newJobs)
         } yield {
           logger.info(s"Scrape result: nNewJobs=${newJobs.size}, nErrors=${parsingResult.errors.size}")
           (isDone, rawJobSource, PageScrapingResult(existingJobs = existingJobs, newJobs = newJobs, errors = parsingResult.errors))
