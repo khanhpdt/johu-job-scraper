@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"johu-job-scraper.scraped_job_details"}],"uuid":"3f3e720ee83e4492ad76a94c7ec97769"}
