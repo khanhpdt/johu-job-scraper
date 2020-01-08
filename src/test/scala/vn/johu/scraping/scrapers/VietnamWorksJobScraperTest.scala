@@ -20,7 +20,7 @@ class VietnamWorksJobScraperTest extends ScraperTestFixture {
     scraper = spawn[Scraper.Command](VietnamWorksJobScraper(HttpClientMock(responseMocks)))
     val probe = createTestProbe[ScrapePagesResult]()
 
-    scraper ! Scraper.ScrapePages(replyTo = probe.ref)
+    scraper ! Scraper.ScrapePages(replyTo = probe.ref, endPage = Some(1))
 
     val response = probe.receiveMessage()
     response.startPage shouldBe 1
@@ -36,7 +36,7 @@ class VietnamWorksJobScraperTest extends ScraperTestFixture {
     scraper = spawn[Scraper.Command](VietnamWorksJobScraper(HttpClientMock(responseMocks)))
     val probe = createTestProbe[ScrapePagesResult]()
 
-    scraper ! Scraper.ScrapePages(replyTo = probe.ref)
+    scraper ! Scraper.ScrapePages(replyTo = probe.ref, endPage = Some(1))
 
     val response = probe.receiveMessage()
     response.startPage shouldBe 1
@@ -62,7 +62,7 @@ class VietnamWorksJobScraperTest extends ScraperTestFixture {
     scraper = spawn[Scraper.Command](VietnamWorksJobScraper(HttpClientMock(responseMocks)))
     val probe = createTestProbe[ScrapePagesResult]()
 
-    scraper ! Scraper.ScrapePages(replyTo = probe.ref)
+    scraper ! Scraper.ScrapePages(replyTo = probe.ref, endPage = Some(1))
 
     val existingJob = probe.awaitAssert {
       val jobs = Await.result(DocRepo.findAllJobs(), 100.milliseconds)
@@ -71,7 +71,7 @@ class VietnamWorksJobScraperTest extends ScraperTestFixture {
     }
 
     // next scraping
-    scraper ! Scraper.ScrapePages(replyTo = probe.ref)
+    scraper ! Scraper.ScrapePages(replyTo = probe.ref, endPage = Some(1))
 
     probe.awaitAssert {
       val jobs = Await.result(DocRepo.findAllJobs(), 100.milliseconds)

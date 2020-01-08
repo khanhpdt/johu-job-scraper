@@ -1,7 +1,6 @@
 package vn.johu.utils
 
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.time.{Instant, LocalDateTime, ZoneId}
 import scala.util.{Failure, Success, Try}
 
@@ -34,7 +33,7 @@ object DateUtils extends Logging {
   }
 
   def isSameDate(d1: BSONDateTime, d2: BSONDateTime): Boolean = {
-    toDateTime(d1).truncatedTo(ChronoUnit.DAYS).isEqual(toDateTime(d2))
+    toDateTime(d1).toLocalDate.isEqual(toDateTime(d2).toLocalDate)
   }
 
 }

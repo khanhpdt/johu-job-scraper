@@ -111,7 +111,7 @@ abstract class Scraper(
   ): Boolean = {
     jobsInDbByUrl.get(scrapedJob.url) match {
       case Some(jobInDbWithSameUrl) =>
-        val otherPostingDateOpt = jobInDbWithSameUrl.getAsOpt[BSONDateTime](ScrapedJob.Fields.url)
+        val otherPostingDateOpt = jobInDbWithSameUrl.getAsOpt[BSONDateTime](ScrapedJob.Fields.postingDate)
         otherPostingDateOpt.fold(false)(DateUtils.isSameDate(_, scrapedJob.postingDate))
       case None =>
         false
