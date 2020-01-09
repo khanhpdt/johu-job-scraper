@@ -4,7 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import reactivemongo.api.Cursor
 import reactivemongo.api.bson.{BSONDateTime, BSONDocument, BSONObjectID, ElementProducer, document}
-import reactivemongo.api.commands.UpdateWriteResult
+import reactivemongo.api.commands.{MultiBulkWriteResult, WriteError, WriteResult}
 
 import vn.johu.scraping.models.RawJobSourceName.RawJobSourceName
 import vn.johu.scraping.models.{JobParsingError, JobScrapingHistory, RawJobSource, ScrapedJob}
@@ -16,13 +16,40 @@ object DocRepo {
     if (jobs.isEmpty) {
       Future.successful(Nil)
     } else {
-      MongoDb.scrapedJobColl.flatMap { coll =>
+      val insertResultF = MongoDb.scrapedJobColl.flatMap { coll =>
         val jobsToInsert = jobs.map { j =>
           val now = BSONDateTime(DateUtils.nowMillis())
           setTechnicalFields(j, createdTs = Some(now), modifiedTs = Some(now))
         }
-        coll.insert(ordered = false).many(jobsToInsert).map(_ => jobsToInsert)
+        coll.insert(ordered = false).many(jobsToInsert)
       }
+
+      convertBulkWriteResultToFuture(insertResultF, jobs)
+    }
+  }
+
+  private def convertBulkWriteResultToFuture[T](
+    writeResultF: Future[MultiBulkWriteResult],
+    successfulData: => T
+  )(implicit ec: ExecutionContext): Future[T] = {
+    writeResultF.flatMap(wr => convertWriteErrorsToFuture(wr.writeErrors, successfulData))
+  }
+
+  private def convertWriteResultToFuture[T](
+    writeResultF: Future[WriteResult],
+    successfulData: => T
+  )(implicit ec: ExecutionContext): Future[T] = {
+    writeResultF.flatMap(wr => convertWriteErrorsToFuture(wr.writeErrors, successfulData))
+  }
+
+  private def convertWriteErrorsToFuture[T](
+    writeErrors: Seq[WriteError],
+    successfulData: => T
+  )(implicit ec: ExecutionContext): Future[T] = {
+    if (writeErrors.nonEmpty) {
+      Future.failed(new IllegalStateException(s"Error when inserting jobs: ${writeErrors.mkString(",")}"))
+    } else {
+      Future.successful(successfulData)
     }
   }
 
@@ -74,7 +101,8 @@ object DocRepo {
         })
         updates.flatMap(updateBuilder.many)
       }
-      updateResultF.map(_ => ())
+
+      convertBulkWriteResultToFuture(updateResultF, ())
     }
   }
 
@@ -123,13 +151,14 @@ object DocRepo {
     }
   }
 
-  def insertErrors(errors: List[JobParsingError])(implicit ec: ExecutionContext): Future[List[JobParsingError]] = {
+  def insertJobParsingErrors(errors: List[JobParsingError])(implicit ec: ExecutionContext): Future[List[JobParsingError]] = {
     if (errors.isEmpty) {
       Future.successful(Nil)
     } else {
-      MongoDb.jobParsingErrorColl.flatMap { coll =>
-        coll.insert(ordered = false).many(errors).map(_ => errors)
+      val insertResultF = MongoDb.jobParsingErrorColl.flatMap { coll =>
+        coll.insert(ordered = false).many(errors)
       }
+      convertBulkWriteResultToFuture(insertResultF, errors)
     }
   }
 
@@ -157,31 +186,35 @@ object DocRepo {
     page: Int,
     content: String
   )(implicit ec: ExecutionContext): Future[RawJobSource] = {
-    MongoDb.rawJobSourceColl.flatMap { coll =>
-      val source = RawJobSource(
-        id = Some(BSONObjectID.generate),
-        page = page,
-        sourceName = rawJobSourceName,
-        content = content,
-        scrapingTs = BSONDateTime(DateUtils.nowMillis())
-      )
-      coll.insert(ordered = false).one[RawJobSource](source).map(_ => source)
+    val source = RawJobSource(
+      id = Some(BSONObjectID.generate),
+      page = page,
+      sourceName = rawJobSourceName,
+      content = content,
+      scrapingTs = BSONDateTime(DateUtils.nowMillis())
+    )
+    val insertResultF = MongoDb.rawJobSourceColl.flatMap { coll =>
+      coll.insert(ordered = false).one[RawJobSource](source)
     }
+
+    convertWriteResultToFuture(insertResultF, source)
   }
 
   def insertScrapingHistory(hist: JobScrapingHistory)(implicit ec: ExecutionContext): Future[JobScrapingHistory] = {
-    MongoDb.jobScrapingHistoryColl.flatMap { coll =>
-      coll.insert(ordered = false).one(hist).map(_ => hist)
+    val insertResult = MongoDb.jobScrapingHistoryColl.flatMap { coll =>
+      coll.insert(ordered = false).one(hist)
     }
+    convertWriteResultToFuture(insertResult, hist)
   }
 
-  def saveScrapingHistory(hist: JobScrapingHistory)(implicit ec: ExecutionContext): Future[UpdateWriteResult] = {
-    MongoDb.jobScrapingHistoryColl.flatMap { coll =>
+  def saveScrapingHistory(hist: JobScrapingHistory)(implicit ec: ExecutionContext): Future[Unit] = {
+    val updateResultF = MongoDb.jobScrapingHistoryColl.flatMap { coll =>
       coll.update(ordered = false).one(
         q = document(JobScrapingHistory.Fields.id -> hist.id),
         u = hist
       )
     }
+    convertWriteResultToFuture(updateResultF, ())
   }
 
 }

@@ -128,7 +128,7 @@ abstract class Scraper(
       List(
         DocRepo.updateJobs(existingJobs),
         DocRepo.insertJobs(newJobs),
-        DocRepo.insertErrors(errors)
+        DocRepo.insertJobParsingErrors(errors)
       )
     ).map(_ => ())
   }
