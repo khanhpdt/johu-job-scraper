@@ -98,7 +98,7 @@ abstract class Scraper(
           DateUtils.isAfterAtLeast(j.postingDate, jobsInDbByUrl(j.url).postingDate, 30)
         }
 
-        val existingJobs = oldJobsRepostedWithinSameMonth.map { j =>
+        val mergedExistingJobs = oldJobsRepostedWithinSameMonth.map { j =>
           val jobInDb = jobsInDbByUrl(j.url)
           j.copy(
             id = jobInDb.id,
@@ -107,14 +107,14 @@ abstract class Scraper(
           )
         }
 
-        lazy val hasChangeInExistingJobs = existingJobs.exists { j =>
+        lazy val hasChangeInExistingJobs = mergedExistingJobs.exists { j =>
           !DateUtils.isSameDate(j.postingDate, jobsInDbByUrl(j.url).postingDate)
         }
 
         val foundNewJobInfo = newJobs.nonEmpty || oldJobsRepostedDifferentMonth.nonEmpty || hasChangeInExistingJobs
 
         // consider old jobs re-posted in the next month as new jobs
-        (foundNewJobInfo, existingJobs, newJobs ++ oldJobsRepostedDifferentMonth)
+        (foundNewJobInfo, mergedExistingJobs, newJobs ++ oldJobsRepostedDifferentMonth)
       }
     }
   }
