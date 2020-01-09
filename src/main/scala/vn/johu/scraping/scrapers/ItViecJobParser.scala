@@ -68,8 +68,8 @@ object ItViecJobParser extends JobParser {
         case _ => None
       }
       parsedDate.map { pd =>
-        val currentTime = DateUtils.now()
-        BSONDateTime(DateUtils.toMillis(currentTime.minus(pd._1, pd._2)))
+        val scrapingTime = DateUtils.toDateTime(rawJobSource.scrapingTs)
+        BSONDateTime(DateUtils.toMillis(scrapingTime.minus(pd._1, pd._2)))
       }
     }
 
