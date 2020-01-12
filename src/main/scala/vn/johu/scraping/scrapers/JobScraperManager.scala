@@ -35,13 +35,13 @@ class JobScraperManager(
         init()
         this
       case ScrapeAllSources =>
-        scrapeFromAllSources()
+        scrapeFromAllSources(None, None)
         this
       case ParseRawJobSources(rawJobSourceName, start, end) =>
         parseLocalJobSources(rawJobSourceName, start, end)
         this
-      case ScrapeFromSources(jobSources, endPage) =>
-        scrapeFromSources(jobSources, endPage)
+      case ScrapeFromSources(jobSources, startPage, endPage) =>
+        scrapeFromSources(jobSources, startPage, endPage)
         this
       case ScrapeFromSourcesResult(result) =>
         if (getConfig.getBoolean(Configs.ScrapingJobDetailsAfterScrapingJobsEnabled)) {
@@ -100,14 +100,22 @@ class JobScraperManager(
     }
   }
 
-  private def scrapeFromSources(jobSources: List[RawJobSourceName.RawJobSourceName], endPage: Option[Int]): Unit = {
+  private def scrapeFromSources(
+    jobSources: List[RawJobSourceName.RawJobSourceName],
+    startPage: Option[Int],
+    endPage: Option[Int]
+  ): Unit = {
     if (jobSources.isEmpty) {
       logger.info("No sources passed. Run all scrapers.")
-      scrapeFromAllSources()
+      scrapeFromAllSources(startPage, endPage)
     } else {
       logger.info(s"Running scrapers from sources: ${jobSources.mkString(",")}")
       jobSources.foreach { source =>
-        getJobScraper(source) ! Scraper.ScrapePages(endPage = endPage, replyTo = scrapePagesResultAdapter)
+        getJobScraper(source) ! Scraper.ScrapePages(
+          startPage = startPage.getOrElse(1),
+          endPage = endPage,
+          replyTo = scrapePagesResultAdapter
+        )
       }
     }
   }
@@ -121,10 +129,10 @@ class JobScraperManager(
     jobScrapers.getOrElse(jobSource, throw new IllegalArgumentException(s"Scraper for source $jobSource not supported yet."))
   }
 
-  private def scrapeFromAllSources(): Unit = {
+  private def scrapeFromAllSources(startPage: Option[Int], endPage: Option[Int]): Unit = {
     logger.info(s"Running ${jobScrapers.size} scrapers: ${jobScrapers.keys.mkString(", ")}")
     jobScrapers.foreach { scraper =>
-      scraper._2 ! Scraper.ScrapePages(replyTo = scrapePagesResultAdapter)
+      scraper._2 ! Scraper.ScrapePages(startPage = startPage.getOrElse(1), endPage = endPage, replyTo = scrapePagesResultAdapter)
     }
   }
 
@@ -191,7 +199,11 @@ object JobScraperManager {
 
   case object ScrapeAllSources extends Command
 
-  case class ScrapeFromSources(jobSources: List[RawJobSourceName], endPage: Option[Int] = None) extends Command
+  case class ScrapeFromSources(
+    jobSources: List[RawJobSourceName],
+    startPage: Option[Int] = None,
+    endPage: Option[Int] = None
+  ) extends Command
 
   case class ScrapeFromSourcesResult(scrapeResult: ScrapePagesResult) extends Command
 
