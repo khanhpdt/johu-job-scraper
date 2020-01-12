@@ -6,9 +6,14 @@ import scala.util.{Failure, Success, Try}
 
 trait TryHelper extends Logging {
 
-  def getTryResult[T](f: => Try[T], logError: Throwable => Unit): T = {
+  def tryWithLogging[T](
+    f: => Try[T],
+    logSuccess: => Unit,
+    logError: Throwable => Unit
+  ): T = {
     f match {
       case Success(value) =>
+        logSuccess
         value
       case Failure(ex) =>
         logError(ex)

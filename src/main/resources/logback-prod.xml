@@ -12,7 +12,7 @@
             <totalSizeCap>3GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>[%date{ISO8601}] [%level] [%logger] [%thread] - %msg%n</pattern>
+            <pattern>[%date{ISO8601}] [%level] [%thread] [%logger{1}] %msg%n</pattern>
         </encoder>
     </appender>
 

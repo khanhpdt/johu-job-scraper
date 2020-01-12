@@ -30,14 +30,16 @@ object MongoDb extends TryHelper with Logging {
     val hostUrl = config.getString(Configs.MongoHostUrl)
     dbName = config.getString(Configs.MongoDbName)
     val mongoUri = s"mongodb://$hostUrl/$dbName"
-    val parsedUri = getTryResult(
+    val parsedUri = tryWithLogging(
       MongoConnection.parseURI(mongoUri),
+      logger.info(s"Successfully parsed mongodb uri: $mongoUri"),
       logger.error(s"Could not parse mongo URI: $mongoUri", _)
     )
 
     val driver = AsyncDriver()
-    mongoConnection = getTryResult(
+    mongoConnection = tryWithLogging(
       Try(Await.result(driver.connect(parsedUri), 3.minutes)),
+      logger.info(s"Connected to mongodb at $parsedUri"),
       logger.error(s"Could not connect to MongoDb using URI: $parsedUri", _)
     )
 

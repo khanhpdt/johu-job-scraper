@@ -21,14 +21,17 @@ object RabbitMqClient extends Logging with TryHelper {
   private var routingKey: String = _
 
   def init(config: Config): Unit = {
+    val host = config.getString(Configs.RabbitMqHost)
+    val port = config.getInt(Configs.RabbitMqPort)
+
     val factory = new ConnectionFactory
     factory.setUsername(config.getString(Configs.RabbitMqUsername))
     factory.setPassword(config.getString(Configs.RabbitMqPassword))
-    factory.setHost(config.getString(Configs.RabbitMqHost))
-    factory.setPort(config.getInt(Configs.RabbitMqPort))
+    factory.setHost(host)
+    factory.setPort(port)
     factory.setAutomaticRecoveryEnabled(true)
 
-    connection = retry(3, Some(10.seconds), Some("Connect to RabbitMQ")) {
+    connection = retry(3, Some(10.seconds), Some(s"Connect to RabbitMQ at $host:$port")) {
       factory.newConnection
     }
     channel = connection.createChannel
